@@ -1,5 +1,5 @@
 class Stage {
     static sprite(sprite) {
-        app.stage.addChild(sprite.sprite);
+        window.pixiApp.stage.addChild(sprite.sprite);
     }
 }
