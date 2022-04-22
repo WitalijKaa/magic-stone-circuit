@@ -31,4 +31,22 @@ class Scene {
     static resize() {
         Scene.resizeCallbacks.forEach(callback => callback(Scene.widthPx, Scene.heightPx));
     }
+
+    static controls = {
+        pen: null,
+    }
+
+    // todo
+    static tempButton;
+    static setTempButton() {
+        if (Scene.tempButton) {
+            Scene.tempButton.destroy();
+        }
+        if (!Scene.controls.pen) { Scene.tempButton = null; return; }
+
+        Scene.tempButton = FactoryGraphics.spriteByString(TT_SCHEME[Scene.controls.pen])
+        Scene.tempButton.width = 100;
+        Scene.tempButton.height = 100;
+        window.pixiApp.stage.addChild(Scene.tempButton);
+    }
 }

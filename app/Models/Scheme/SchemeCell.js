@@ -36,7 +36,7 @@ class SchemeCell extends Sprite {
     }
 
     handleClick() {
-        this.changeType(ST_STONE_VIOLET);
+        this.changeType(Scene.controls.pen);
     }
 
     changeType(type, changeScheme = true) {
@@ -44,13 +44,13 @@ class SchemeCell extends Sprite {
         if (type === this.grid.scheme.getCell(...this.schemePosition)) { return; }
 
         if (this.content) {
-            this.sprite.removeChildAt(0);
+            this.sprite.removeChildAt(0); // todo scene
             this.content.destroy();
             this.content = null;
         }
         if (type) {
             this.content = FactoryGraphics.spriteByString(TT_SCHEME[type]);
-            this.sprite.addChildAt(this.content, 0);
+            this.sprite.addChildAt(this.content, 0); // todo scene
         }
 
         if (changeScheme) {
