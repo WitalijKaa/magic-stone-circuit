@@ -1,13 +1,16 @@
 class Sprite {
-    static theName(name) { return new Sprite(name); }
 
-    constructor(name) {
-        this.name = name;
+    sprite = null;
+
+    constructor(config) {
+        this.name = config.name;
+        this.initTexture(config.texture);
     }
 
-    texture(texture) {
-        this.sprite = new PIXI.Sprite(Texture.db(texture).current);
-        Stage.sprite(this);
+    initTexture(texture) {
+        if (typeof texture == 'string') {
+            this.sprite = FactoryGraphics.spriteByString(texture);
+        }
         return this;
     }
 }

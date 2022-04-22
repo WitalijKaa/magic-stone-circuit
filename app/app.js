@@ -6,7 +6,11 @@ window.pixiApp = new PIXI.Application({
 });
 window.pixiAppContainer.appendChild(window.pixiApp.view);
 
-SCENE.menuOfObjects.content.buttonSource.model.theName('buttonSource').texture(SCENE.menuOfObjects.content.buttonSource.sprite);
+SCENE.map((sceneModel) => {
+    Scene.addModel(
+        Factory.sceneModel(sceneModel)
+    );
+});
 
 function mainContainerResize() {
     window.pixiApp.renderer.resize(window.pixiAppContainer.offsetWidth, window.pixiAppContainer.offsetHeight);
@@ -15,4 +19,3 @@ function mainContainerResize() {
 window.addEventListener('resize', function() {
     mainContainerResize();
 });
-
