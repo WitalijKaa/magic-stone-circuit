@@ -16,8 +16,8 @@ class MouseDrag {
         this.model.sprite.on('pointermove', (event) => { this.handleMove(event) });
         this.model.sprite.on('pointerup', (event) => { this.handleMoveEnd(event) });
 
-        for (let methodName in config) {
-            this.events[config[methodName]] = (...args) => { this.model[methodName](...args); }
+        for (let eventName in config) {
+            this.events[eventName] = (...args) => { this.model[config[eventName]](...args); }
         }
     }
 

@@ -1,17 +1,19 @@
 class SchemeGrid extends Sprite {
 
-    static GRID_OFFSET = 2; // to be little outsize visible screen area
+    static GRID_OFFSET = 2; // to be little outsize of the visible screen area
 
     scheme;
-    cells = [];
     visibleCells = [[]];
 
-    offsetX = 0; offsetY = 0;
+    offsetX = 0; offsetY = 0; // px offset on scroll
+    dragX; dragY;
 
     needToResize = true;
 
     constructor(config) {
         super(config);
+
+        this.dragX = this.dragY = Scheme.SIZE_RADIUS;
 
         this.sprite.interactive = true;
         this.sprite.hitArea = new PIXI.Rectangle(0, 0, 100000, 100000);
@@ -19,7 +21,7 @@ class SchemeGrid extends Sprite {
         this.scheme = Scheme.getNamedScheme(this.name);
         this.createVisibleGrid();
 
-        new MouseDrag(this, { 'dragGrid': MouseDrag.DRAGGING_RIGHT });
+        new MouseDrag(this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGrid' });
     }
 
     createVisibleGrid() {
@@ -38,7 +40,7 @@ class SchemeGrid extends Sprite {
     }
 
     createVisibleCell(xCell, yCell) {
-        this.configParams.cell.name = 'x' + xCell + 'y' + yCell;
+        this.configParams.cell.name = xCell + '|' + yCell;
         let cellModel = Factory.sceneModel(this.configParams.cell)
         cellModel.init(this);
         cellModel.setSize(this.cellPxSize);
@@ -88,17 +90,25 @@ class SchemeGrid extends Sprite {
         }
     }
 
-    execForVisibleCells(methods, params) {
+    execForVisibleCells(methods, params = [], reverseMode = false) {
         if ('string' == typeof methods) {
             methods = [methods];
         }
-        if (!params) {
-            params = {};
+        if (!reverseMode) {
+            for (let xCell = 0; xCell < this.visibleCells.length; xCell++) {
+                for (let yCell = 0; yCell < this.visibleCells[xCell].length; yCell++) {
+                    for (let ix = 0; ix < methods.length; ix++) {
+                        this.visibleCells[xCell][yCell][methods[ix]](...params);
+                    }
+                }
+            }
         }
-        for (let xCell = 0; xCell < this.visibleCells.length; xCell++) {
-            for (let yCell = 0; yCell < this.visibleCells[xCell].length; yCell++) {
-                for (let ix = 0; ix < methods.length; ix++) {
-                    this.visibleCells[xCell][yCell][methods[ix]](params);
+        else {
+            for (let xCell = this.visibleCells.length - 1; xCell >= 0; xCell--) {
+                for (let yCell = this.visibleCells[xCell].length - 1; yCell >= 0; yCell--) {
+                    for (let ix = 0; ix < methods.length; ix++) {
+                        this.visibleCells[xCell][yCell][methods[ix]](...params);
+                    }
                 }
             }
         }
@@ -126,7 +136,24 @@ class SchemeGrid extends Sprite {
 
     visibleCellsOffset(x, y) {
         if (!x && !y) { return; }
-        // console.log(x,y)
+
+        if (x) {
+            this.execForVisibleCells(
+                (x > 0) ? 'moveLeft' : 'moveRight',
+                [false],
+                !(x > 0),
+            );
+        }
+        this.dragX += x; // todo out of diameter
+
+        if (y) {
+            this.execForVisibleCells(
+                (y > 0) ? 'moveUp' : 'moveDown',
+                [false],
+                !(y > 0),
+            );
+        }
+        this.dragY += y; // todo out of diameter
     }
 
     get visibleCellsAreaSize() {

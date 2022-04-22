@@ -36,7 +36,78 @@ class SchemeCell extends Sprite {
     }
 
     handleClick() {
-        this.content = FactoryGraphics.spriteByString(TT.stoneV);
-        this.sprite.addChild(this.content);
+        this.changeType(ST_STONE_VIOLET);
+    }
+
+    changeType(type, changeScheme = true) {
+        if (!type && !this.content) { return; }
+        if (type === this.grid.scheme.getCell(...this.schemePosition)) { return; }
+
+        if (this.content) {
+            this.sprite.removeChildAt(0);
+            this.content.destroy();
+            this.content = null;
+        }
+        if (type) {
+            this.content = FactoryGraphics.spriteByString(TT_SCHEME[type]);
+            this.sprite.addChildAt(this.content, 0);
+        }
+
+        if (changeScheme) {
+            this.grid.scheme.changeCell(type, ...this.schemePosition);
+        }
+    }
+
+    moveLeft(changeScheme = true) {
+        let poss = this.visiblePosition;
+        if (poss[0]) {
+            this.grid.visibleCells[poss[0] - 1][poss[1]].changeType(this.type, changeScheme)
+        }
+        if (!poss[0] && !changeScheme) {
+            this.changeType(null, changeScheme);
+        }
+        if (changeScheme) { this.changeType(null); }
+    }
+    moveRight(changeScheme = true) {
+        let poss = this.visiblePosition;
+        if (poss[0] < this.grid.visibleCells.length - 1) {
+            this.grid.visibleCells[poss[0] + 1][poss[1]].changeType(this.type, changeScheme)
+        }
+        if (poss[0] >= this.grid.visibleCells.length - 1 && !changeScheme) {
+            this.changeType(null, changeScheme);
+        }
+        if (changeScheme) { this.changeType(null); }
+    }
+    moveUp(changeScheme = true) {
+        let poss = this.visiblePosition;
+        if (poss[1]) {
+            this.grid.visibleCells[poss[0]][poss[1] - 1].changeType(this.type, changeScheme)
+        }
+        if (!poss[1] && !changeScheme) {
+            this.changeType(null, changeScheme);
+        }
+        if (changeScheme) { this.changeType(null); }
+    }
+    moveDown(changeScheme = true) {
+        let poss = this.visiblePosition;
+        if (poss[1] < this.grid.visibleCells[0].length - 1) {
+            this.grid.visibleCells[poss[0]][poss[1] + 1].changeType(this.type, changeScheme)
+        }
+        if (poss[1] >= this.grid.visibleCells[0].length - 1 && !changeScheme) {
+            this.changeType(null, changeScheme);
+        }
+        if (changeScheme) { this.changeType(null); }
+    }
+
+    get visiblePosition() {
+        return [this.gridX + SchemeGrid.GRID_OFFSET, this.gridY + SchemeGrid.GRID_OFFSET];
+    }
+
+    get schemePosition() {
+        return [this.grid.dragX + this.gridX, this.grid.dragY + this.gridY];
+    }
+
+    get type() {
+        return this.grid.scheme.getCell(...this.schemePosition);
     }
 }
