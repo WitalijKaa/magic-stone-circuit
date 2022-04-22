@@ -15,6 +15,7 @@ SCENE.map((sceneModelConfig) => {
 
 function mainContainerResize() {
     window.pixiApp.renderer.resize(window.pixiAppContainer.offsetWidth, window.pixiAppContainer.offsetHeight);
+    Scene.resize();
 }
 
 window.addEventListener('resize', function() {

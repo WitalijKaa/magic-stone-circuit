@@ -23,8 +23,8 @@ class SchemeCell extends Sprite {
     }
 
     setPosition(gridX, gridY) {
-        this.gridX = gridX;
-        this.gridY = gridY;
+        this.gridX = gridX - SchemeGrid.GRID_OFFSET;
+        this.gridY = gridY - SchemeGrid.GRID_OFFSET;
         this.updatePosition();
         return this;
     }

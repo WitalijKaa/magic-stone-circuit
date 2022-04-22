@@ -20,4 +20,6 @@ class Sprite {
         }
         return this;
     }
+
+    get resizeCallbacks() { return []; }
 }

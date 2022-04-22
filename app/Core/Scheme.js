@@ -16,6 +16,6 @@ class Scheme {
     }
 
     get ratio() {
-        return devicePixelRatio;
+        return Scene.deviceRation;
     }
 }
