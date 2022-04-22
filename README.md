@@ -12,3 +12,4 @@ I decided to try to make a computer game about logic circuits. It will have othe
 
 - Task 1: game scene should autoscale to browser size.
 - Task 2: create a gamescene with a coordinate grid; place a magic stone by mouse click.
+- Task 3: resize grid; move grid by mouse.
