@@ -1,3 +1,4 @@
+document.addEventListener('contextmenu', event => event.preventDefault());
 window.pixiAppContainer = document.getElementById('app');
 
 window.pixiApp = new PIXI.Application({
@@ -6,9 +7,9 @@ window.pixiApp = new PIXI.Application({
 });
 window.pixiAppContainer.appendChild(window.pixiApp.view);
 
-SCENE.map((sceneModel) => {
+SCENE.map((sceneModelConfig) => {
     Scene.addModel(
-        Factory.sceneModel(sceneModel)
+        Factory.sceneModel(sceneModelConfig)
     );
 });
 

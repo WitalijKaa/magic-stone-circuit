@@ -1,6 +1,9 @@
 class SchemeCell extends Sprite {
 
     content = null;
+    grid = null;
+
+    gridX; gridY;
 
     constructor(config) {
         super(config);
@@ -8,10 +11,28 @@ class SchemeCell extends Sprite {
         this.sprite.on('click', () => { this.handleClick() });
     }
 
-    setVisibleCellPosition(sizePx, gridX, gridY) {
-        this.sprite.width = this.sprite.height = sizePx;
-        this.sprite.x = gridX * sizePx;
-        this.sprite.y = gridY * sizePx;
+    init (grid) {
+        this.grid = grid;
+        return this;
+    }
+
+    setSize(px, updatePosition = true) {
+        this.sprite.width = this.sprite.height = px;
+        if (updatePosition) { this.updatePosition(); }
+        return this;
+    }
+
+    setPosition(gridX, gridY) {
+        this.gridX = gridX;
+        this.gridY = gridY;
+        this.updatePosition();
+        return this;
+    }
+
+    updatePosition() {
+        this.sprite.x = this.gridX * this.sprite.width + this.grid.offsetX;
+        this.sprite.y = this.gridY * this.sprite.height + this.grid.offsetY;
+        return this;
     }
 
     handleClick() {
