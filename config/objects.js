@@ -2,6 +2,12 @@ const SCENE = [
     {
         model: SchemeGrid,
         name: 'mainGrid',
-        texture: TT.cell,
+        params: {
+            cellSizePx: 40, // size of cell without zoom
+            cell: {
+                model: SchemeCell,
+                texture: TT.cell,
+            },
+        }
     },
 ];
