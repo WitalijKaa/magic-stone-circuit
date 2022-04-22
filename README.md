@@ -14,3 +14,7 @@ I decided to try to make a computer game about logic circuits. It will have othe
 - Task 2: create a gamescene with a coordinate grid; place a magic stone by mouse click.
 - Task 3: resize grid; move grid by mouse.
 - Task 4: stones should be on scheme and save position while grid is moving.
+- Task 5: buttons to change stone colors; help note; energy stone.
+- Task 6: transport roads.
+- Task 7: coloring roads with energy.
+- Task 8: sleepy road may awake.
