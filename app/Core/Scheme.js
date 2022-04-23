@@ -34,20 +34,57 @@ class Scheme {
         return Scene.deviceRation;
     }
 
-    changeCell(type, x, y) {
-        if (type) {
-            if (!this.scheme[x]) { this.scheme[x] = {}; }
-            this.scheme[x][y] = type;
-        }
-        else { this.deleteCell(x, y); }
+    createCell(x, y) {
+        if (!this.scheme[x]) { this.scheme[x] = {}; }
+        this.scheme[x][y] = { };
+        return this.scheme[x][y];
     }
+
+    changeCellContent(type, x, y) {
+        if (type) {
+            let cell = this.createCell(x, y);
+            cell.content = type;
+        }
+        else { this.deleteCellContent(x, y); }
+    }
+    changeCellRoad(type, x, y) {
+        if (type) {
+            let cell = this.createCell(x, y);
+            cell.road = type;
+        }
+        else { this.deleteCellRoad(x, y); }
+    }
+
     deleteCell(x, y) {
         if (!this.scheme[x]) { return; }
         this.scheme[x][y] = null;
     }
+    deleteCellContent(x, y) {
+        if (this.scheme[x] && this.scheme[x][y]) {
+            this.scheme[x][y].content = null;
+            this.isCellEmpty(x, y);
+        }
+    }
+    deleteCellRoad(x, y) {
+        if (this.scheme[x] && this.scheme[x][y]) {
+            this.scheme[x][y].road = null;
+            this.isCellEmpty(x, y);
+        }
+    }
 
     getCell(x, y) {
-        if (this.scheme[x]) { return this.scheme[x][y]; }
-        return null;
+        if (this.scheme[x] && this.scheme[x][y]) { return this.scheme[x][y]; }
+        return {};
+    }
+
+    isCellEmpty (x, y) {
+        if (!this.scheme[x] || !this.scheme[x][y]) {
+            return true;
+        }
+        if (!this.scheme[x][y].content && !this.scheme[x][y].road) {
+            this.scheme[x][y] = null;
+            return true;
+        }
+        return false;
     }
 }

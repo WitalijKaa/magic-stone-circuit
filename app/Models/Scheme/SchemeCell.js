@@ -1,6 +1,7 @@
 class SchemeCell extends Sprite {
 
     content = null;
+    road = null;
     grid = null;
 
     gridX; gridY;
@@ -9,6 +10,7 @@ class SchemeCell extends Sprite {
         super(config);
         this.sprite.interactive = true;
         this.sprite.on('click', () => { this.handleClick() });
+        new MouseClick(this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
     }
 
     init (grid) {
@@ -35,27 +37,53 @@ class SchemeCell extends Sprite {
         return this;
     }
 
-    handleClick() {
-        this.changeType(Scene.controls.pen);
-    }
+    handleClick() { this.changeType(Scene.controls.pen); }
+    handleRightClick() { this.changeRoad(); }
 
     changeType(type, changeScheme = true) {
         if (!type && !this.content) { return; }
-        if (type === this.grid.scheme.getCell(...this.schemePosition)) { return; }
+        if (type === this.grid.scheme.getCell(...this.schemePosition).content) { return; }
 
-        if (this.content) {
-            this.sprite.removeChildAt(0);
-            this.content.destroy();
-            this.content = null;
-        }
         if (type) {
-            this.content = FactoryGraphics.spriteByPathInsideParentSpriteModel(TT_SCHEME[type], this);
-            Scene.addModelToContainer({sprite: this.content}, this, 0);
+            if (!this.content) {
+                this.createContent(TT_SCHEME[type]);
+                Scene.addModelToContainer(this.content, this);
+            }
+            else {
+                this.content.changeTexture(TT_SCHEME[type], this);
+            }
         }
+        else { this.destroyChild('content'); }
 
         if (changeScheme) {
-            this.grid.scheme.changeCell(type, ...this.schemePosition);
+            this.grid.scheme.changeCellContent(type, ...this.schemePosition);
         }
+    }
+
+    changeRoad() {
+        if (!this.road) {
+            this.road = Factory.sceneModel({
+                model: SchemeRoad,
+                name: this.name + '|road',
+                cell: this,
+            });
+            Scene.addModelToContainer(this.road, this);
+            this.grid.scheme.changeCellRoad(ROAD_LIGHT, ...this.schemePosition);
+        }
+        else {
+
+        }
+    }
+
+    createContent(texturePath, param = 'content', rotation = null) {
+        this[param] = Factory.sceneModel({
+            model: Sprite,
+            name: this.name + '|' + param,
+            texture: {
+                path: texturePath,
+                parentModel: this,
+            },
+        });
     }
 
     moveLeft(changeScheme = true) {
@@ -106,8 +134,26 @@ class SchemeCell extends Sprite {
     get schemePosition() {
         return [this.grid.dragX + this.gridX, this.grid.dragY + this.gridY];
     }
+    get schemePositionLeft() {
+        let poss = this.schemePosition;
+        poss[0]--;
+        return poss
+    }
+    get schemePositionRight() {
+        let poss = this.schemePosition;
+        poss[0]++;
+        return poss
+    }get schemePositionUp() {
+        let poss = this.schemePosition;
+        poss[1]--;
+        return poss
+    }get schemePositionDown() {
+        let poss = this.schemePosition;
+        poss[1]++;
+        return poss
+    }
 
     get type() {
-        return this.grid.scheme.getCell(...this.schemePosition);
+        return this.grid.scheme.getCell(...this.schemePosition).content;
     }
 }

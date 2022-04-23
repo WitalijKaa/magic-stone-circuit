@@ -18,7 +18,35 @@ class Sprite {
         if (typeof texture == 'string') {
             this.sprite = FactoryGraphics.spriteByPath(texture);
         }
+        else if (texture) {
+            if (texture.parentModel) {
+                this.sprite = FactoryGraphics.spriteByPathInsideParentSpriteModel(
+                    texture.path,
+                    texture.parentModel,
+                    texture.rotate,
+                );
+            }
+            else {
+                this.sprite = FactoryGraphics.spriteByPath(texture.path);
+            }
+        }
         return this;
+    }
+
+    changeTexture(filePath, parentModel, rotate = null) {
+        if (!parentModel) {
+            this.sprite.texture = FactoryGraphics.textureByPath(filePath);
+        }
+        else {
+            this.sprite.texture = FactoryGraphics.textureByPathInsideParentSprite(filePath, parentModel.sprite, rotate);
+        }
+    }
+
+    destroyChild(param) {
+        if (!this[param]) { return; }
+        this.sprite.removeChild(this[param].sprite);
+        this[param].sprite.destroy();
+        this[param] = null;
     }
 
     get resizeCallbacks() { return []; }

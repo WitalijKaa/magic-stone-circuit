@@ -4,7 +4,6 @@ class FactoryGraphics {
     }
 
     static textureByPathInsideParentSprite(filePath, parentSprite, rotate = null) {
-        console.log(rotate);
         return new PIXI.Texture(
             PIXI.BaseTexture.from(filePath),
             null,
