@@ -29,6 +29,7 @@ class SchemeGrid extends Sprite {
         for (let xCell = 0; xCell < this.visibleCellsAreaSize.width; xCell++) {
             this.addCellsColumn(xCell);
         }
+        this.execForVisibleCells('initNeighbors');
     }
 
     createVisibleCellsColumn(xCell) {
@@ -47,6 +48,15 @@ class SchemeGrid extends Sprite {
         cellModel.setPosition(xCell, yCell);
         Scene.addModelToContainer(cellModel, this);
         return cellModel;
+    }
+
+    getVisibleCell(xCell, yCell) {
+        if (xCell >= 0 && xCell < this.visibleCells.length) {
+            if (yCell >= 0 && yCell < this.visibleCells[0].length) {
+                return this.visibleCells[xCell][yCell];
+            }
+        }
+        return null;
     }
 
     removeCellsRow() {
@@ -88,27 +98,21 @@ class SchemeGrid extends Sprite {
         while (this.visibleCellsAreaCurrentHeight < this.visibleCellsAreaSize.height) {
             this.addCellsRow(columnAdded);
         }
+        this.execForVisibleCells('initNeighbors');
     }
 
-    execForVisibleCells(methods, params = [], reverseMode = false) {
-        if ('string' == typeof methods) {
-            methods = [methods];
-        }
+    execForVisibleCells(method, params = [], reverseMode = false) {
         if (!reverseMode) {
             for (let xCell = 0; xCell < this.visibleCells.length; xCell++) {
                 for (let yCell = 0; yCell < this.visibleCells[xCell].length; yCell++) {
-                    for (let ix = 0; ix < methods.length; ix++) {
-                        this.visibleCells[xCell][yCell][methods[ix]](...params);
-                    }
+                    this.visibleCells[xCell][yCell][method](...params);
                 }
             }
         }
         else {
             for (let xCell = this.visibleCells.length - 1; xCell >= 0; xCell--) {
                 for (let yCell = this.visibleCells[xCell].length - 1; yCell >= 0; yCell--) {
-                    for (let ix = 0; ix < methods.length; ix++) {
-                        this.visibleCells[xCell][yCell][methods[ix]](...params);
-                    }
+                    this.visibleCells[xCell][yCell][method](...params);
                 }
             }
         }

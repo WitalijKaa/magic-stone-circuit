@@ -42,11 +42,19 @@ class Sprite {
         }
     }
 
-    destroyChild(param) {
+    destroyChild(param, ix = null) {
         if (!this[param]) { return; }
-        this.sprite.removeChild(this[param].sprite);
-        this[param].sprite.destroy();
-        this[param] = null;
+        if ('number' == typeof ix) {
+            if (!this[param][ix]) { return; }
+            this.sprite.removeChild(this[param][ix].sprite);
+            this[param][ix].sprite.destroy();
+            this[param][ix] = null;
+        }
+        else {
+            this.sprite.removeChild(this[param].sprite);
+            this[param].sprite.destroy();
+            this[param] = null;
+        }
     }
 
     get resizeCallbacks() { return []; }

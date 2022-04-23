@@ -34,6 +34,7 @@ class SchemeRoad extends Sprite {
         super(config);
         this.cell = config.cell;
         this.setLightPaths();
+        this.correctNeighborsRoads()
     }
 
     drawPath(type) {
@@ -51,15 +52,43 @@ class SchemeRoad extends Sprite {
         }
     }
 
+    removePath(type) {
+        this.destroyChild('paths', type);
+    }
+
+    refreshPaths() {
+        this.setLightPaths();
+    }
+
     setLightPaths() {
+        if (this.isEmptyAround && !this.emptyMe) { return; }
         if (this.isEmptyAround || this.isEmptyUpDown) {
             this.drawPath(ROAD_PATH_LEFT);
             this.drawPath(ROAD_PATH_RIGHT);
+            this.removePath(ROAD_PATH_UP);
+            this.removePath(ROAD_PATH_DOWN);
         }
         else if (this.isEmptyLeftRight) {
             this.drawPath(ROAD_PATH_UP);
             this.drawPath(ROAD_PATH_DOWN);
+            this.removePath(ROAD_PATH_LEFT);
+            this.removePath(ROAD_PATH_RIGHT);
         }
+        else {
+            if (!this.scheme.isCellEmpty(...this.cell.schemePositionUp)) { this.drawPath(ROAD_PATH_UP); } else { this.removePath(ROAD_PATH_UP); }
+            if (!this.scheme.isCellEmpty(...this.cell.schemePositionRight)) { this.drawPath(ROAD_PATH_RIGHT); } else { this.removePath(ROAD_PATH_RIGHT); }
+            if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown)) { this.drawPath(ROAD_PATH_DOWN); } else { this.removePath(ROAD_PATH_DOWN); }
+            if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft)) { this.drawPath(ROAD_PATH_LEFT); } else { this.removePath(ROAD_PATH_LEFT); }
+        }
+    }
+
+    correctNeighborsRoads() {
+        SIDES.map((dir) => {
+            let cell = this.cell[dir];
+            if (cell && cell.road) {
+                cell.road.refreshPaths();
+            }
+        });
     }
 
     get scheme() { return this.cell.grid.scheme; }
@@ -75,5 +104,9 @@ class SchemeRoad extends Sprite {
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown)) { count++; }
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft)) { count++; }
         return count;
+    }
+
+    get emptyMe() {
+        return !this.paths[ROAD_PATH_UP] && !this.paths[ROAD_PATH_RIGHT] && !this.paths[ROAD_PATH_DOWN] && !this.paths[ROAD_PATH_LEFT];
     }
 }

@@ -1,9 +1,16 @@
+const UP = 'Up';
+const RIGHT = 'Right';
+const DOWN = 'Down';
+const LEFT = 'Left';
+const SIDES = [UP, RIGHT, DOWN, LEFT]
+
 class SchemeCell extends Sprite {
 
     content = null;
     road = null;
     grid = null;
 
+    Up; Right; Left; Down;
     gridX; gridY;
 
     constructor(config) {
@@ -16,6 +23,12 @@ class SchemeCell extends Sprite {
     init (grid) {
         this.grid = grid;
         return this;
+    }
+
+    initNeighbors() {
+        SIDES.map((dir) => {
+            this[dir] = this.grid.getVisibleCell(...this.getVisiblePosition(dir));
+        });
     }
 
     setSize(px, updatePosition = true) {
@@ -62,16 +75,18 @@ class SchemeCell extends Sprite {
 
     changeRoad() {
         if (!this.road) {
+            this.grid.scheme.changeCellRoad(ROAD_LIGHT, ...this.schemePosition);
             this.road = Factory.sceneModel({
                 model: SchemeRoad,
                 name: this.name + '|road',
                 cell: this,
             });
             Scene.addModelToContainer(this.road, this);
-            this.grid.scheme.changeCellRoad(ROAD_LIGHT, ...this.schemePosition);
         }
         else {
-
+            this.grid.scheme.changeCellRoad(null, ...this.schemePosition);
+            this.road.correctNeighborsRoads();
+            this.destroyChild('road');
         }
     }
 
@@ -86,72 +101,33 @@ class SchemeCell extends Sprite {
         });
     }
 
-    moveLeft(changeScheme = true) {
-        let poss = this.visiblePosition;
-        if (poss[0]) {
-            this.grid.visibleCells[poss[0] - 1][poss[1]].changeType(this.type, changeScheme)
+    moveUp(changeScheme = true) { this.moveByDirection(changeScheme, UP); }
+    moveRight(changeScheme = true) { this.moveByDirection(changeScheme, RIGHT); }
+    moveDown(changeScheme = true) { this.moveByDirection(changeScheme, DOWN); }
+    moveLeft(changeScheme = true) { this.moveByDirection(changeScheme, LEFT); }
+    moveByDirection(changeScheme, dir) {
+        let cell = this.grid.getVisibleCell(...this.getVisiblePosition(dir));
+        if (cell) {
+            cell.changeType(this.type, changeScheme);
         }
-        if (!poss[0] && !changeScheme) {
-            this.changeType(null, changeScheme);
-        }
-        if (changeScheme) { this.changeType(null); }
-    }
-    moveRight(changeScheme = true) {
-        let poss = this.visiblePosition;
-        if (poss[0] < this.grid.visibleCells.length - 1) {
-            this.grid.visibleCells[poss[0] + 1][poss[1]].changeType(this.type, changeScheme)
-        }
-        if (poss[0] >= this.grid.visibleCells.length - 1 && !changeScheme) {
-            this.changeType(null, changeScheme);
-        }
-        if (changeScheme) { this.changeType(null); }
-    }
-    moveUp(changeScheme = true) {
-        let poss = this.visiblePosition;
-        if (poss[1]) {
-            this.grid.visibleCells[poss[0]][poss[1] - 1].changeType(this.type, changeScheme)
-        }
-        if (!poss[1] && !changeScheme) {
-            this.changeType(null, changeScheme);
-        }
-        if (changeScheme) { this.changeType(null); }
-    }
-    moveDown(changeScheme = true) {
-        let poss = this.visiblePosition;
-        if (poss[1] < this.grid.visibleCells[0].length - 1) {
-            this.grid.visibleCells[poss[0]][poss[1] + 1].changeType(this.type, changeScheme)
-        }
-        if (poss[1] >= this.grid.visibleCells[0].length - 1 && !changeScheme) {
+        else if (!changeScheme) {
             this.changeType(null, changeScheme);
         }
         if (changeScheme) { this.changeType(null); }
     }
 
-    get visiblePosition() {
-        return [this.gridX + SchemeGrid.GRID_OFFSET, this.gridY + SchemeGrid.GRID_OFFSET];
-    }
+    getVisiblePosition(dir) { return this['visiblePosition' + dir]; }
+    get visiblePosition() { return [this.gridX + SchemeGrid.GRID_OFFSET, this.gridY + SchemeGrid.GRID_OFFSET]; }
+    get visiblePositionLeft() { let poss = this.visiblePosition; poss[0]--; return poss }
+    get visiblePositionRight() { let poss = this.visiblePosition; poss[0]++; return poss }
+    get visiblePositionUp() { let poss = this.visiblePosition; poss[1]--; return poss }
+    get visiblePositionDown() { let poss = this.visiblePosition; poss[1]++; return poss }
 
-    get schemePosition() {
-        return [this.grid.dragX + this.gridX, this.grid.dragY + this.gridY];
-    }
-    get schemePositionLeft() {
-        let poss = this.schemePosition;
-        poss[0]--;
-        return poss
-    }
-    get schemePositionRight() {
-        let poss = this.schemePosition;
-        poss[0]++;
-        return poss
-    }get schemePositionUp() {
-        let poss = this.schemePosition;
-        poss[1]--;
-        return poss
-    }get schemePositionDown() {
-        let poss = this.schemePosition;
-        poss[1]++;
-        return poss
-    }
+    get schemePosition() { return [this.grid.dragX + this.gridX, this.grid.dragY + this.gridY]; }
+    get schemePositionLeft() { let poss = this.schemePosition; poss[0]--; return poss }
+    get schemePositionRight() { let poss = this.schemePosition; poss[0]++; return poss }
+    get schemePositionUp() { let poss = this.schemePosition; poss[1]--; return poss }
+    get schemePositionDown() { let poss = this.schemePosition; poss[1]++; return poss }
 
     get type() {
         return this.grid.scheme.getCell(...this.schemePosition).content;
