@@ -49,7 +49,7 @@ class SchemeCell extends Sprite {
             this.content = null;
         }
         if (type) {
-            this.content = FactoryGraphics.spriteByPath(TT_SCHEME[type]);
+            this.content = FactoryGraphics.spriteByPathInsideParentSpriteModel(TT_SCHEME[type], this);
             Scene.addModelToContainer({sprite: this.content}, this, 0);
         }
 

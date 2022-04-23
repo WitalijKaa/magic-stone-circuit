@@ -1,1 +1,8 @@
 const PIXI_MOUSE_RIGHT = 2;
+
+const PIXI_ROTATE_RIGHT = 6;
+const PIXI_ROTATE_LEFT = 2;
+const PIXI_ROTATE_DOWN = 8;
+const PIXI_ROTATE_90 = 6;
+const PIXI_ROTATE_270 = 2;
+const PIXI_ROTATE_180 = 8;
