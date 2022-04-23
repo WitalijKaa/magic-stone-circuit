@@ -59,6 +59,14 @@ class SchemeRoad extends Sprite {
                 },
             });
             Scene.addModelToContainer(this.paths[type], this);
+
+            setTimeout(() => {
+                let beha = new Colorizer(this.paths[type]);
+                if (1 == Scene.controls.pen) { beha.setColor(COLOR_VIOLET_ROAD); }
+                if (2 == Scene.controls.pen) { beha.setColor(COLOR_RED_ROAD); }
+                if (3 == Scene.controls.pen) { beha.setColor(COLOR_INDIGO_ROAD); }
+                if (4 == Scene.controls.pen) { beha.setColor(COLOR_ORANGE_ROAD); }
+            }, 220);
         }
     }
 
