@@ -7,4 +7,5 @@ const TT = {
     cell: 'resources/scheme_cell.png',
     roadA: 'resources/road_left.png',
     roadB: 'resources/road_right.png',
+    roadH: 'resources/road_heavy.png',
 }

@@ -83,7 +83,8 @@ class SchemeCell extends Sprite {
             });
             Scene.addModelToContainer(this.road, this);
         }
-        else {
+        else if (!this.road.makeHeavy())
+        {
             this.grid.scheme.changeCellRoad(null, ...this.schemePosition);
             this.road.correctNeighborsRoads();
             this.destroyChild('road');

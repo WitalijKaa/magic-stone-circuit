@@ -1,5 +1,7 @@
 const ROAD_LIGHT = 1;
 const ROAD_HEAVY = 2;
+const ROAD_LEFT_RIGHT = 3;
+const ROAD_UP_DOWN = 4;
 
 const ROAD_PATH_UP = 0;
 const ROAD_PATH_RIGHT = 1;
@@ -12,7 +14,7 @@ const TT_ROAD = {
     [ROAD_PATH_RIGHT]: TT.roadB,
     [ROAD_PATH_DOWN]: TT.roadA,
     [ROAD_PATH_LEFT]: TT.roadA,
-    [ROAD_PATH_HEAVY]: TT.energy,
+    [ROAD_PATH_HEAVY]: TT.roadH,
 }
 
 const ROTATE_ROAD = {
@@ -33,8 +35,16 @@ class SchemeRoad extends Sprite {
     constructor(config) {
         super(config);
         this.cell = config.cell;
-        this.setLightPaths();
-        this.correctNeighborsRoads()
+        this.refreshPaths();
+        this.correctNeighborsRoads();
+    }
+
+    makeHeavy() {
+        if (ROAD_HEAVY == this.type || this.countObjectsAround < 3) { return false; }
+        this.type = ROAD_HEAVY;
+        this.refreshPaths();
+        this.correctNeighborsRoads();
+        return true;
     }
 
     drawPath(type) {
@@ -57,18 +67,19 @@ class SchemeRoad extends Sprite {
     }
 
     refreshPaths() {
-        this.setLightPaths();
-    }
+        if (ROAD_HEAVY == this.type && this.countObjectsAround < 3) { this.type = ROAD_LIGHT; }
 
-    setLightPaths() {
         if (this.isEmptyAround && !this.emptyMe) { return; }
-        if (this.isEmptyAround || this.isEmptyUpDown) {
+
+        if (this.isEmptyAround || this.isEmptyUpDown ||
+            (ROAD_HEAVY != this.type && this.countObjectsAround == 3 && (this.scheme.isCellEmpty(...this.cell.schemePositionUp) || this.scheme.isCellEmpty(...this.cell.schemePositionDown)))
+        ) {
             this.drawPath(ROAD_PATH_LEFT);
             this.drawPath(ROAD_PATH_RIGHT);
             this.removePath(ROAD_PATH_UP);
             this.removePath(ROAD_PATH_DOWN);
         }
-        else if (this.isEmptyLeftRight) {
+        else if (this.isEmptyLeftRight || (ROAD_HEAVY != this.type && this.countObjectsAround == 3)) {
             this.drawPath(ROAD_PATH_UP);
             this.drawPath(ROAD_PATH_DOWN);
             this.removePath(ROAD_PATH_LEFT);
@@ -80,6 +91,11 @@ class SchemeRoad extends Sprite {
             if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown)) { this.drawPath(ROAD_PATH_DOWN); } else { this.removePath(ROAD_PATH_DOWN); }
             if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft)) { this.drawPath(ROAD_PATH_LEFT); } else { this.removePath(ROAD_PATH_LEFT); }
         }
+
+        if (ROAD_HEAVY == this.type) {
+            this.drawPath(ROAD_PATH_HEAVY);
+        }
+        else { this.removePath(ROAD_PATH_HEAVY); }
     }
 
     correctNeighborsRoads() {
