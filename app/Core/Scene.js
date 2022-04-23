@@ -1,18 +1,23 @@
 class Scene {
     static addModel(sceneModel) {
         window.pixiApp.stage.addChild(sceneModel.sprite);
-        Scene.addResizeCallbacks(sceneModel);
+        this.addResizeCallbacks(sceneModel);
     }
 
-    static addModelToContainer(sceneModel, container) {
-        container.sprite.addChild(sceneModel.sprite);
-        Scene.addResizeCallbacks(sceneModel);
+    static addModelToContainer(sceneModel, container, ix = false) {
+        if (false === ix) {
+            container.sprite.addChild(sceneModel.sprite);
+        }
+        else {
+            container.sprite.addChildAt(sceneModel.sprite, ix);
+        }
+        this.addResizeCallbacks(sceneModel);
     }
 
     static addResizeCallbacks(sceneModel) {
         let resizeCallbacks = sceneModel.resizeCallbacks;
-        if (resizeCallbacks.length) {
-            Scene.resizeCallbacks.push(...resizeCallbacks);
+        if (resizeCallbacks && resizeCallbacks.length) {
+            this.resizeCallbacks.push(...resizeCallbacks);
         }
     }
 
@@ -29,7 +34,7 @@ class Scene {
 
     static resizeCallbacks = [];
     static resize() {
-        Scene.resizeCallbacks.forEach(callback => callback(Scene.widthPx, Scene.heightPx));
+        this.resizeCallbacks.forEach(callback => callback(this.widthPx, this.heightPx));
     }
 
     static controls = {
@@ -39,14 +44,22 @@ class Scene {
     // todo
     static tempButton;
     static setTempButton() {
-        if (Scene.tempButton) {
-            Scene.tempButton.destroy();
+        if (!this.controls.pen) {
+            if (this.tempButton) {
+                this.tempButton.destroy();
+            }
+            this.tempButton = null;
+            return;
         }
-        if (!Scene.controls.pen) { Scene.tempButton = null; return; }
 
-        Scene.tempButton = FactoryGraphics.spriteByString(TT_SCHEME[Scene.controls.pen])
-        Scene.tempButton.width = 100;
-        Scene.tempButton.height = 100;
-        window.pixiApp.stage.addChild(Scene.tempButton);
+        if (!this.tempButton) {
+            this.tempButton = FactoryGraphics.spriteByPath(TT_SCHEME[this.controls.pen]);
+            this.tempButton.width = 100;
+            this.tempButton.height = 100;
+            this.addModel({ sprite: this.tempButton })
+        }
+        else {
+            this.tempButton.texture = FactoryGraphics.textureByPath(TT_SCHEME[this.controls.pen]);
+        }
     }
 }

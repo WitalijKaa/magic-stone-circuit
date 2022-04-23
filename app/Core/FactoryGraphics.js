@@ -1,5 +1,9 @@
 class FactoryGraphics {
-    static spriteByString(filePath) {
-        return new PIXI.Sprite(PIXI.Texture.from(filePath));
+    static spriteByPath(filePath) {
+        return new PIXI.Sprite(FactoryGraphics.textureByPath(filePath));
+    }
+    
+    static textureByPath(filePath) {
+        return PIXI.Texture.from(filePath);
     }
 }

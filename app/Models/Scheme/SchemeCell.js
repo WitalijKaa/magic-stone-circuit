@@ -17,7 +17,7 @@ class SchemeCell extends Sprite {
     }
 
     setSize(px, updatePosition = true) {
-        this.sprite.width = this.sprite.height = px;
+        this.w = this.h = px;
         if (updatePosition) { this.updatePosition(); }
         return this;
     }
@@ -30,8 +30,8 @@ class SchemeCell extends Sprite {
     }
 
     updatePosition() {
-        this.sprite.x = this.gridX * this.sprite.width + this.grid.offsetX;
-        this.sprite.y = this.gridY * this.sprite.height + this.grid.offsetY;
+        this.x = this.gridX * this.w + this.grid.offsetX;
+        this.y = this.gridY * this.h + this.grid.offsetY;
         return this;
     }
 
@@ -44,13 +44,13 @@ class SchemeCell extends Sprite {
         if (type === this.grid.scheme.getCell(...this.schemePosition)) { return; }
 
         if (this.content) {
-            this.sprite.removeChildAt(0); // todo scene
+            this.sprite.removeChildAt(0);
             this.content.destroy();
             this.content = null;
         }
         if (type) {
-            this.content = FactoryGraphics.spriteByString(TT_SCHEME[type]);
-            this.sprite.addChildAt(this.content, 0); // todo scene
+            this.content = FactoryGraphics.spriteByPath(TT_SCHEME[type]);
+            Scene.addModelToContainer({sprite: this.content}, this, 0);
         }
 
         if (changeScheme) {

@@ -74,18 +74,18 @@ class SchemeGrid extends Sprite {
     }
 
     resetVisibleGrid() {
-        while (this.visibleCellsWidth > this.visibleCellsAreaSize.width) {
+        while (this.visibleCellsAreaCurrentWidth > this.visibleCellsAreaSize.width) {
             this.removeCellsColumn();
         }
-        while (this.visibleCellsHeight > this.visibleCellsAreaSize.height) {
+        while (this.visibleCellsAreaCurrentHeight > this.visibleCellsAreaSize.height) {
             this.removeCellsRow();
         }
         let columnAdded = 0;
-        while (this.visibleCellsWidth < this.visibleCellsAreaSize.width) {
+        while (this.visibleCellsAreaCurrentWidth < this.visibleCellsAreaSize.width) {
             this.addCellsColumn();
             columnAdded++;
         }
-        while (this.visibleCellsHeight < this.visibleCellsAreaSize.height) {
+        while (this.visibleCellsAreaCurrentHeight < this.visibleCellsAreaSize.height) {
             this.addCellsRow(columnAdded);
         }
     }
@@ -158,8 +158,8 @@ class SchemeGrid extends Sprite {
 
     get visibleCellsAreaSize() {
         return {
-            width: SchemeGrid.GRID_OFFSET * 2 + Math.floor(Scene.widthPx / this.cellPxSize),
-            height: SchemeGrid.GRID_OFFSET * 2 + Math.floor(Scene.heightPx / this.cellPxSize)
+            width: this.constructor.GRID_OFFSET * 2 + Math.floor(Scene.widthPx / this.cellPxSize),
+            height: this.constructor.GRID_OFFSET * 2 + Math.floor(Scene.heightPx / this.cellPxSize)
         };
     }
 
@@ -171,8 +171,8 @@ class SchemeGrid extends Sprite {
         return this._cellPxSize;
     }
 
-    get visibleCellsWidth() { return this.visibleCells.length; }
-    get visibleCellsHeight() { return this.visibleCells[0].length; }
+    get visibleCellsAreaCurrentWidth() { return this.visibleCells.length; }
+    get visibleCellsAreaCurrentHeight() { return this.visibleCells[0].length; }
 
     get resizeCallbacks() { return [
         () => { this.resetVisibleGrid(); },
