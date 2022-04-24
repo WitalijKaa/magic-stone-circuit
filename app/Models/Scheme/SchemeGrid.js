@@ -143,23 +143,12 @@ class SchemeGrid extends Sprite {
     visibleCellsOffset(x, y) {
         if (!x && !y) { return; }
 
-        if (x) {
-            this.execForVisibleCells(
-                (x > 0) ? 'moveLeft' : 'moveRight',
-                [false],
-                !(x > 0),
-            );
-        }
         this.dragX += x; // todo out of diameter
+        this.dragY += y;
 
-        if (y) {
-            this.execForVisibleCells(
-                (y > 0) ? 'moveUp' : 'moveDown',
-                [false],
-                !(y > 0),
-            );
-        }
-        this.dragY += y; // todo out of diameter
+        this.execForVisibleCells('changeVisibleType');
+        this.execForVisibleCells('changeVisibleRoad', [false]);
+        this.execForVisibleCells('refreshVisibleRoad', [false]);
     }
 
     get visibleCellsAreaSize() {

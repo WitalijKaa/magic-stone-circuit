@@ -39,8 +39,11 @@ class SchemeRoad extends Sprite {
     constructor(config) {
         super(config);
         this.cell = config.cell;
-        this.refreshPaths();
-        this.correctNeighborsRoads();
+        if (config.type) { this.type = config.type; }
+        if (!config.disableInit) {
+            this.refreshPaths();
+            this.correctNeighborsRoads();
+        }
     }
 
     makeHeavy() {
@@ -51,7 +54,7 @@ class SchemeRoad extends Sprite {
         return true;
     }
 
-    drawPath(type) {
+    drawPath(type, color = null) {
         if (!this.paths[type]) {
             this.paths[type] = Factory.sceneModel({
                 model: Sprite,
@@ -65,6 +68,7 @@ class SchemeRoad extends Sprite {
             Scene.addModelToContainer(this.paths[type], this);
 
             this.paths[type].colorizer = new Colorizer(this.paths[type]);
+            if (color) { this.paths[type].colorizer.setColor(color); }
         }
     }
 
@@ -83,7 +87,7 @@ class SchemeRoad extends Sprite {
 
     disabledDirsToMoveColor(fromDir) {
         let disabled = [fromDir];
-        if (ROAD_HEAVY != this.type) {
+        if (ROAD_HEAVY != this.type && this.countRoadsAround > 2) {
             if (fromDir == LEFT || fromDir == RIGHT) {
                 disabled.push(UP);
                 disabled.push(DOWN);
@@ -183,6 +187,15 @@ class SchemeRoad extends Sprite {
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionRight)) { count++; }
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown)) { count++; }
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft)) { count++; }
+        return count;
+    }
+
+    get countRoadsAround() {
+        let count = 0;
+        if (!this.scheme.isCellEmpty(...this.cell.schemePositionUp) && this.scheme.getCell(...this.cell.schemePositionUp).road) { count++; }
+        if (!this.scheme.isCellEmpty(...this.cell.schemePositionRight) && this.scheme.getCell(...this.cell.schemePositionRight).road) { count++; }
+        if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown) && this.scheme.getCell(...this.cell.schemePositionDown).road) { count++; }
+        if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft) && this.scheme.getCell(...this.cell.schemePositionLeft).road) { count++; }
         return count;
     }
 

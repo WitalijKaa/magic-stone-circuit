@@ -56,27 +56,28 @@ class SchemeCell extends Sprite {
         return this;
     }
 
-    handleClick() { this.changeType(Scene.controls.pen); }
-    handleRightClick() { this.changeRoad(); }
+    handleClick() { this.changeSchemeType(Scene.controls.pen); }
+    handleRightClick() { this.changeSchemeRoad(); }
 
-    changeType(type, changeScheme = true) {
-        if (!type && !this.content) { return; }
-        if (type === this.grid.scheme.getCell(...this.schemePosition).content) { return; }
+    changeSchemeType(type) {
+        this.grid.scheme.changeCellContent(type, ...this.schemePosition);
+        this.changeVisibleType();
+    }
 
-        if (type) {
+    changeVisibleType() {
+        if (!this.type && !this.content) { return; }
+
+        if (this.type) {
             if (!this.content) {
-                this.createContent(TT_SCHEME[type]);
+                this.createContent(TT_SCHEME[this.type]);
                 Scene.addModelToContainer(this.content, this);
             }
             else {
-                this.content.changeTexture(TT_SCHEME[type], this);
+                this.content.changeTexture(TT_SCHEME[this.type], this);
             }
         }
         else { this.destroyChild('content'); }
 
-        if (changeScheme) {
-            this.grid.scheme.changeCellContent(type, ...this.schemePosition);
-        }
         this.setColorAround();
     }
 
@@ -89,22 +90,40 @@ class SchemeCell extends Sprite {
         }
     }
 
-    changeRoad() {
-        if (!this.road) {
+    changeSchemeRoad() {
+        if (!this.typeOfRoad) {
             this.grid.scheme.changeCellRoad(ROAD_LIGHT, ...this.schemePosition);
-            this.road = Factory.sceneModel({
-                model: SchemeRoad,
-                name: this.name + '|road',
-                cell: this,
-            });
+        }
+        else {
+            if (this.road.makeHeavy()) {
+                this.grid.scheme.changeCellRoad(ROAD_HEAVY, ...this.schemePosition);
+            }
+            else {
+                this.grid.scheme.changeCellRoad(null, ...this.schemePosition);
+            }
+        }
+        this.changeVisibleRoad()
+    }
+    
+    changeVisibleRoad(disableInit = false) {
+        if (this.typeOfRoad && !this.road) {
+            this.road = this.createRoadModel(disableInit);
             Scene.addModelToContainer(this.road, this);
         }
-        else if (!this.road.makeHeavy())
-        {
-            this.grid.scheme.changeCellRoad(null, ...this.schemePosition);
-            this.road.correctNeighborsRoads();
+        else if (!this.typeOfRoad) {
             this.destroyChild('road');
         }
+    }
+    refreshVisibleRoad() { this.road && this.road.refreshPaths(); }
+
+    createRoadModel(disableInit = false) {
+        return Factory.sceneModel({
+            model: SchemeRoad,
+            name: this.name + '|road',
+            cell: this,
+            type: this.typeOfRoad,
+            disableInit: disableInit,
+        });
     }
 
     execForNeighborsRoads(method, params = [], allowedDirs = null) {
@@ -129,21 +148,6 @@ class SchemeCell extends Sprite {
         });
     }
 
-    moveUp(changeScheme = true) { this.moveByDirection(changeScheme, UP); }
-    moveRight(changeScheme = true) { this.moveByDirection(changeScheme, RIGHT); }
-    moveDown(changeScheme = true) { this.moveByDirection(changeScheme, DOWN); }
-    moveLeft(changeScheme = true) { this.moveByDirection(changeScheme, LEFT); }
-    moveByDirection(changeScheme, dir) {
-        let cell = this.grid.getVisibleCell(...this.getVisiblePosition(dir));
-        if (cell) {
-            cell.changeType(this.type, changeScheme);
-        }
-        else if (!changeScheme) {
-            this.changeType(null, changeScheme);
-        }
-        if (changeScheme) { this.changeType(null); }
-    }
-
     getVisiblePosition(dir) { return this['visiblePosition' + dir]; }
     get visiblePosition() { return [this.gridX + SchemeGrid.GRID_OFFSET, this.gridY + SchemeGrid.GRID_OFFSET]; }
     get visiblePositionLeft() { let poss = this.visiblePosition; poss[0]--; return poss }
@@ -159,5 +163,8 @@ class SchemeCell extends Sprite {
 
     get type() {
         return this.grid.scheme.getCell(...this.schemePosition).content;
+    }
+    get typeOfRoad() {
+        return this.grid.scheme.getCell(...this.schemePosition).road;
     }
 }
