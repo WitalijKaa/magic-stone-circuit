@@ -41,43 +41,21 @@ class Scheme {
         return Scene.deviceRation;
     }
 
-    createCell(x, y) {
-        if (!this.scheme[x]) { this.scheme[x] = {}; }
-        this.scheme[x][y] = { };
-        return this.scheme[x][y];
-    }
-
-    changeCellContent(type, x, y) {
+    changeCellProperty(property, type, x, y) {
         if (type) {
-            let cell = this.createCell(x, y);
-            cell.content = type;
+            if (!this.scheme[x]) { this.scheme[x] = {}; }
+            if (!this.scheme[x][y]) { this.scheme[x][y] = { [property]: type } }
+            else { this.scheme[x][y][property] = type; }
         }
-        else { this.deleteCellContent(x, y); }
-    }
-    changeCellRoad(type, x, y) {
-        if (type) {
-            let cell = this.createCell(x, y);
-            cell.road = type;
-        }
-        else { this.deleteCellRoad(x, y); }
-    }
-
-    deleteCell(x, y) {
-        if (!this.scheme[x]) { return; }
-        this.scheme[x][y] = null;
-    }
-    deleteCellContent(x, y) {
-        if (this.scheme[x] && this.scheme[x][y]) {
-            this.scheme[x][y].content = null;
-            this.isCellEmpty(x, y);
+        else {
+            if (this.scheme[x] && this.scheme[x][y]) {
+                this.scheme[x][y][property] = null;
+                this.isCellEmpty(x, y);
+            }
         }
     }
-    deleteCellRoad(x, y) {
-        if (this.scheme[x] && this.scheme[x][y]) {
-            this.scheme[x][y].road = null;
-            this.isCellEmpty(x, y);
-        }
-    }
+    changeCellContent(type, x, y) { this.changeCellProperty('content', type, x, y); }
+    changeCellRoad(type, x, y) { this.changeCellProperty('road', type, x, y); }
 
     getCell(x, y) {
         if (this.scheme[x] && this.scheme[x][y]) { return this.scheme[x][y]; }
@@ -88,10 +66,86 @@ class Scheme {
         if (!this.scheme[x] || !this.scheme[x][y]) {
             return true;
         }
-        if (!this.scheme[x][y].content && !this.scheme[x][y].road) {
-            this.scheme[x][y] = null;
-            return true;
+        for (const property in this.scheme[x][y]) {
+            if (property) { return false; }
         }
-        return false;
+        this.scheme[x][y] = null;
+        return true;
+    }
+
+    resetPathsOnRoad(x, y) {
+        let road = this.getCell(x, y) ? this.getCell(x, y).road : false;
+        if (!road) { return; }
+
+        let countAround = this.countObjectsAround(x, y);
+        let emptyAround = !countAround;
+        let emptyPaths = !road.paths[ROAD_PATH_UP] && !road.paths[ROAD_PATH_RIGHT] && !road.paths[ROAD_PATH_DOWN] && !road.paths[ROAD_PATH_LEFT];
+
+        if (ROAD_HEAVY == road.type && countAround < 3) { road.type = ROAD_LIGHT; }
+
+        if (emptyAround && !emptyPaths) { return; }
+
+        if (emptyAround || this.isEmptyUpDown(x, y) ||
+            (ROAD_HEAVY != road.type && countAround == 3 && (this.isCellEmpty(x, y + 1) || this.isCellEmpty(x, y - 1)))
+        ) {
+            this.defineRoadPath(x, y, ROAD_PATH_LEFT, true)
+            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, true)
+            this.defineRoadPath(x, y, ROAD_PATH_UP, false)
+            this.defineRoadPath(x, y, ROAD_PATH_DOWN, false)
+        }
+        else if (this.isEmptyLeftRight(x, y) || (ROAD_HEAVY != road.type && countAround == 3)) {
+            this.defineRoadPath(x, y, ROAD_PATH_LEFT, false)
+            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, false)
+            this.defineRoadPath(x, y, ROAD_PATH_UP, true)
+            this.defineRoadPath(x, y, ROAD_PATH_DOWN, true)
+        }
+        else {
+            this.defineRoadPath(x, y, ROAD_PATH_UP, !this.isCellEmpty(x, y - 1));
+            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, !this.isCellEmpty(x + 1, y));
+            this.defineRoadPath(x, y, ROAD_PATH_DOWN, !this.isCellEmpty(x, y + 1));
+            this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(x - 1, y));
+        }
+
+        this.defineRoadPath(x, y, ROAD_PATH_HEAVY, ROAD_HEAVY == road.type);
+    }
+
+    resetPathsOnNeighborsRoads(x, y) {
+        this.resetPathsOnRoad(x, y - 1);
+        this.resetPathsOnRoad(x + 1, y);
+        this.resetPathsOnRoad(x, y + 1);
+        this.resetPathsOnRoad(x - 1, y);
+    }
+
+    defineRoadPath(x, y, pathType, pathContent) {
+        this.getCell(x, y).road.paths[pathType] = pathContent;
+    }
+
+    setColorToRoad(color, fromDir, x, y) {
+        console.log(fromDir, x, y)
+        return;
+
+        if (color) {
+            let pathType = SIDE_TO_ROAD_PATH[fromDir];
+            if (this.canPathSetColor(pathType)) {
+                this.setColorToPath(pathType, color);
+                this.moveColorToNextPath(color, this.disabledDirsToMoveColor(fromDir));
+            }
+        }
+        else {
+            this.paths.map((path) => { path && path.colorizer.removeColor(); });
+        }
+    }
+
+    // isEmptyAround(x, y) { return !this.countObjectsAround(x, y); }
+    isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
+    isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
+
+    countObjectsAround(x, y) {
+        let count = 0;
+        if (!this.isCellEmpty(x + 1, y)) { count++; }
+        if (!this.isCellEmpty(x - 1, y)) { count++; }
+        if (!this.isCellEmpty(x, y + 1)) { count++; }
+        if (!this.isCellEmpty(x, y - 1)) { count++; }
+        return count;
     }
 }

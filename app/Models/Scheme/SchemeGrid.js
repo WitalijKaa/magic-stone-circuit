@@ -147,8 +147,8 @@ class SchemeGrid extends Sprite {
         this.dragY += y;
 
         this.execForVisibleCells('changeVisibleType');
-        this.execForVisibleCells('changeVisibleRoad', [false]);
-        this.execForVisibleCells('refreshVisibleRoad', [false]);
+        this.execForVisibleCells('changeVisibleRoad', [true]);
+        this.execForVisibleCells('refreshVisibleRoad');
     }
 
     get visibleCellsAreaSize() {
