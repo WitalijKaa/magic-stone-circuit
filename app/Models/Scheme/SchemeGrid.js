@@ -10,6 +10,8 @@ class SchemeGrid extends Sprite {
 
     needToResize = true;
 
+    coloringSpeedMs = 200;
+
     constructor(config) {
         super(config);
 

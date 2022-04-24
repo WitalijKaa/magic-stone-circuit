@@ -1,6 +1,7 @@
 class Colorizer {
 
     model;
+    isColorized = false;
     static matrix = {}
 
     constructor(model) {
@@ -9,6 +10,11 @@ class Colorizer {
 
     setColor(color) {
         this.model.sprite.filters = [this.getColorMatrix(color)];
+        this.isColorized = true;
+    }
+    removeColor() {
+        this.model.sprite.filters = [];
+        this.isColorized = false;
     }
 
     getColorMatrix(color) {

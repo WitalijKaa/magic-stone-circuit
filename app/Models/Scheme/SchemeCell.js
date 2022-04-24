@@ -2,7 +2,13 @@ const UP = 'Up';
 const RIGHT = 'Right';
 const DOWN = 'Down';
 const LEFT = 'Left';
-const SIDES = [UP, RIGHT, DOWN, LEFT]
+const SIDES = [UP, RIGHT, DOWN, LEFT];
+const OPPOSITE_SIDE = {
+    [UP]: DOWN,
+    [DOWN]: UP,
+    [LEFT]: RIGHT,
+    [RIGHT]: LEFT,
+};
 
 class SchemeCell extends Sprite {
 
@@ -71,6 +77,16 @@ class SchemeCell extends Sprite {
         if (changeScheme) {
             this.grid.scheme.changeCellContent(type, ...this.schemePosition);
         }
+        this.setColorAround();
+    }
+
+    setColorAround() {
+        if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(this.type)) {
+            let color = STONE_TYPE_TO_ROAD_COLOR[this.type];
+            SIDES.map((sideTo) => {
+                this.execForNeighborsRoads('setColor', [color, OPPOSITE_SIDE[sideTo]], [sideTo])
+            });
+        }
     }
 
     changeRoad() {
@@ -89,6 +105,17 @@ class SchemeCell extends Sprite {
             this.road.correctNeighborsRoads();
             this.destroyChild('road');
         }
+    }
+
+    execForNeighborsRoads(method, params = [], allowedDirs = null) {
+        SIDES.map((side) => {
+            if (allowedDirs && !allowedDirs.includes(side)) { return; }
+
+            let cell = this[side];
+            if (cell && cell.road) {
+                cell.road[method](...params);
+            }
+        });
     }
 
     createContent(texturePath, param = 'content', rotation = null) {

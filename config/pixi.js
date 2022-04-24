@@ -6,3 +6,8 @@ const PIXI_ROTATE_DOWN = 8;
 const PIXI_ROTATE_90 = 6;
 const PIXI_ROTATE_270 = 2;
 const PIXI_ROTATE_180 = 8;
+
+const COLOR_VIOLET_ROAD = 0x7e57c2;
+const COLOR_RED_ROAD = 0xe53935;
+const COLOR_INDIGO_ROAD = 0x3949ab;
+const COLOR_ORANGE_ROAD = 0xffa726;
