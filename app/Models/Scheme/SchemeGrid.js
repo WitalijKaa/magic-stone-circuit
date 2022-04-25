@@ -155,6 +155,7 @@ class SchemeGrid extends Sprite {
         this.execForVisibleCells('changeVisibleType');
         this.execForVisibleCells('changeVisibleRoad', [true]);
         this.execForVisibleCells('refreshVisibleRoad');
+        this.execForVisibleCells('changeVisibleSemiconductor');
     }
 
     schemeToVisiblePosition(x, y) { return [x - this.dragX + this.constructor.GRID_OFFSET, y - this.dragY + this.constructor.GRID_OFFSET]; }

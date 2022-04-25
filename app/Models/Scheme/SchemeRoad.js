@@ -2,6 +2,7 @@ const ROAD_LIGHT = 1;
 const ROAD_HEAVY = 2;
 const ROAD_LEFT_RIGHT = 3;
 const ROAD_UP_DOWN = 4;
+const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: null, [ROAD_UP_DOWN]: PIXI_ROTATE_90 };
 
 const ROAD_PATH_UP = 0;
 const ROAD_PATH_RIGHT = 1;
@@ -17,10 +18,10 @@ const SIDE_TO_ROAD_PATH = {
 };
 
 const TT_ROAD = {
-    [ROAD_PATH_UP]: TT.roadB,
-    [ROAD_PATH_RIGHT]: TT.roadB,
-    [ROAD_PATH_DOWN]: TT.roadA,
-    [ROAD_PATH_LEFT]: TT.roadA,
+    [ROAD_PATH_UP]: TT.roadR,
+    [ROAD_PATH_RIGHT]: TT.roadR,
+    [ROAD_PATH_DOWN]: TT.roadL,
+    [ROAD_PATH_LEFT]: TT.roadL,
     [ROAD_PATH_HEAVY]: TT.roadH,
 }
 
@@ -41,8 +42,8 @@ class SchemeRoad extends Sprite {
     }
 
     get type() { return this.cell.typeOfRoad; }
-    set type(val) { this.cell.grid.scheme.getCell(...this.cell.schemePosition).road.type = val; }
-    get schemePaths() { return this.cell.grid.scheme.getCell(...this.cell.schemePosition).road.paths; }
+    set type(val) { this.scheme.findCellOrEmpty(...this.cell.schemePosition).road.type = val; }
+    get schemePaths() { return this.scheme.findCellOrEmpty(...this.cell.schemePosition).road.paths; }
 
     makeHeavy() {
         if (ROAD_HEAVY == this.type || this.countObjectsAround < 3) { return false; }
@@ -70,21 +71,6 @@ class SchemeRoad extends Sprite {
         else { this.paths[pathType].colorizer.removeColor(); }
     }
 
-    disabledDirsToMoveColor(fromDir) {
-        let disabled = [fromDir];
-        if (ROAD_HEAVY != this.type && this.countRoadsAround > 2) {
-            if (fromDir == LEFT || fromDir == RIGHT) {
-                disabled.push(UP);
-                disabled.push(DOWN);
-            }
-            else {
-                disabled.push(LEFT);
-                disabled.push(RIGHT);
-            }
-        }
-        return disabled;
-    }
-
     removePath(pathType) {
         this.destroyChild('paths', pathType);
     }
@@ -103,25 +89,5 @@ class SchemeRoad extends Sprite {
 
     get scheme() { return this.cell.grid.scheme; }
 
-    get isEmptyAround() { return !this.countObjectsAround; }
-    get isEmptyUpDown() { return this.scheme.isCellEmpty(...this.cell.schemePositionUp) && this.scheme.isCellEmpty(...this.cell.schemePositionDown); }
-    get isEmptyLeftRight() { return this.scheme.isCellEmpty(...this.cell.schemePositionLeft) && this.scheme.isCellEmpty(...this.cell.schemePositionRight); }
-
-    get countObjectsAround() {
-        let count = 0;
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionUp)) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionRight)) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown)) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft)) { count++; }
-        return count;
-    }
-
-    get countRoadsAround() {
-        let count = 0;
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionUp) && this.scheme.getCell(...this.cell.schemePositionUp).road) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionRight) && this.scheme.getCell(...this.cell.schemePositionRight).road) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown) && this.scheme.getCell(...this.cell.schemePositionDown).road) { count++; }
-        if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft) && this.scheme.getCell(...this.cell.schemePositionLeft).road) { count++; }
-        return count;
-    }
+    get countObjectsAround() { return this.scheme.countObjectsAround(...this.cell.schemePosition); }
 }

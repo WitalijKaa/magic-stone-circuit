@@ -14,6 +14,7 @@ class SchemeCell extends Sprite {
 
     content = null;
     road = null;
+    semiconductor = null;
     grid = null;
 
     Up; Right; Left; Down;
@@ -56,7 +57,18 @@ class SchemeCell extends Sprite {
         return this;
     }
 
-    handleClick() { this.changeSchemeType(Scene.controls.pen); }
+    handleClick() {
+        if (CONTENT_SPRITES.hasOwnProperty(Scene.controls.pen)) {
+            this.changeSchemeType(Scene.controls.pen);
+        }
+        else if (ST_ROAD_SLEEP == Scene.controls.pen || ST_ROAD_AWAKE == Scene.controls.pen) {
+            this.changeSemiconductorType(Scene.controls.pen);
+        }
+        else if (!Scene.controls.pen) {
+            this.changeSchemeType(null);
+            this.changeSemiconductorType(null);
+        }
+    }
     handleRightClick() { this.changeSchemeRoad(); }
 
     changeSchemeType(type) {
@@ -68,11 +80,11 @@ class SchemeCell extends Sprite {
     changeVisibleType() {
         if (this.type) {
             if (!this.content) {
-                this.createContent(TT_SCHEME[this.type]);
+                this.createContent(CONTENT_SPRITES[this.type]);
                 Scene.addModelToContainer(this.content, this);
             }
             else {
-                this.content.changeTexture(TT_SCHEME[this.type], this);
+                this.content.changeTexture(CONTENT_SPRITES[this.type], this);
             }
         }
         else { this.destroyChild('content'); }
@@ -88,25 +100,29 @@ class SchemeCell extends Sprite {
     }
 
     changeSchemeRoad() {
-        if (!this.typeOfRoad) {
+        if (this.scheme.isCellEmpty(...this.schemePosition)) {
             this.grid.scheme.changeCellRoad({ type: ROAD_LIGHT, paths: [false, false, false, false, false] }, ...this.schemePosition);
             this.grid.scheme.resetPathsOnRoad(...this.schemePosition);
         }
-        else {
+        else if (this.road) {
             if (this.road.makeHeavy()) {
                 this.grid.scheme.resetPathsOnRoad(...this.schemePosition);
                 this.road.refreshPaths();
             }
             else { this.grid.scheme.changeCellRoad(null, ...this.schemePosition); }
         }
-        this.grid.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
+        this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
         this.execForNeighborsRoads('refreshPaths')
         this.changeVisibleRoad()
     }
     
     changeVisibleRoad() {
         if (this.typeOfRoad && !this.road) {
-            this.road = this.createRoadModel();
+            this.road = Factory.sceneModel({
+                model: SchemeRoad,
+                name: this.name + '|road',
+                cell: this,
+            });
             Scene.addModelToContainer(this.road, this);
         }
         else if (!this.typeOfRoad) {
@@ -115,12 +131,30 @@ class SchemeCell extends Sprite {
     }
     refreshVisibleRoad() { this.road && this.road.refreshPaths(); }
 
-    createRoadModel() {
-        return Factory.sceneModel({
-            model: SchemeRoad,
-            name: this.name + '|road',
-            cell: this,
-        });
+    changeSemiconductorType(scType) {
+        this.scheme.putSemiconductor(scType, ...this.schemePosition);
+        this.changeVisibleSemiconductor();
+        this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
+        this.execForNeighborsRoads('refreshPaths')
+    }
+
+    changeVisibleSemiconductor() {
+        if (this.typeOfSemiconductor) {
+            if (!this.semiconductor) {
+                this.semiconductor = Factory.sceneModel({
+                    model: SchemeSemiconductor,
+                    name: this.name + '|semiconductor',
+                    cell: this,
+                });
+                Scene.addModelToContainer(this.semiconductor, this);
+            }
+            else {
+                this.semiconductor.refreshTexture();
+            }
+        }
+        else if (!this.typeOfSemiconductor) {
+            this.destroyChild('semiconductor');
+        }
     }
 
     execForNeighborsRoads(method, params = [], allowedDirs = null) {
@@ -159,9 +193,14 @@ class SchemeCell extends Sprite {
     get schemePositionDown() { let poss = this.schemePosition; poss[1]++; return poss }
 
     get type() {
-        return this.grid.scheme.getCell(...this.schemePosition).content;
+        return this.grid.scheme.findCellOrEmpty(...this.schemePosition).content;
     }
     get typeOfRoad() {
-        return this.grid.scheme.getCell(...this.schemePosition).road ? this.grid.scheme.getCell(...this.schemePosition).road.type : false;
+        return this.grid.scheme.findCellOrEmpty(...this.schemePosition).road ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).road.type : false;
     }
+    get typeOfSemiconductor() {
+        return this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor.type : false;
+    }
+
+    get scheme() { return this.grid.scheme; }
 }

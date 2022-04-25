@@ -3,16 +3,20 @@ const ST_STONE_RED = 2;
 const ST_STONE_INDIGO = 3;
 const ST_STONE_ORANGE = 4;
 const ST_ENERGY = 5;
-const ST_TRANS = 6;
-const ST_TRANS_SLEEP = 7;
-const ST_TRANS_AWAKE = 8;
+const ST_ROAD = 6;
+const ST_ROAD_SLEEP = 7;
+const ST_ROAD_AWAKE = 8;
 
-const TT_SCHEME = {
+const CONTENT_SPRITES = {
     [ST_STONE_VIOLET]: TT.stoneV,
     [ST_STONE_RED]: TT.stoneR,
     [ST_STONE_INDIGO]: TT.stoneI,
     [ST_STONE_ORANGE]: TT.stoneO,
     [ST_ENERGY]: TT.energy,
+}
+const SEMICONDUCTOR_SPRITES = {
+    [ST_ROAD_SLEEP]: TT.roadSleep,
+    [ST_ROAD_AWAKE]: TT.roadAwakening,
 }
 
 const STONE_TYPE_TO_ROAD_COLOR = {
@@ -48,11 +52,11 @@ class Scheme {
         this.visibleUpdate = visibleCallback;
     }
 
-    changeCellProperty(property, type, x, y) {
-        if (type) {
+    changeCellProperty(property, val, x, y) {
+        if (val) {
             if (!this.scheme[x]) { this.scheme[x] = {}; }
-            if (!this.scheme[x][y]) { this.scheme[x][y] = { [property]: type } }
-            else { this.scheme[x][y][property] = type; }
+            if (!this.scheme[x][y]) { this.scheme[x][y] = { [property]: val } }
+            else { this.scheme[x][y][property] = val; }
         }
         else {
             if (this.scheme[x] && this.scheme[x][y]) {
@@ -62,11 +66,22 @@ class Scheme {
         }
     }
     changeCellContent(type, x, y) { this.changeCellProperty('content', type, x, y); }
-    changeCellRoad(type, x, y) { this.changeCellProperty('road', type, x, y); }
+    changeCellRoad(obj, x, y) { this.changeCellProperty('road', obj, x, y); }
+    changeCellSemiconductor(obj, x, y) { this.changeCellProperty('semiconductor', obj, x, y); }
 
-    getCell(x, y) {
+    findCellOrEmpty(x, y) {
         if (this.scheme[x] && this.scheme[x][y]) { return this.scheme[x][y]; }
         return {};
+    }
+    findRoadCellOrEmpty(x, y) {
+        let cell = this.findCellOrEmpty(x, y);
+        if (!cell.road) { cell.road = {}; }
+        return cell
+    }
+    findSemiconductorCellOrEmpty(x, y) {
+        let cell = this.findCellOrEmpty(x, y);
+        if (!cell.semiconductor) { cell.semiconductor = {}; }
+        return cell
     }
 
     isCellEmpty (x, y) {
@@ -74,7 +89,7 @@ class Scheme {
             return true;
         }
         for (const property in this.scheme[x][y]) {
-            if (property) { return false; }
+            if (this.scheme[x][y][property]) { return false; }
         }
         this.scheme[x][y] = null;
         return true;
@@ -87,10 +102,13 @@ class Scheme {
         if (LEFT == side) { return [x - 1, y]; }
     }
 
+    isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
+    isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
+
     /** ROADs **/
 
     resetPathsOnRoad(x, y) {
-        let road = this.getCell(x, y).road;
+        let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
 
         let countAround = this.countObjectsAround(x, y);
@@ -133,11 +151,11 @@ class Scheme {
     }
 
     defineRoadPath(x, y, pathType, pathContent) {
-        this.getCell(x, y).road.paths[pathType] = pathContent;
+        this.findCellOrEmpty(x, y).road.paths[pathType] = pathContent;
     }
 
     setColorToRoad(color, fromDir, x, y) {
-        let road = this.getCell(x, y).road;
+        let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
         let pathType = SIDE_TO_ROAD_PATH[fromDir];
 
@@ -163,7 +181,7 @@ class Scheme {
     canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
 
     moveColorToNextPaths(x, y, color, disabledDirs) {
-        let road = this.getCell(x, y).road;
+        let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
 
         setTimeout(() => {
@@ -214,10 +232,6 @@ class Scheme {
         return disabled;
     }
 
-    // isEmptyAround(x, y) { return !this.countObjectsAround(x, y); }
-    isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
-    isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
-
     countObjectsAround(x, y) {
         let count = 0;
         if (!this.isCellEmpty(x + 1, y)) { count++; }
@@ -227,12 +241,68 @@ class Scheme {
         return count;
     }
 
+    isRoadsAround(x, y) { return !!this.countRoadsAround(x, y); }
     countRoadsAround(x, y) {
         let count = 0;
-        if (this.getCell(x + 1, y).road) { count++; }
-        if (this.getCell(x - 1, y).road) { count++; }
-        if (this.getCell(x, y + 1).road) { count++; }
-        if (this.getCell(x, y - 1).road) { count++; }
+        if (this.findCellOrEmpty(x + 1, y).road) { count++; }
+        if (this.findCellOrEmpty(x - 1, y).road) { count++; }
+        if (this.findCellOrEmpty(x, y + 1).road) { count++; }
+        if (this.findCellOrEmpty(x, y - 1).road) { count++; }
         return count;
     }
+
+    isRoadLeftOrRight(x, y) { return this.findCellOrEmpty(x + 1, y).road || this.findCellOrEmpty(x - 1, y).road; }
+
+    /** SEMICONDUCTOR **/
+
+    putSemiconductor(scType, x, y) {
+        if (!scType) {
+            this.changeCellSemiconductor(null, x, y);
+        }
+        else if (ST_ROAD_SLEEP == scType) {
+            return this.putSleepSemiconductor(x, y);
+        }
+        return false;
+    }
+
+    putSleepSemiconductor(x, y) {
+        if (this.isSemiconductorTypeAround(ST_ROAD_SLEEP, x, y) ||
+            1 < this.countSemiconductorTypeAround(ST_ROAD_AWAKE, x, y))
+        {
+            return false;
+        }
+
+        let direction;
+        if (this.isSemiconductorTypeAround(ST_ROAD_AWAKE, x, y)) {
+            if (this.isSemiconductorTypeLeftOrRight(ST_ROAD_AWAKE, x, y)) {
+                direction = ROAD_LEFT_RIGHT;
+            }
+            else { direction = ROAD_UP_DOWN; }
+        }
+        else {
+            if (ST_ROAD_SLEEP == this.findSemiconductorCellOrEmpty(x, y).semiconductor.type) {
+                direction = (ROAD_LEFT_RIGHT == this.findSemiconductorCellOrEmpty(x, y).semiconductor.direction ? ROAD_UP_DOWN : ROAD_LEFT_RIGHT);
+            }
+            else {
+                if (!this.isRoadsAround(x, y) || this.isRoadLeftOrRight(x, y)) {
+                    direction = ROAD_LEFT_RIGHT;
+                }
+                else { direction = ROAD_UP_DOWN; }
+            }
+        }
+        this.changeCellSemiconductor({ type: ST_ROAD_SLEEP, direction: direction }, x, y);
+        return true;
+    }
+
+    isSemiconductorTypeAround(scType, x, y) { return !!this.countSemiconductorTypeAround(scType, x, y); }
+    countSemiconductorTypeAround(scType, x, y) {
+        let count = 0;
+        if (scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x, y + 1).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x, y - 1).semiconductor.type) { count++; }
+        return count;
+    }
+
+    isSemiconductorTypeLeftOrRight(scType, x, y) { return scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type || scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type; }
 }

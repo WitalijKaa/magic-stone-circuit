@@ -52,14 +52,16 @@ class Scene {
             return;
         }
 
+        let texturePath = CONTENT_SPRITES.hasOwnProperty(this.controls.pen) ? CONTENT_SPRITES[this.controls.pen] : SEMICONDUCTOR_SPRITES[this.controls.pen];
+
         if (!this.tempButton) {
-            this.tempButton = FactoryGraphics.spriteByPath(TT_SCHEME[this.controls.pen]);
+            this.tempButton = FactoryGraphics.spriteByPath(texturePath);
             this.tempButton.width = 100;
             this.tempButton.height = 100;
             this.addModel({ sprite: this.tempButton })
         }
         else {
-            this.tempButton.texture = FactoryGraphics.textureByPath(TT_SCHEME[this.controls.pen]);
+            this.tempButton.texture = FactoryGraphics.textureByPath(texturePath);
         }
     }
 }

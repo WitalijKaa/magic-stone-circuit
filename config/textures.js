@@ -5,7 +5,9 @@ const TT = {
     stoneO: 'resources/stone_orange.png',
     energy: 'resources/energy.png',
     cell: 'resources/scheme_cell.png',
-    roadA: 'resources/road_left.png',
-    roadB: 'resources/road_right.png',
+    roadL: 'resources/road_left.png',
+    roadR: 'resources/road_right.png',
     roadH: 'resources/road_heavy.png',
+    roadSleep: 'resources/road_sleep.png',
+    roadAwakening: 'resources/road_awakening.png',
 }
