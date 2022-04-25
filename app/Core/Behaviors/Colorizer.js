@@ -9,6 +9,7 @@ class Colorizer {
     }
 
     setColor(color) {
+        if (!color) { this.removeColor(); return; }
         this.color = color;
         this.model.sprite.filters = [this.getColorMatrix()];
     }

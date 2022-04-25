@@ -2,7 +2,7 @@ const ROAD_LIGHT = 1;
 const ROAD_HEAVY = 2;
 const ROAD_LEFT_RIGHT = 3;
 const ROAD_UP_DOWN = 4;
-const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: null, [ROAD_UP_DOWN]: PIXI_ROTATE_90 };
+const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: null, [ROAD_UP_DOWN]: PIXI_ROTATE_90, [ROAD_HEAVY]: null, [ROAD_LIGHT]: null };
 
 const ROAD_PATH_UP = 0;
 const ROAD_PATH_RIGHT = 1;
@@ -67,8 +67,7 @@ class SchemeRoad extends Sprite {
             this.paths[pathType].colorizer = new Colorizer(this.paths[pathType]);
         }
 
-        if (color) { this.paths[pathType].colorizer.setColor(color); }
-        else { this.paths[pathType].colorizer.removeColor(); }
+        this.paths[pathType].colorizer.setColor(color);
     }
 
     removePath(pathType) {

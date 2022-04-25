@@ -26,6 +26,13 @@ const STONE_TYPE_TO_ROAD_COLOR = {
     [ST_STONE_ORANGE]: COLOR_ORANGE_ROAD,
 }
 
+const ROAD_TO_LIGHT_COLOR = {
+    [COLOR_VIOLET_ROAD]: COLOR_VIOLET_ROAD_LIGHT,
+    [COLOR_RED_ROAD]: COLOR_RED_ROAD_LIGHT,
+    [COLOR_INDIGO_ROAD]: COLOR_INDIGO_ROAD_LIGHT,
+    [COLOR_ORANGE_ROAD]: COLOR_ORANGE_ROAD_LIGHT,
+}
+
 class Scheme {
 
     static SIZE_RADIUS = 800000000;
@@ -47,6 +54,11 @@ class Scheme {
 
     coloringSpeedMs = 200;
 
+    Up(x, y) { return [x, y - 1]; }
+    Right(x, y) { return [x + 1, y]; }
+    Down(x, y) { return [x, y + 1]; }
+    Left(x, y) { return [x - 1, y]; }
+
     visibleUpdate = () => {};
     injectVisibleUpdate(visibleCallback) {
         this.visibleUpdate = visibleCallback;
@@ -55,8 +67,7 @@ class Scheme {
     changeCellProperty(property, val, x, y) {
         if (val) {
             if (!this.scheme[x]) { this.scheme[x] = {}; }
-            if (!this.scheme[x][y]) { this.scheme[x][y] = { [property]: val } }
-            else { this.scheme[x][y][property] = val; }
+            this.scheme[x][y] = { [property]: val };
         }
         else {
             if (this.scheme[x] && this.scheme[x][y]) {
@@ -262,6 +273,9 @@ class Scheme {
         else if (ST_ROAD_SLEEP == scType) {
             return this.putSleepSemiconductor(x, y);
         }
+        else if (ST_ROAD_AWAKE == scType) {
+            this.changeCellSemiconductor({ type: ST_ROAD_AWAKE, direction: ROAD_HEAVY }, x, y);
+        }
         return false;
     }
 
@@ -302,6 +316,35 @@ class Scheme {
         if (scType == this.findSemiconductorCellOrEmpty(x, y + 1).semiconductor.type) { count++; }
         if (scType == this.findSemiconductorCellOrEmpty(x, y - 1).semiconductor.type) { count++; }
         return count;
+    }
+
+    setColorToAwakeSemiconductor(color, x, y) {
+        let semiconductor = this.findCellOrEmpty(x, y).semiconductor;
+        if (!semiconductor || ST_ROAD_AWAKE != semiconductor.type || semiconductor.colorAwake == color) { return; }
+        semiconductor.colorAwake = color;
+        if (color) { color = ROAD_TO_LIGHT_COLOR[color]; }
+        semiconductor.color = color;
+        this.visibleUpdate(x, y);
+
+        SIDES.map((side) => {
+            let semiconductorNeighbor = this.findCellOrEmpty(...this[side](x, y)).semiconductor;
+            if (semiconductorNeighbor) {
+                if (ST_ROAD_AWAKE == semiconductorNeighbor.type) {
+                    this.setColorToAwakeSemiconductor(semiconductor.colorAwake, ...this[side](x, y));
+                }
+                else if (ST_ROAD_SLEEP == semiconductorNeighbor.type) {
+                    this.setColorToSleepSemiconductorByAwake(semiconductor.colorAwake, ...this[side](x, y));
+                }
+            }
+        });
+    }
+
+    setColorToSleepSemiconductorByAwake(color, x, y) {
+        console.log('setColorToSleepSemiconductorByAwake', color)
+    }
+
+    setColorToSleepSemiconductorByRoad(color, x, y) {
+
     }
 
     isSemiconductorTypeLeftOrRight(scType, x, y) { return scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type || scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type; }

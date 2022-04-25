@@ -73,14 +73,21 @@ class SchemeCell extends Sprite {
 
     changeSchemeType(type) {
         this.grid.scheme.changeCellContent(type, ...this.schemePosition);
-        this.changeVisibleType();
+        this.refreshVisibleAll();
         this.setColorAround();
     }
 
     changeVisibleType() {
         if (this.type) {
             if (!this.content) {
-                this.createContent(CONTENT_SPRITES[this.type]);
+                this.content = Factory.sceneModel({
+                    model: Sprite,
+                    name: this.name + '|content',
+                    texture: {
+                        path: CONTENT_SPRITES[this.type],
+                        parentModel: this,
+                    },
+                });
                 Scene.addModelToContainer(this.content, this);
             }
             else {
@@ -91,18 +98,23 @@ class SchemeCell extends Sprite {
     }
 
     setColorAround() {
+        let color = null
         if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(this.type)) {
-            let color = STONE_TYPE_TO_ROAD_COLOR[this.type];
-            SIDES.map((sideTo) => {
-                this.grid.scheme.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...this['schemePosition' + sideTo])
-            });
+            color = STONE_TYPE_TO_ROAD_COLOR[this.type];
         }
+        SIDES.map((sideTo) => {
+            let position = this['schemePosition' + sideTo];
+            this.grid.scheme.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...position)
+            this.grid.scheme.setColorToAwakeSemiconductor(color, ...position)
+        });
     }
 
     changeSchemeRoad() {
+        let isChanged = false;
         if (this.scheme.isCellEmpty(...this.schemePosition)) {
             this.grid.scheme.changeCellRoad({ type: ROAD_LIGHT, paths: [false, false, false, false, false] }, ...this.schemePosition);
             this.grid.scheme.resetPathsOnRoad(...this.schemePosition);
+            isChanged = true;
         }
         else if (this.road) {
             if (this.road.makeHeavy()) {
@@ -110,10 +122,13 @@ class SchemeCell extends Sprite {
                 this.road.refreshPaths();
             }
             else { this.grid.scheme.changeCellRoad(null, ...this.schemePosition); }
+            isChanged = true;
         }
-        this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
-        this.execForNeighborsRoads('refreshPaths')
-        this.changeVisibleRoad()
+        if (isChanged) {
+            this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
+            this.execForNeighborsRoads('refreshPaths')
+            this.changeVisibleRoad()
+        }
     }
     
     changeVisibleRoad() {
@@ -133,7 +148,7 @@ class SchemeCell extends Sprite {
 
     changeSemiconductorType(scType) {
         this.scheme.putSemiconductor(scType, ...this.schemePosition);
-        this.changeVisibleSemiconductor();
+        this.refreshVisibleAll();
         this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
         this.execForNeighborsRoads('refreshPaths')
     }
@@ -157,6 +172,13 @@ class SchemeCell extends Sprite {
         }
     }
 
+    refreshVisibleAll() {
+        this.changeVisibleType();
+        this.changeVisibleRoad();
+        this.refreshVisibleRoad();
+        this.changeVisibleSemiconductor();
+    }
+
     execForNeighborsRoads(method, params = [], allowedDirs = null) {
         SIDES.map((side) => {
             if (allowedDirs && !allowedDirs.includes(side)) { return; }
@@ -165,17 +187,6 @@ class SchemeCell extends Sprite {
             if (cell && cell.road) {
                 cell.road[method](...params);
             }
-        });
-    }
-
-    createContent(texturePath, param = 'content', rotation = null) {
-        this[param] = Factory.sceneModel({
-            model: Sprite,
-            name: this.name + '|' + param,
-            texture: {
-                path: texturePath,
-                parentModel: this,
-            },
         });
     }
 
@@ -200,6 +211,9 @@ class SchemeCell extends Sprite {
     }
     get typeOfSemiconductor() {
         return this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor.type : false;
+    }
+    get colorOfSemiconductor() {
+        return this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor.color : null;
     }
 
     get scheme() { return this.grid.scheme; }

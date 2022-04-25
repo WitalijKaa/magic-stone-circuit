@@ -63,7 +63,7 @@ class SchemeGrid extends Sprite {
     refreshVisibleCell(xScheme, yScheme) {
         let cell = this.getVisibleCell(...this.schemeToVisiblePosition(xScheme, yScheme));
         if (cell) {
-            cell.refreshVisibleRoad();
+            cell.refreshVisibleAll();
         }
     }
 
@@ -152,10 +152,7 @@ class SchemeGrid extends Sprite {
         this.dragX += x; // todo out of diameter
         this.dragY += y;
 
-        this.execForVisibleCells('changeVisibleType');
-        this.execForVisibleCells('changeVisibleRoad', [true]);
-        this.execForVisibleCells('refreshVisibleRoad');
-        this.execForVisibleCells('changeVisibleSemiconductor');
+        this.execForVisibleCells('refreshVisibleAll');
     }
 
     schemeToVisiblePosition(x, y) { return [x - this.dragX + this.constructor.GRID_OFFSET, y - this.dragY + this.constructor.GRID_OFFSET]; }
