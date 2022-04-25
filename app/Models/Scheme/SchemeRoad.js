@@ -41,7 +41,7 @@ class SchemeRoad extends Sprite {
     }
 
     get type() { return this.cell.typeOfRoad; }
-    set type(val) { this.cell.grid.scheme.getCell(...this.cell.schemePosition).type = val; }
+    set type(val) { this.cell.grid.scheme.getCell(...this.cell.schemePosition).road.type = val; }
     get schemePaths() { return this.cell.grid.scheme.getCell(...this.cell.schemePosition).road.paths; }
 
     makeHeavy() {
@@ -65,20 +65,9 @@ class SchemeRoad extends Sprite {
 
             this.paths[pathType].colorizer = new Colorizer(this.paths[pathType]);
         }
-        if (color) { this.paths[pathType].colorizer.setColor(color); }
-    }
 
-    setColor(color, fromDir) {
-        if (color) {
-            let pathType = SIDE_TO_ROAD_PATH[fromDir];
-            if (this.canPathSetColor(pathType)) {
-                this.setColorToPath(pathType, color);
-                this.moveColorToNextPath(color, this.disabledDirsToMoveColor(fromDir));
-            }
-        }
-        else {
-            this.paths.map((path) => { path && path.colorizer.removeColor(); });
-        }
+        if (color) { this.paths[pathType].colorizer.setColor(color); }
+        else { this.paths[pathType].colorizer.removeColor(); }
     }
 
     disabledDirsToMoveColor(fromDir) {
@@ -94,43 +83,6 @@ class SchemeRoad extends Sprite {
             }
         }
         return disabled;
-    }
-
-    moveColorToNextPath(color, disabledDirs) {
-        setTimeout(() => {
-            let nextCells = [];
-
-            SIDES.map((side) => {
-                if (disabledDirs.includes(side)) { return; }
-                let pathType = SIDE_TO_ROAD_PATH[side];
-                if (this.canPathSetColor(pathType)) {
-                    this.setColorToPath(pathType, color);
-                    nextCells.push(side);
-                }
-            });
-            setTimeout(() => { this.setColorToPath(ROAD_PATH_HEAVY, color); }, this.cell.grid.coloringSpeedMs * 0.5);
-
-            this.moveColorToNextCells(nextCells, color);
-
-        }, this.cell.grid.coloringSpeedMs);
-    }
-
-    moveColorToNextCells(nextCells, color) {
-        setTimeout(() => {
-            nextCells.map((toDir) => {
-                this.cell.execForNeighborsRoads('setColor', [color, OPPOSITE_SIDE[toDir]], [toDir])
-            });
-        }, this.cell.grid.coloringSpeedMs)
-    }
-
-    setColorToPath(pathType, color) {
-        if (!this.paths[pathType]) { return; }
-        if (color) { this.paths[pathType].colorizer.setColor(color); }
-        else { this.paths[pathType].colorizer.removeColor() }
-    }
-    canPathSetColor(pathType) {
-        if (!this.paths[pathType]) { return false; }
-        return !this.paths[pathType].colorizer.isColorized;
     }
 
     removePath(pathType) {
@@ -171,9 +123,5 @@ class SchemeRoad extends Sprite {
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionDown) && this.scheme.getCell(...this.cell.schemePositionDown).road) { count++; }
         if (!this.scheme.isCellEmpty(...this.cell.schemePositionLeft) && this.scheme.getCell(...this.cell.schemePositionLeft).road) { count++; }
         return count;
-    }
-
-    get emptyMe() {
-        return !this.paths[ROAD_PATH_UP] && !this.paths[ROAD_PATH_RIGHT] && !this.paths[ROAD_PATH_DOWN] && !this.paths[ROAD_PATH_LEFT];
     }
 }

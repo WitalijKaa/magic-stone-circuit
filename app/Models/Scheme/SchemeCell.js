@@ -79,13 +79,6 @@ class SchemeCell extends Sprite {
     }
 
     setColorAround() {
-        // if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(this.type)) {
-        //     let color = STONE_TYPE_TO_ROAD_COLOR[this.type];
-        //     SIDES.map((sideTo) => {
-        //         this.execForNeighborsRoads('setColor', [color, OPPOSITE_SIDE[sideTo]], [sideTo])
-        //     });
-        // }
-        console.log(this.name, this.schemePosition)
         if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(this.type)) {
             let color = STONE_TYPE_TO_ROAD_COLOR[this.type];
             SIDES.map((sideTo) => {

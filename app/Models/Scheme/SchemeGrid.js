@@ -10,8 +10,6 @@ class SchemeGrid extends Sprite {
 
     needToResize = true;
 
-    coloringSpeedMs = 200;
-
     constructor(config) {
         super(config);
 
@@ -21,6 +19,7 @@ class SchemeGrid extends Sprite {
         this.sprite.hitArea = new PIXI.Rectangle(0, 0, 100000, 100000);
 
         this.scheme = Scheme.getNamedScheme(this.name);
+        this.scheme.injectVisibleUpdate((x, y) => { this.refreshVisibleCell(x, y)});
         this.createVisibleGrid();
 
         new MouseDrag(this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGrid' });
@@ -59,6 +58,13 @@ class SchemeGrid extends Sprite {
             }
         }
         return null;
+    }
+
+    refreshVisibleCell(xScheme, yScheme) {
+        let cell = this.getVisibleCell(...this.schemeToVisiblePosition(xScheme, yScheme));
+        if (cell) {
+            cell.refreshVisibleRoad();
+        }
     }
 
     removeCellsRow() {
@@ -150,6 +156,8 @@ class SchemeGrid extends Sprite {
         this.execForVisibleCells('changeVisibleRoad', [true]);
         this.execForVisibleCells('refreshVisibleRoad');
     }
+
+    schemeToVisiblePosition(x, y) { return [x - this.dragX + this.constructor.GRID_OFFSET, y - this.dragY + this.constructor.GRID_OFFSET]; }
 
     get visibleCellsAreaSize() {
         return {

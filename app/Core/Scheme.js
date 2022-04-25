@@ -41,6 +41,13 @@ class Scheme {
         return Scene.deviceRation;
     }
 
+    coloringSpeedMs = 200;
+
+    visibleUpdate = () => {};
+    injectVisibleUpdate(visibleCallback) {
+        this.visibleUpdate = visibleCallback;
+    }
+
     changeCellProperty(property, type, x, y) {
         if (type) {
             if (!this.scheme[x]) { this.scheme[x] = {}; }
@@ -73,8 +80,17 @@ class Scheme {
         return true;
     }
 
+    getRelativeCellPositionBySize(x, y, side) {
+        if (UP == side) { return [x, y - 1]; }
+        if (RIGHT == side) { return [x + 1, y]; }
+        if (DOWN == side) { return [x, y + 1]; }
+        if (LEFT == side) { return [x - 1, y]; }
+    }
+
+    /** ROADs **/
+
     resetPathsOnRoad(x, y) {
-        let road = this.getCell(x, y) ? this.getCell(x, y).road : false;
+        let road = this.getCell(x, y).road;
         if (!road) { return; }
 
         let countAround = this.countObjectsAround(x, y);
@@ -121,19 +137,81 @@ class Scheme {
     }
 
     setColorToRoad(color, fromDir, x, y) {
-        console.log(fromDir, x, y)
-        return;
+        let road = this.getCell(x, y).road;
+        if (!road) { return; }
+        let pathType = SIDE_TO_ROAD_PATH[fromDir];
 
         if (color) {
-            let pathType = SIDE_TO_ROAD_PATH[fromDir];
-            if (this.canPathSetColor(pathType)) {
-                this.setColorToPath(pathType, color);
-                this.moveColorToNextPath(color, this.disabledDirsToMoveColor(fromDir));
+            if (this.canPathSetColor(road, pathType)) {
+                road.paths[pathType] = color;
+                this.moveColorToNextPaths(
+                    x, y,
+                    color,
+                    this.disabledDirsToMoveColor(road, this.countRoadsAround(x, y), fromDir)
+                );
             }
         }
         else {
-            this.paths.map((path) => { path && path.colorizer.removeColor(); });
+            if (road.paths[pathType]) {
+                road.paths[pathType] = true;
+            }
         }
+
+        this.visibleUpdate(x, y);
+    }
+
+    canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
+
+    moveColorToNextPaths(x, y, color, disabledDirs) {
+        let road = this.getCell(x, y).road;
+        if (!road) { return; }
+
+        setTimeout(() => {
+            let nextSides = [];
+
+            SIDES.map((side) => {
+                if (disabledDirs.includes(side)) { return; }
+                let pathType = SIDE_TO_ROAD_PATH[side];
+                if (this.canPathSetColor(road, pathType)) {
+                    road.paths[pathType] = color;
+                    nextSides.push(side);
+                }
+            });
+            this.visibleUpdate(x, y);
+
+            setTimeout(() => {
+                if (this.canPathSetColor(road, ROAD_PATH_HEAVY)) {
+                    road.paths[ROAD_PATH_HEAVY] = color;
+                    this.visibleUpdate(x, y);
+                }
+            }, this.coloringSpeedMs * 0.5);
+
+            this.moveColorToNextCells(x, y, nextSides, color);
+
+        }, this.coloringSpeedMs);
+    }
+
+    moveColorToNextCells(x, y, nextSides, color) {
+        setTimeout(() => {
+            nextSides.map((toDir) => {
+                this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this.getRelativeCellPositionBySize(x, y, toDir))
+            });
+        }, this.coloringSpeedMs)
+    }
+
+    disabledDirsToMoveColor(road, countRoadsAround, fromDir) {
+        let disabled = [fromDir];
+        if (ROAD_HEAVY != road.type && countRoadsAround > 2) {
+            if (fromDir == LEFT || fromDir == RIGHT) {
+                disabled.push(UP);
+                disabled.push(DOWN);
+            }
+            else {
+                disabled.push(LEFT);
+                disabled.push(RIGHT);
+            }
+        }
+        return disabled;
     }
 
     // isEmptyAround(x, y) { return !this.countObjectsAround(x, y); }
@@ -146,6 +224,15 @@ class Scheme {
         if (!this.isCellEmpty(x - 1, y)) { count++; }
         if (!this.isCellEmpty(x, y + 1)) { count++; }
         if (!this.isCellEmpty(x, y - 1)) { count++; }
+        return count;
+    }
+
+    countRoadsAround(x, y) {
+        let count = 0;
+        if (this.getCell(x + 1, y).road) { count++; }
+        if (this.getCell(x - 1, y).road) { count++; }
+        if (this.getCell(x, y + 1).road) { count++; }
+        if (this.getCell(x, y - 1).road) { count++; }
         return count;
     }
 }
