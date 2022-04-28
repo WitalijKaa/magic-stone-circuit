@@ -142,6 +142,7 @@ class SchemeCell extends Sprite {
             }
         }
         else if (!this.typeOfSemiconductor) {
+            if (this.semiconductor) { this.semiconductor.destroyChild('charge'); }
             this.destroyChild('semiconductor');
         }
     }
@@ -186,8 +187,8 @@ class SchemeCell extends Sprite {
     get typeOfSemiconductor() {
         return this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor.type : false;
     }
-    get colorOfSemiconductor() {
-        return this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor ? this.grid.scheme.findCellOrEmpty(...this.schemePosition).semiconductor.color : null;
+    get semi() {
+        return this.grid.scheme.findSemiconductorCellOrEmpty(...this.schemePosition).semiconductor;
     }
 
     get scheme() { return this.grid.scheme; }

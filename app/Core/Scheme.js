@@ -18,6 +18,10 @@ const SEMICONDUCTOR_SPRITES = {
     [ST_ROAD_SLEEP]: TT.roadSleep,
     [ST_ROAD_AWAKE]: TT.roadAwakening,
 }
+const SEMICONDUCTOR_SPRITES_FLOW = {
+    [ST_ROAD_SLEEP]: TT.roadSleepFlow,
+    [ST_ROAD_AWAKE]: TT.roadAwakeningFlow,
+}
 
 const STONE_TYPE_TO_ROAD_COLOR = {
     [ST_STONE_VIOLET]: COLOR_VIOLET_ROAD,
@@ -346,6 +350,7 @@ class Scheme {
     moveColorToNextCells(x, y, nextSides, color) {
         nextSides.map((toDir) => {
             this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this[toDir](x, y))
+            this.setColorToChargeSemiconductorByRoad(color, ...this[toDir](x, y))
         });
     }
 
@@ -447,25 +452,38 @@ class Scheme {
         semiconductor.color = color;
         this.visibleUpdate(x, y);
 
-        SIDES.map((side) => {
-            let semiconductorNeighbor = this.findCellOrEmpty(...this[side](x, y)).semiconductor;
+        SIDES.map((toDir) => {
+            let semiconductorNeighbor = this.findCellOrEmpty(...this[toDir](x, y)).semiconductor;
             if (semiconductorNeighbor) {
                 if (ST_ROAD_AWAKE == semiconductorNeighbor.type) {
-                    this.setColorToAwakeSemiconductor(semiconductor.colorAwake, ...this[side](x, y));
+                    this.setColorToAwakeSemiconductor(semiconductor.colorAwake, ...this[toDir](x, y));
                 }
                 else if (ST_ROAD_SLEEP == semiconductorNeighbor.type) {
-                    this.setColorToSleepSemiconductorByAwake(semiconductor.colorAwake, ...this[side](x, y));
+                    this.setColorToChargeSemiconductorByAwake(semiconductor.colorAwake, ...this[toDir](x, y));
                 }
             }
         });
     }
 
-    setColorToSleepSemiconductorByAwake(color, x, y) {
-        console.log('setColorToSleepSemiconductorByAwake', color)
+    setColorToChargeSemiconductorByAwake(color, fromDir, x, y) {
+        let semi = this.findSemiconductorCellOrEmpty(x, y).semiconductor;
+        if (!semi || ST_ROAD_SLEEP != semi.type || semi.colorAwake == color) { return; }
+
+        semi.color = ROAD_TO_LIGHT_COLOR[color];
+        semi.colorAwake = color;
+        this.visibleUpdate(x, y);
     }
 
-    setColorToSleepSemiconductorByRoad(color, x, y) {
+    setColorToChargeSemiconductorByRoad(color, x, y) {
+        let semi = this.findSemiconductorCellOrEmpty(x, y).semiconductor;
+        if (!semi || ST_ROAD_AWAKE != semi.type || semi.colorCharge == color || semi.colorAwake != color) { return; }
 
+        semi.colorCharge = color;
+        SIDES.map((toDir) => {
+            this.setColorToChargeSemiconductorByRoad(color, ...this[toDir](x, y));
+            this.setColorToChargeSemiconductorByAwake(color, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
+        });
+        this.visibleUpdate(x, y);
     }
 
     isSemiconductorTypeLeftOrRight(scType, x, y) { return scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type || scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type; }
