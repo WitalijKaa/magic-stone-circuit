@@ -104,30 +104,22 @@ class SchemeCell extends Sprite {
         }
         SIDES.map((sideTo) => {
             let position = this['schemePosition' + sideTo];
-            this.grid.scheme.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...position)
-            this.grid.scheme.setColorToAwakeSemiconductor(color, ...position)
+            this.scheme.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...position)
+            this.scheme.setColorToAwakeSemiconductor(color, ...position)
         });
     }
 
     changeSchemeRoad() {
-        let isChanged = false;
         if (this.scheme.isCellEmpty(...this.schemePosition)) {
-            this.grid.scheme.changeCellRoad({ type: ROAD_LIGHT, paths: [false, false, false, false, false] }, ...this.schemePosition);
-            this.grid.scheme.resetPathsOnRoad(...this.schemePosition);
-            isChanged = true;
+            this.scheme.putRoad(...this.schemePosition);
         }
         else if (this.road) {
             if (this.road.makeHeavy()) {
-                this.grid.scheme.resetPathsOnRoad(...this.schemePosition);
+                this.scheme.resetPathsOnRoad(...this.schemePosition);
                 this.road.refreshPaths();
+                this.scheme.doCheckRunForRoads(...this.schemePosition);
             }
-            else { this.grid.scheme.changeCellRoad(null, ...this.schemePosition); }
-            isChanged = true;
-        }
-        if (isChanged) {
-            this.scheme.resetPathsOnNeighborsRoads(...this.schemePosition);
-            this.execForNeighborsRoads('refreshPaths')
-            this.changeVisibleRoad()
+            else { this.scheme.removeRoad(...this.schemePosition); }
         }
     }
     

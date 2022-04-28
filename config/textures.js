@@ -9,5 +9,7 @@ const TT = {
     roadR: 'resources/road_right.png',
     roadH: 'resources/road_heavy.png',
     roadSleep: 'resources/road_sleep.png',
+    roadSleepFlow: 'resources/road_sleep_flow.png',
     roadAwakening: 'resources/road_awakening.png',
+    roadAwakeningFlow: 'resources/road_awakening_flow.png',
 }

@@ -7,11 +7,19 @@ window.pixiApp = new PIXI.Application({
 });
 window.pixiAppContainer.appendChild(window.pixiApp.view);
 
-SCENE.map((sceneModelConfig) => {
-    Scene.addModel(
-        Factory.sceneModel(sceneModelConfig)
-    );
-});
+Scene.addModel(
+    Factory.sceneModel({
+        model: SchemeGrid,
+        name: 'mainGrid',
+        params: {
+            cellSizePx: 40, // size of cell without zoom
+            cell: {
+                model: SchemeCell,
+                texture: TT.cell,
+            },
+        }
+    })
+);
 
 Scene.controls.pen = ST_STONE_VIOLET;
 Scene.setTempButton()
@@ -27,7 +35,6 @@ function mainContainerResize() {
     window.pixiApp.renderer.resize(window.pixiAppContainer.offsetWidth, window.pixiAppContainer.offsetHeight);
     Scene.resize();
 }
-
 window.addEventListener('resize', function() {
     mainContainerResize();
 });

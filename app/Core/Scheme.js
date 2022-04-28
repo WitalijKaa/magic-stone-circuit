@@ -45,6 +45,9 @@ class Scheme {
         }
         return Scheme.schemes[name];
     }
+    
+    static _checkRunIX = 1;
+    static get checkRun() { return this._checkRunIX++; }
 
     scheme = {};
 
@@ -86,12 +89,12 @@ class Scheme {
     }
     findRoadCellOrEmpty(x, y) {
         let cell = this.findCellOrEmpty(x, y);
-        if (!cell.road) { cell.road = {}; }
+        if (!cell.road) { return { road: {} }; }
         return cell
     }
     findSemiconductorCellOrEmpty(x, y) {
         let cell = this.findCellOrEmpty(x, y);
-        if (!cell.semiconductor) { cell.semiconductor = {}; }
+        if (!cell.semiconductor) { return { semiconductor: {} }; }
         return cell
     }
 
@@ -106,17 +109,52 @@ class Scheme {
         return true;
     }
 
-    getRelativeCellPositionBySize(x, y, side) {
-        if (UP == side) { return [x, y - 1]; }
-        if (RIGHT == side) { return [x + 1, y]; }
-        if (DOWN == side) { return [x, y + 1]; }
-        if (LEFT == side) { return [x - 1, y]; }
-    }
-
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
 
     /** ROADs **/
+    
+    putRoad(x, y) {
+        this.changeCellRoad({
+            type: ROAD_LIGHT,
+            paths: [false, false, false, false, false],
+        }, x, y);
+
+        console.log('!!', x, y)
+        this.resetPathsOnRoad(x, y);
+        this.visibleUpdate(x, y);
+        this.doCheckRunForRoads(x, y)
+    }
+
+    removeRoad(x, y) {
+        this.changeCellRoad(null, x, y);
+
+        console.log('!!!!', x, y)
+        this.visibleUpdate(x, y);
+        this.doCheckRunForRoads(x, y)
+    }
+
+    doCheckRunForRoads(x, y) {
+        this.execCheckRunForRoads(null, x, y);
+    }
+    
+    execCheckRunForRoads(checkRun, x, y) {
+        if (!checkRun) {
+            checkRun = this.constructor.checkRun;
+            this.findRoadCellOrEmpty(x, y).road.checkRun = checkRun;
+        }
+
+        SIDES.map((side) => {
+            let road = this.findRoadCellOrEmpty(...this[side](x, y)).road;
+            if (road.type && checkRun != road.checkRun) {
+                console.log(...this[side](x, y))
+                road.checkRun = checkRun;
+                this.resetPathsOnRoad(...this[side](x, y));
+                this.visibleUpdate(...this[side](x, y));
+                this.execCheckRunForRoads(checkRun, ...this[side](x, y));
+            }
+        });
+    }
 
     resetPathsOnRoad(x, y) {
         let road = this.findCellOrEmpty(x, y).road;
@@ -223,7 +261,7 @@ class Scheme {
     moveColorToNextCells(x, y, nextSides, color) {
         setTimeout(() => {
             nextSides.map((toDir) => {
-                this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this.getRelativeCellPositionBySize(x, y, toDir))
+                this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this[toDir](x, y))
             });
         }, this.coloringSpeedMs)
     }
