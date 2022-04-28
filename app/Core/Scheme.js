@@ -12,7 +12,7 @@ const CONTENT_SPRITES = {
     [ST_STONE_RED]: TT.stoneR,
     [ST_STONE_INDIGO]: TT.stoneI,
     [ST_STONE_ORANGE]: TT.stoneO,
-    [ST_ENERGY]: TT.energy,
+    //[ST_ENERGY]: TT.energy,
 }
 const SEMICONDUCTOR_SPRITES = {
     [ST_ROAD_SLEEP]: TT.roadSleep,
@@ -61,6 +61,8 @@ class Scheme {
     Right(x, y) { return [x + 1, y]; }
     Down(x, y) { return [x, y + 1]; }
     Left(x, y) { return [x - 1, y]; }
+
+    cellName (x, y) { return x + '|' + y; }
 
     visibleUpdate = () => {};
     injectVisibleUpdate(visibleCallback) {
@@ -112,15 +114,79 @@ class Scheme {
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
 
+    setCellEmpty(x, y) {
+        this.changeCellContent(null, x, y);
+    }
+
+    updateTick() {
+        this.extractCacheActions().map((cache) => {
+            this[cache.method](...cache.params);
+        })
+
+        setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
+    }
+
+    extractCacheActions() {
+        let cacheColorings = [];
+        for (let cName in this.cacheColorings) {
+            if (this.cacheColorings[cName] && this.cacheColorings[cName].length) {
+                cacheColorings.push(...this.cacheColorings[cName].splice(0))
+                delete(this.cacheColorings[cName]);
+            }
+        }
+        return cacheColorings;
+    }
+
+    /** COLORs **/
+
+    cacheColorings = {};
+
+    setColorAround(colorType, x, y) {
+        this.coloringCellCache(x, y).push({
+            type: ST_ROAD,
+            method: 'execSetColorAround',
+            params: [colorType, x, y],
+        });
+    }
+
+    execSetColorAround(colorType, x, y) {
+        let color = null
+        if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(colorType)) {
+            color = STONE_TYPE_TO_ROAD_COLOR[colorType];
+        }
+        SIDES.map((sideTo) => {
+            this.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...this[sideTo](x, y))
+            this.setColorToAwakeSemiconductor(color, ...this[sideTo](x, y))
+        });
+    }
+
+    coloringCellCache(x, y) {
+        let name = this.cellName(x, y);
+        if (!this.cacheColorings[name]) { this.cacheColorings[name] = []; }
+        return this.cacheColorings[name];
+    }
+
+    removeColoringCellCache(x, y) {
+        let name = this.cellName(x, y);
+        if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
+    }
+
+    /** STONEs **/
+
+    putContent(type, x, y) {
+        this.changeCellContent(type, x, y);
+        this.setColorAround(type, x, y);
+        this.visibleUpdate(x, y);
+    }
+
     /** ROADs **/
-    
+
     putRoad(x, y) {
         this.changeCellRoad({
             type: ROAD_LIGHT,
             paths: [false, false, false, false, false],
         }, x, y);
 
-        console.log('!!', x, y)
         this.resetPathsOnRoad(x, y);
         this.visibleUpdate(x, y);
         this.doCheckRunForRoads(x, y)
@@ -129,7 +195,6 @@ class Scheme {
     removeRoad(x, y) {
         this.changeCellRoad(null, x, y);
 
-        console.log('!!!!', x, y)
         this.visibleUpdate(x, y);
         this.doCheckRunForRoads(x, y)
     }
@@ -145,13 +210,15 @@ class Scheme {
         }
 
         SIDES.map((side) => {
-            let road = this.findRoadCellOrEmpty(...this[side](x, y)).road;
+            let sideXY = []; sideXY.push(...this[side](x, y));
+            let road = this.findRoadCellOrEmpty(...sideXY).road;
+
             if (road.type && checkRun != road.checkRun) {
-                console.log(...this[side](x, y))
                 road.checkRun = checkRun;
-                this.resetPathsOnRoad(...this[side](x, y));
-                this.visibleUpdate(...this[side](x, y));
-                this.execCheckRunForRoads(checkRun, ...this[side](x, y));
+                this.resetPathsOnRoad(...sideXY);
+                this.visibleUpdate(...sideXY);
+                this.execCheckRunForRoads(checkRun, ...sideXY);
+                this.removeColoringCellCache(...sideXY)
             }
         });
     }
@@ -233,37 +300,53 @@ class Scheme {
         let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
 
-        setTimeout(() => {
-            let nextSides = [];
+        this.coloringCellCache(x, y).push({
+            type: ST_ROAD,
+            method: 'execMoveColorToNextPaths',
+            params: [x, y, color, disabledDirs],
+        });
+    }
 
-            SIDES.map((side) => {
-                if (disabledDirs.includes(side)) { return; }
-                let pathType = SIDE_TO_ROAD_PATH[side];
-                if (this.canPathSetColor(road, pathType)) {
-                    road.paths[pathType] = color;
-                    nextSides.push(side);
-                }
-            });
+    execMoveColorToNextPaths(x, y, color, disabledDirs) {
+        let road = this.findCellOrEmpty(x, y).road;
+        if (!road) { return; }
+
+        let nextSides = [];
+
+        SIDES.map((side) => {
+            if (disabledDirs.includes(side)) { return; }
+            let pathType = SIDE_TO_ROAD_PATH[side];
+            if (this.canPathSetColor(road, pathType)) {
+                road.paths[pathType] = color;
+                nextSides.push(side);
+            }
+        });
+        this.visibleUpdate(x, y);
+
+        this.coloringCellCache(x, y).push({
+            type: ST_ROAD,
+            method: 'moveColorToHeavy',
+            params: [road, color, x, y],
+        });
+
+        this.coloringCellCache(x, y).push({
+            type: ST_ROAD,
+            method: 'moveColorToNextCells',
+            params: [x, y, nextSides, color],
+        });
+    }
+
+    moveColorToHeavy(road, color, x, y) {
+        if (this.canPathSetColor(road, ROAD_PATH_HEAVY)) {
+            road.paths[ROAD_PATH_HEAVY] = color;
             this.visibleUpdate(x, y);
-
-            setTimeout(() => {
-                if (this.canPathSetColor(road, ROAD_PATH_HEAVY)) {
-                    road.paths[ROAD_PATH_HEAVY] = color;
-                    this.visibleUpdate(x, y);
-                }
-            }, this.coloringSpeedMs * 0.5);
-
-            this.moveColorToNextCells(x, y, nextSides, color);
-
-        }, this.coloringSpeedMs);
+        }
     }
 
     moveColorToNextCells(x, y, nextSides, color) {
-        setTimeout(() => {
-            nextSides.map((toDir) => {
-                this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this[toDir](x, y))
-            });
-        }, this.coloringSpeedMs)
+        nextSides.map((toDir) => {
+            this.setColorToRoad(color, OPPOSITE_SIDE[toDir], ...this[toDir](x, y))
+        });
     }
 
     disabledDirsToMoveColor(road, countRoadsAround, fromDir) {

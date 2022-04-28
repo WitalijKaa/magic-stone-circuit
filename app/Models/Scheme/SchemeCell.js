@@ -59,23 +59,17 @@ class SchemeCell extends Sprite {
 
     handleClick() {
         if (CONTENT_SPRITES.hasOwnProperty(Scene.controls.pen)) {
-            this.changeSchemeType(Scene.controls.pen);
+            this.scheme.putContent(Scene.controls.pen, ...this.schemePosition);
         }
         else if (ST_ROAD_SLEEP == Scene.controls.pen || ST_ROAD_AWAKE == Scene.controls.pen) {
             this.changeSemiconductorType(Scene.controls.pen);
         }
         else if (!Scene.controls.pen) {
-            this.changeSchemeType(null);
+            this.scheme.setCellEmpty(...this.schemePosition)
             this.changeSemiconductorType(null);
         }
     }
     handleRightClick() { this.changeSchemeRoad(); }
-
-    changeSchemeType(type) {
-        this.grid.scheme.changeCellContent(type, ...this.schemePosition);
-        this.refreshVisibleAll();
-        this.setColorAround();
-    }
 
     changeVisibleType() {
         if (this.type) {
@@ -95,18 +89,6 @@ class SchemeCell extends Sprite {
             }
         }
         else { this.destroyChild('content'); }
-    }
-
-    setColorAround() {
-        let color = null
-        if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(this.type)) {
-            color = STONE_TYPE_TO_ROAD_COLOR[this.type];
-        }
-        SIDES.map((sideTo) => {
-            let position = this['schemePosition' + sideTo];
-            this.scheme.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...position)
-            this.scheme.setColorToAwakeSemiconductor(color, ...position)
-        });
     }
 
     changeSchemeRoad() {

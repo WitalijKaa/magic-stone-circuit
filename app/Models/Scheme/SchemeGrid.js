@@ -1,5 +1,6 @@
 class SchemeGrid extends Sprite {
 
+    static START_TIMEOUT = 1000;
     static GRID_OFFSET = 2; // to be little outsize of the visible screen area
 
     scheme;
@@ -21,6 +22,8 @@ class SchemeGrid extends Sprite {
         this.scheme = Scheme.getNamedScheme(this.name);
         this.scheme.injectVisibleUpdate((x, y) => { this.refreshVisibleCell(x, y)});
         this.createVisibleGrid();
+
+        setTimeout(() => { this.scheme.updateTick(); }, this.constructor.START_TIMEOUT);
 
         new MouseDrag(this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGrid' });
     }
