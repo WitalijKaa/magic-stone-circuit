@@ -18,3 +18,4 @@ I decided to try to make a computer game about logic circuits. It will have othe
 - Task 6: transport roads.
 - Task 7: coloring roads with energy.
 - Task 8: sleepy road may awake.
+- Task 9: correct reset of color.
