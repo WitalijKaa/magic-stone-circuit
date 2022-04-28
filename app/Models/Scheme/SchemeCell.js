@@ -3,6 +3,8 @@ const RIGHT = 'Right';
 const DOWN = 'Down';
 const LEFT = 'Left';
 const SIDES = [UP, RIGHT, DOWN, LEFT];
+const SIDES_LEFT_RIGHT = [RIGHT, LEFT];
+const SIDES_UP_DOWN = [UP, DOWN];
 const OPPOSITE_SIDE = {
     [UP]: DOWN,
     [DOWN]: UP,

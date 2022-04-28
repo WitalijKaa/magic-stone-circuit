@@ -17,12 +17,12 @@ class SchemeSemiconductor extends Sprite {
         });
         Scene.addModelToContainer(this.charge, this.cell);
         this.colorizerCharge = new Colorizer(this.charge);
-        this.colorizerCharge.setColor(this.cell.semi.colorCharge);
+        this.colorizerCharge.setColor(this.cell.semi.colorFlow);
     }
 
     refreshTexture() {
         this.colorizer.setColor(this.cell.semi.color);
-        this.colorizerCharge.setColor(this.cell.semi.colorCharge);
+        this.colorizerCharge.setColor(this.cell.semi.colorFlow);
     }
 
     static defineTextureByScheme(cell, spritesEnum = SEMICONDUCTOR_SPRITES) {
