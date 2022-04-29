@@ -18,6 +18,10 @@ const SEMICONDUCTOR_SPRITES = {
     [ST_ROAD_SLEEP]: TT.roadSleep,
     [ST_ROAD_AWAKE]: TT.roadAwakening,
 }
+const SEMICONDUCTOR_SPRITES_CHARGE = {
+    [ST_ROAD_SLEEP]: TT.roadSleepCharge,
+    [ST_ROAD_AWAKE]: TT.roadAwakeningCharge,
+}
 const SEMICONDUCTOR_SPRITES_FLOW = {
     [ST_ROAD_SLEEP]: TT.roadSleepFlow,
     [ST_ROAD_AWAKE]: TT.roadAwakeningFlow,
@@ -173,6 +177,15 @@ class AbstractScheme {
         return cacheColorings;
     }
 
+    countObjectsAround(x, y) {
+        let count = 0;
+        if (!this.isCellEmpty(x + 1, y)) { count++; }
+        if (!this.isCellEmpty(x - 1, y)) { count++; }
+        if (!this.isCellEmpty(x, y + 1)) { count++; }
+        if (!this.isCellEmpty(x, y - 1)) { count++; }
+        return count;
+    }
+
     /** COLORs **/
 
     cacheColorings = {};
@@ -186,5 +199,26 @@ class AbstractScheme {
     removeColoringCellCache(x, y) {
         let name = this.cellName(x, y);
         if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
+    }
+
+    /** ROADs **/
+
+    isRoadsAround(x, y) { return !!this.countRoadsAround(x, y); }
+    countRoadsAround(x, y) {
+        let count = 0;
+        if (this.findCellOrEmpty(x + 1, y).road) { count++; }
+        if (this.findCellOrEmpty(x - 1, y).road) { count++; }
+        if (this.findCellOrEmpty(x, y + 1).road) { count++; }
+        if (this.findCellOrEmpty(x, y - 1).road) { count++; }
+        return count;
+    }
+
+    isRoadLeftOrRight(x, y) { return this.findCellOrEmpty(x + 1, y).road || this.findCellOrEmpty(x - 1, y).road; }
+
+    isRoadFlowColorToSide(color, toDir, x, y) {
+        let road = this.findCellOrEmpty(x, y).road;
+        if (!road) { return false; }
+        let path = road.paths[SIDE_TO_ROAD_PATH[toDir]];
+        return !!(path && true !== path && path.color == color && path.from == OPPOSITE_SIDE[toDir]);
     }
 }

@@ -103,15 +103,10 @@ class SchemeCell extends Sprite {
         if (this.scheme.isCellEmpty(...this.schemePosition)) {
             this.scheme.putRoad(...this.schemePosition);
         }
-        else if (this.road) {
-            if (this.road.makeHeavy()) {
-                this.scheme.resetPathsOnRoad(...this.schemePosition);
-                this.scheme.removeColoringCellCache(...this.schemePosition);
-                this.scheme.cancelColorOnNeighborsRoads(this.scheme.findCellOrEmpty(...this.schemePosition).road.paths, ...this.schemePosition);
-                this.road.refreshPaths();
-                this.scheme.doCheckRunForRoads(null, ...this.schemePosition);
+        else if (this.scheme.findCellOrEmpty(...this.schemePosition).road) {
+            if (!this.scheme.makeRoadHeavy(...this.schemePosition)) {
+                this.scheme.removeRoad(...this.schemePosition);
             }
-            else { this.scheme.removeRoad(...this.schemePosition); }
         }
     }
     
@@ -134,7 +129,6 @@ class SchemeCell extends Sprite {
         this.scheme.putSemiconductor(scType, ...this.schemePosition);
         this.refreshVisibleAll();
         this.scheme.updatePathsOnNeighborsRoads(...this.schemePosition);
-        this.execForNeighborsRoads('refreshPaths')
     }
 
     changeVisibleSemiconductor() {
@@ -152,7 +146,10 @@ class SchemeCell extends Sprite {
             }
         }
         else if (!this.typeOfSemiconductor) {
-            if (this.semiconductor) { this.semiconductor.destroyChild('charge'); }
+            if (this.semiconductor) {
+                this.semiconductor.destroyChild('flow');
+                this.semiconductor.destroyChild('charge');
+            }
             this.destroyChild('semiconductor');
         }
     }
@@ -162,17 +159,6 @@ class SchemeCell extends Sprite {
         this.changeVisibleRoad();
         this.refreshVisibleRoad();
         this.changeVisibleSemiconductor();
-    }
-
-    execForNeighborsRoads(method, params = [], allowedDirs = null) {
-        SIDES.map((side) => {
-            if (allowedDirs && !allowedDirs.includes(side)) { return; }
-
-            let cell = this[side];
-            if (cell && cell.road) {
-                cell.road[method](...params);
-            }
-        });
     }
 
     getVisiblePosition(dir) { return this['visiblePosition' + dir]; }

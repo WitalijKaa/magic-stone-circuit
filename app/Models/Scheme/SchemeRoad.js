@@ -52,12 +52,6 @@ class SchemeRoad extends Sprite {
     set type(val) { this.scheme.findCellOrEmpty(...this.cell.schemePosition).road.type = val; }
     get schemePaths() { return this.scheme.findCellOrEmpty(...this.cell.schemePosition).road.paths; }
 
-    makeHeavy() {
-        if (ROAD_HEAVY == this.type || this.countObjectsAround < 3) { return false; }
-        this.type = ROAD_HEAVY;
-        return true;
-    }
-
     drawPath(pathType, color = null) {
         if (!this.paths[pathType]) {
             this.paths[pathType] = Factory.sceneModel({
