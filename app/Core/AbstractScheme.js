@@ -221,4 +221,32 @@ class AbstractScheme {
         let path = road.paths[SIDE_TO_ROAD_PATH[toDir]];
         return !!(path && true !== path && path.color == color && path.from == OPPOSITE_SIDE[toDir]);
     }
+
+    isUncoloredRoadAtSide(toDir, x, y) {
+        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
+        return !!(road && true === road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    }
+
+    isColoredRoadAtSide(toDir, x, y) {
+        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
+        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]] && true !== road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    }
+
+    isAnyRoadAtSide(toDir, x, y) {
+        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
+        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    }
+
+    /** SEMICONDUCTOR **/
+
+    isSemiconductorTypeAround(scType, x, y) { return !!this.countSemiconductorTypeAround(scType, x, y); }
+    countSemiconductorTypeAround(scType, x, y) {
+        let count = 0;
+        if (scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x, y + 1).semiconductor.type) { count++; }
+        if (scType == this.findSemiconductorCellOrEmpty(x, y - 1).semiconductor.type) { count++; }
+        return count;
+    }
+
 }

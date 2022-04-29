@@ -374,16 +374,6 @@ class Scheme extends AbstractScheme {
         return true;
     }
 
-    isSemiconductorTypeAround(scType, x, y) { return !!this.countSemiconductorTypeAround(scType, x, y); }
-    countSemiconductorTypeAround(scType, x, y) {
-        let count = 0;
-        if (scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x, y + 1).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x, y - 1).semiconductor.type) { count++; }
-        return count;
-    }
-
     setAwakeColorSemiconductorByStone(color, x, y) {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (!semi || semi.colorAwake == color) { return; }
@@ -391,6 +381,9 @@ class Scheme extends AbstractScheme {
         semi.colorAwake = color;
         if (!color || semi.colorCharge && semi.colorCharge != semi.colorAwake) { semi.colorCharge = null; }
         this.visibleUpdate(x, y);
+
+        this.removeColoringCellCache(x, y);
+        this.cancelColorOnNeighborsRoads(ALL_PATHS_ARE, x, y);
 
         if (ST_ROAD_AWAKE == semi.type) {
             SIDES.map((toDir) => {
@@ -405,6 +398,7 @@ class Scheme extends AbstractScheme {
 
         semi.colorCharge = color;
         this.visibleUpdate(x, y);
+        this.removeColoringCellCache(x, y);
 
         if (ST_ROAD_AWAKE == semi.type) {
             SIDES.map((toDir) => {
@@ -455,31 +449,52 @@ class Scheme extends AbstractScheme {
 
     setColorToSemiconductorBySleep(color, fromDir, x, y) {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
-        if (semi) {
-            if (ST_ROAD_SLEEP != semi.type && ST_ROAD_AWAKE != semi.type) { return; }
-            if (semi.colorFlow == color || semi.colorCharge != semi.colorAwake) { return; }
-            semi.colorFlow = color;
-            this.visibleUpdate(x, y);
-            SIDES.map((toDir) => {
-                let nextXY = []; nextXY.push(...this[toDir](x, y));
+        if (!semi) { return; }
+
+        if (ST_ROAD_SLEEP != semi.type && ST_ROAD_AWAKE != semi.type) { return; }
+        if (!semi.colorCharge || semi.colorFlow == color || semi.colorCharge != semi.colorAwake) { return; }
+
+        semi.colorFlow = color;
+        this.visibleUpdate(x, y);
+
+        if (!color) {
+            this.removeColoringCellCache(x, y);
+        }
+
+        SIDES.map((toDir) => {
+            let nextXY = []; nextXY.push(...this[toDir](x, y));
+            if (color) {
                 this.coloringCellCache(...nextXY).push({
                     type: ST_ROAD_SLEEP,
                     method: 'setColorToSemiconductorBySleep',
                     params: [color, OPPOSITE_SIDE[toDir], ...nextXY],
                 });
-            });
-
-            if (ST_ROAD_SLEEP == semi.type) {
-                let sides = semi.direction == ROAD_LEFT_RIGHT ? SIDES_LEFT_RIGHT : SIDES_UP_DOWN;
-                sides.map((toDir) => {
-                    let nextXY = []; nextXY.push(...this[toDir](x, y));
-                    this.coloringCellCache(...nextXY).push({
-                        type: ST_ROAD,
-                        method: 'setColorToRoad',
-                        params: [color, OPPOSITE_SIDE[toDir], ...nextXY],
-                    });
-                });
             }
+            else {
+                this.setColorToSemiconductorBySleep(color, OPPOSITE_SIDE[toDir], ...nextXY);
+            }
+        });
+
+        if (ST_ROAD_SLEEP == semi.type) {
+            let sides = semi.direction == ROAD_LEFT_RIGHT ? SIDES_LEFT_RIGHT : SIDES_UP_DOWN;
+            sides.map((toDir) => {
+                let nextXY = []; nextXY.push(...this[toDir](x, y));
+
+                if (color) {
+                    if (this.isUncoloredRoadAtSide(toDir, x, y)) {
+                        this.coloringCellCache(...nextXY).push({
+                            type: ST_ROAD,
+                            method: 'setColorToRoad',
+                            params: [color, OPPOSITE_SIDE[toDir], ...nextXY],
+                        });
+                    }
+                }
+                else {
+                    if (this.isAnyRoadAtSide(toDir, x, y)) {
+                        this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...nextXY);
+                    }
+                }
+            });
         }
     }
 
