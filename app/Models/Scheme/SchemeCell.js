@@ -73,6 +73,7 @@ class SchemeCell extends Sprite {
             this.changeSemiconductorType(Scene.controls.pen);
         }
         else if (!Scene.controls.pen) {
+            this.scheme.removeCo
             this.scheme.setCellEmpty(...this.schemePosition)
             this.changeSemiconductorType(null);
         }
@@ -106,6 +107,8 @@ class SchemeCell extends Sprite {
         else if (this.road) {
             if (this.road.makeHeavy()) {
                 this.scheme.resetPathsOnRoad(...this.schemePosition);
+                this.scheme.removeColoringCellCache(...this.schemePosition);
+                this.scheme.cancelColorOnNeighborsRoads(this.scheme.findCellOrEmpty(...this.schemePosition).road.paths, ...this.schemePosition);
                 this.road.refreshPaths();
                 this.scheme.doCheckRunForRoads(null, ...this.schemePosition);
             }

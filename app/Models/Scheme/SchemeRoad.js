@@ -16,6 +16,7 @@ const SIDE_TO_ROAD_PATH = {
     [DOWN]: ROAD_PATH_DOWN,
     [LEFT]: ROAD_PATH_LEFT,
 };
+const ALL_PATHS = [true, true, true, true, false];
 
 const TT_ROAD = {
     [ROAD_PATH_UP]: TT.roadR,

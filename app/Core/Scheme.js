@@ -53,6 +53,10 @@ class Scheme {
     static _checkRunIX = 1;
     static get checkRun() { return this._checkRunIX++; }
 
+    static rnd(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
     scheme = {};
 
     get ratio() {
@@ -60,6 +64,7 @@ class Scheme {
     }
 
     coloringSpeedMs = 200;
+    coloringSpeedCountdownNext = [3, 5];
 
     Up(x, y) { return [x, y - 1]; }
     Right(x, y) { return [x + 1, y]; }
@@ -128,6 +133,19 @@ class Scheme {
         })
 
         setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
+
+        this.contentUpdateTickCountdown--;
+        if (this.contentUpdateTickCountdown < 1) {
+            this.contentUpdateTickCountdown = this.constructor.rnd(...this.coloringSpeedCountdownNext);
+
+            for (let cellName in this.contentCells) {
+                this.coloringCellCache(...this.contentCells[cellName]).push({
+                    type: ST_STONE_VIOLET,
+                    method: 'setColorAroundByStone',
+                    params: [...this.contentCells[cellName]],
+                });
+            }
+        }
     }
 
     extractCacheActions() {
@@ -145,19 +163,11 @@ class Scheme {
 
     cacheColorings = {};
 
-    setColorAround(colorType, x, y) {
-        this.coloringCellCache(x, y).push({
-            type: ST_ROAD,
-            method: 'execSetColorAround',
-            params: [colorType, x, y],
-        });
-    }
+    setColorAroundByStone(x, y) {
+        let colorType = this.findCellOrEmpty(x, y).content;
+        if (!colorType) { return; }
 
-    execSetColorAround(colorType, x, y) {
-        let color = null
-        if (STONE_TYPE_TO_ROAD_COLOR.hasOwnProperty(colorType)) {
-            color = STONE_TYPE_TO_ROAD_COLOR[colorType];
-        }
+        let color = STONE_TYPE_TO_ROAD_COLOR[colorType];
         SIDES.map((sideTo) => {
             this.setColorToRoad(color, OPPOSITE_SIDE[sideTo], ...this[sideTo](x, y))
             this.setAwakeColorSemiconductorByStone(color, ...this[sideTo](x, y))
@@ -177,10 +187,18 @@ class Scheme {
 
     /** STONEs **/
 
+    contentCells = {};
+    contentUpdateTickCountdown = 10;
+
     putContent(type, x, y) {
+        this.contentCells[this.cellName(x, y)] = [x, y];
         this.changeCellContent(type, x, y);
-        this.setColorAround(type, x, y);
         this.visibleUpdate(x, y);
+    }
+
+    removeContent(x, y) {
+        delete(this.contentCells[this.cellName(x, y)]);
+        this.setCellEmpty(x, y);
     }
 
     /** ROADs **/
@@ -190,29 +208,24 @@ class Scheme {
             type: ROAD_LIGHT,
             paths: [false, false, false, false, false],
         }, x, y);
-        let road = this.findCellOrEmpty(x, y).road;
 
+        this.removeColoringCellCache(x, y);
         this.resetPathsOnRoad(x, y);
         this.visibleUpdate(x, y);
 
         this.resetPathsOnNeighborsRoads(x, y);
-        SIDES.map((toDir) => {
-            let toPath = SIDE_TO_ROAD_PATH[toDir];
-            if (road.paths[toPath]) {
-                this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
-            }
-        });
+        this.cancelColorOnNeighborsRoads(this.findCellOrEmpty(x, y).road.paths, x, y);
     }
 
     removeRoad(x, y) {
+        this.cancelColorOnNeighborsRoads(this.findCellOrEmpty(x, y).road.paths, x, y);
+
         this.changeCellRoad(null, x, y);
+        this.removeColoringCellCache(x, y);
 
         this.visibleUpdate(x, y);
 
         this.resetPathsOnNeighborsRoads(x, y);
-        SIDES.map((toDir) => {
-            this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
-        });
     }
 
     doCheckRunForRoads(checkRun, x, y) {
@@ -240,23 +253,26 @@ class Scheme {
         if (!road) { return; }
 
         if (!checkRun) {
-            road.checkRun = this.constructor.checkRun;
+            checkRun = this.constructor.checkRun;
         }
-        //else if (checkRun == road.checkRun) { return; }
+        else if (checkRun == road.checkRun) { return; }
+        road.checkRun = checkRun;
 
         let fromPath = SIDE_TO_ROAD_PATH[fromDir];
         let oppositePath = SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[fromDir]];
 
-        if (this.canPathCancelColor(road, fromPath)) {
-            road.paths[fromPath] = true;
+        if (road.paths[fromPath]) {
+            if (this.canPathCancelColor(road, fromPath)) {
+                road.paths[fromPath] = true;
+            }
             this.removeColoringCellCache(x, y);
         }
 
-        if (this.canPathCancelColor(road, oppositePath)) {
-            road.paths[oppositePath] = true;
-            this.removeColoringCellCache(x, y);
-        }
         if (road.paths[oppositePath]) {
+            if (this.canPathCancelColor(road, oppositePath)) {
+                road.paths[oppositePath] = true;
+            }
+            this.removeColoringCellCache(x, y);
             this.cancelColorOnRoad(checkRun, fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y))
         }
 
@@ -270,9 +286,9 @@ class Scheme {
                 let turnPath = SIDE_TO_ROAD_PATH[turnSide];
                 if (this.canPathCancelColor(road, turnPath)) {
                     road.paths[turnPath] = true;
-                    this.removeColoringCellCache(x, y);
                 }
                 if (road.paths[turnPath]) {
+                    this.removeColoringCellCache(x, y);
                     this.cancelColorOnRoad(checkRun, OPPOSITE_SIDE[turnSide], ...this[turnSide](x, y))
                 }
             })
@@ -321,6 +337,18 @@ class Scheme {
         SIDES.map((toDir) => {
             this.resetPathsOnRoad(...this[toDir](x, y));
             this.visibleUpdate(...this[toDir](x, y));
+        });
+    }
+
+    cancelColorOnNeighborsRoads(roadPaths, x, y) {
+        SIDES.map((toDir) => {
+            let toPath = SIDE_TO_ROAD_PATH[toDir];
+            if (roadPaths[toPath]) {
+                let roadNeighbor = this.findCellOrEmpty(...this[toDir](x, y)).road;
+                if (!roadNeighbor || !roadNeighbor.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]) { return; }
+
+                this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
+            }
         });
     }
 
