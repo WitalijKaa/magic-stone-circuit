@@ -5,6 +5,12 @@ const LEFT = 'Left';
 const SIDES = [UP, RIGHT, DOWN, LEFT];
 const SIDES_LEFT_RIGHT = [RIGHT, LEFT];
 const SIDES_UP_DOWN = [UP, DOWN];
+const SIDES_TURN_90 = {
+    [UP]: SIDES_LEFT_RIGHT,
+    [DOWN]: SIDES_LEFT_RIGHT,
+    [LEFT]: SIDES_UP_DOWN,
+    [RIGHT]: SIDES_UP_DOWN,
+};
 const OPPOSITE_SIDE = {
     [UP]: DOWN,
     [DOWN]: UP,
@@ -101,7 +107,7 @@ class SchemeCell extends Sprite {
             if (this.road.makeHeavy()) {
                 this.scheme.resetPathsOnRoad(...this.schemePosition);
                 this.road.refreshPaths();
-                this.scheme.doCheckRunForRoads(...this.schemePosition);
+                this.scheme.doCheckRunForRoads(null, ...this.schemePosition);
             }
             else { this.scheme.removeRoad(...this.schemePosition); }
         }

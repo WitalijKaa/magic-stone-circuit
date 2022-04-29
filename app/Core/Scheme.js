@@ -190,41 +190,95 @@ class Scheme {
             type: ROAD_LIGHT,
             paths: [false, false, false, false, false],
         }, x, y);
+        let road = this.findCellOrEmpty(x, y).road;
 
         this.resetPathsOnRoad(x, y);
         this.visibleUpdate(x, y);
-        this.doCheckRunForRoads(x, y)
+
+        this.resetPathsOnNeighborsRoads(x, y);
+        SIDES.map((toDir) => {
+            let toPath = SIDE_TO_ROAD_PATH[toDir];
+            if (road.paths[toPath]) {
+                this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
+            }
+        });
     }
 
     removeRoad(x, y) {
         this.changeCellRoad(null, x, y);
 
         this.visibleUpdate(x, y);
-        this.doCheckRunForRoads(x, y)
+
+        this.resetPathsOnNeighborsRoads(x, y);
+        SIDES.map((toDir) => {
+            this.cancelColorOnRoad(null, OPPOSITE_SIDE[toDir], ...this[toDir](x, y));
+        });
     }
 
-    doCheckRunForRoads(x, y) {
-        this.execCheckRunForRoads(null, x, y);
-    }
-    
-    execCheckRunForRoads(checkRun, x, y) {
+    doCheckRunForRoads(checkRun, x, y) {
         if (!checkRun) {
             checkRun = this.constructor.checkRun;
             this.findRoadCellOrEmpty(x, y).road.checkRun = checkRun;
         }
 
-        SIDES.map((side) => {
-            let sideXY = []; sideXY.push(...this[side](x, y));
-            let road = this.findRoadCellOrEmpty(...sideXY).road;
+        SIDES.map((toDir) => {
+            let sideXY = []; sideXY.push(...this[toDir](x, y));
+            let road = this.findCellOrEmpty(...sideXY).road;
 
-            if (road.type && checkRun != road.checkRun) {
+            if (road && checkRun != road.checkRun) {
                 road.checkRun = checkRun;
                 this.resetPathsOnRoad(...sideXY);
                 this.visibleUpdate(...sideXY);
-                this.execCheckRunForRoads(checkRun, ...sideXY);
+                this.doCheckRunForRoads(checkRun, ...sideXY);
                 this.removeColoringCellCache(...sideXY)
             }
         });
+    }
+
+    cancelColorOnRoad(checkRun, fromDir, x, y) {
+        let road = this.findCellOrEmpty(x, y).road;
+        if (!road) { return; }
+
+        if (!checkRun) {
+            road.checkRun = this.constructor.checkRun;
+        }
+        //else if (checkRun == road.checkRun) { return; }
+
+        let fromPath = SIDE_TO_ROAD_PATH[fromDir];
+        let oppositePath = SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[fromDir]];
+
+        if (this.canPathCancelColor(road, fromPath)) {
+            road.paths[fromPath] = true;
+            this.removeColoringCellCache(x, y);
+        }
+
+        if (this.canPathCancelColor(road, oppositePath)) {
+            road.paths[oppositePath] = true;
+            this.removeColoringCellCache(x, y);
+        }
+        if (road.paths[oppositePath]) {
+            this.cancelColorOnRoad(checkRun, fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y))
+        }
+
+        if (this.canPathCancelColor(road, ROAD_PATH_HEAVY)) {
+            road.paths[ROAD_PATH_HEAVY] = true;
+        }
+
+        if (!road.paths[oppositePath] || road.paths[ROAD_PATH_HEAVY])
+        {
+            SIDES_TURN_90[fromDir].map((turnSide) => {
+                let turnPath = SIDE_TO_ROAD_PATH[turnSide];
+                if (this.canPathCancelColor(road, turnPath)) {
+                    road.paths[turnPath] = true;
+                    this.removeColoringCellCache(x, y);
+                }
+                if (road.paths[turnPath]) {
+                    this.cancelColorOnRoad(checkRun, OPPOSITE_SIDE[turnSide], ...this[turnSide](x, y))
+                }
+            })
+        }
+
+        this.visibleUpdate(x, y);
     }
 
     resetPathsOnRoad(x, y) {
@@ -264,10 +318,10 @@ class Scheme {
     }
 
     resetPathsOnNeighborsRoads(x, y) {
-        this.resetPathsOnRoad(x, y - 1);
-        this.resetPathsOnRoad(x + 1, y);
-        this.resetPathsOnRoad(x, y + 1);
-        this.resetPathsOnRoad(x - 1, y);
+        SIDES.map((toDir) => {
+            this.resetPathsOnRoad(...this[toDir](x, y));
+            this.visibleUpdate(...this[toDir](x, y));
+        });
     }
 
     defineRoadPath(x, y, pathType, pathContent) {
@@ -277,11 +331,11 @@ class Scheme {
     setColorToRoad(color, fromDir, x, y) {
         let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
-        let pathType = SIDE_TO_ROAD_PATH[fromDir];
+        let pathFrom = SIDE_TO_ROAD_PATH[fromDir];
 
         if (color) {
-            if (this.canPathSetColor(road, pathType)) {
-                road.paths[pathType] = color;
+            if (this.canPathSetColor(road, pathFrom)) {
+                road.paths[pathFrom] = { color: color, from: fromDir };
                 this.moveColorToNextPaths(
                     x, y,
                     color,
@@ -290,8 +344,8 @@ class Scheme {
             }
         }
         else {
-            if (road.paths[pathType]) {
-                road.paths[pathType] = true;
+            if (road.paths[pathFrom]) {
+                road.paths[pathFrom] = true;
             }
         }
 
@@ -299,6 +353,7 @@ class Scheme {
     }
 
     canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
+    canPathCancelColor(road, pathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
     moveColorToNextPaths(x, y, color, disabledDirs) {
         let road = this.findCellOrEmpty(x, y).road;
@@ -317,12 +372,12 @@ class Scheme {
 
         let nextSides = [];
 
-        SIDES.map((side) => {
-            if (disabledDirs.includes(side)) { return; }
-            let pathType = SIDE_TO_ROAD_PATH[side];
-            if (this.canPathSetColor(road, pathType)) {
-                road.paths[pathType] = color;
-                nextSides.push(side);
+        SIDES.map((toDir) => {
+            if (disabledDirs.includes(toDir)) { return; }
+            let pathTo = SIDE_TO_ROAD_PATH[toDir];
+            if (this.canPathSetColor(road, pathTo)) {
+                road.paths[pathTo] = { color: color, from: OPPOSITE_SIDE[toDir] };
+                nextSides.push(toDir);
             }
         });
         this.visibleUpdate(x, y);
@@ -342,7 +397,7 @@ class Scheme {
 
     moveColorToHeavy(road, color, x, y) {
         if (this.canPathSetColor(road, ROAD_PATH_HEAVY)) {
-            road.paths[ROAD_PATH_HEAVY] = color;
+            road.paths[ROAD_PATH_HEAVY] = { color: color };
             this.visibleUpdate(x, y);
         }
     }
@@ -505,7 +560,7 @@ class Scheme {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (semi) {
             if (ST_ROAD_SLEEP != semi.type && ST_ROAD_AWAKE != semi.type) { return; }
-            if (semi.colorFlow == color || semi.colorCharge != color || semi.colorCharge != semi.colorAwake) { return; }
+            if (semi.colorFlow == color || semi.colorCharge != semi.colorAwake) { return; }
             semi.colorFlow = color;
             this.visibleUpdate(x, y);
             SIDES.map((toDir) => {

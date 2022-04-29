@@ -77,7 +77,7 @@ class SchemeRoad extends Sprite {
     refreshPaths() {
         this.schemePaths.map((schemePath, pathType) => {
             if (schemePath) {
-                let color = true === schemePath ? null : schemePath;
+                let color = true === schemePath ? null : schemePath.color;
                 this.drawPath(pathType, color);
             }
             else {
