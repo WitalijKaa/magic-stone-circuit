@@ -1,3 +1,5 @@
+const NANO_MS = 2;
+
 const PIXI_MOUSE_RIGHT = 2;
 
 const PIXI_ROTATE_RIGHT = 6;

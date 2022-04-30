@@ -222,19 +222,34 @@ class AbstractScheme {
         return !!(path && true !== path && path.color == color && path.from == OPPOSITE_SIDE[toDir]);
     }
 
-    isUncoloredRoadAtSide(toDir, x, y) {
-        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
-        return !!(road && true === road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    isUncoloredRoadAtSide(side, x, y) {
+        let road = this.findCellOrEmpty(...this[side](x, y)).road;
+        return !!(road && true === road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]);
     }
 
-    isColoredRoadAtSide(toDir, x, y) {
-        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
-        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]] && true !== road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    isColoredRoadAtSide(side, x, y) {
+        let road = this.findCellOrEmpty(...this[side](x, y)).road;
+        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]] && true !== road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]);
     }
 
-    isAnyRoadAtSide(toDir, x, y) {
-        let road = this.findCellOrEmpty(...this[toDir](x, y)).road;
-        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[toDir]]]);
+    isColoredRoadAtSideFlowsHere(side, x, y) {
+        if (!this.isColoredRoadAtSide(side, x, y)) { return false; }
+        return (this.findCellOrEmpty(...this[side](x, y)).road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]].from == side);
+    }
+    isColoredRoadAtSideFlowsOutHere(side, x, y) {
+        if (!this.isColoredRoadAtSide(side, x, y)) { return false; }
+        return (this.findCellOrEmpty(...this[side](x, y)).road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]].from == OPPOSITE_SIDE[side]);
+    }
+
+    isAnyRoadAtSide(side, x, y) {
+        let road = this.findCellOrEmpty(...this[side](x, y)).road;
+        return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]);
+    }
+
+    getColorOfRoadBySide(side, x, y) {
+        let road = this.findCellOrEmpty(...this[side](x, y)).road;
+        if (!road || true == road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]) { return; }
+        return road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]].color;
     }
 
     /** SEMICONDUCTOR **/
@@ -249,4 +264,11 @@ class AbstractScheme {
         return count;
     }
 
+    getSidesBySemiconductorType(semi) {
+        let sides = SIDES;
+        if (ST_ROAD_SLEEP == semi.type) {
+            sides = semi.direction == ROAD_LEFT_RIGHT ? SIDES_LEFT_RIGHT : SIDES_UP_DOWN;
+        }
+        return sides;
+    }
 }
