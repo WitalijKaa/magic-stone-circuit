@@ -19,3 +19,12 @@ I decided to try to make a computer game about logic circuits. It will have othe
 - Task 7: coloring roads with energy.
 - Task 8: sleepy road may awake.
 - Task 9: correct reset of color.
+- Task 10: restrict to put objects where they should not be.
+- Task 11: cancel of cached action shot be targeted.
+- Task 12: energy starts coloring roads, not stones. Switchers.
+- Task 13: smiles consume energy.
+- Task 14: put roads by start-end.
+- Task 15: ad variations on putting roads.
+- Task 16: big menu at left.
+- Task 17: save blueprints to local storage, add them to menu.
+- Task 18: save local storage to file, load from file.
