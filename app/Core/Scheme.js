@@ -126,11 +126,13 @@ class Scheme extends AbstractScheme {
 
         if (road.paths[oppositePath]) {
             if (this.canPathCancelColor(road, oppositePath)) {
+                if (this.isColoredRoadAtSideFlowsHere(fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y))) {
+                    this.setColorToSemiconductorByRoad(null, fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y));
+                }
                 road.paths[oppositePath] = true;
             }
             this.removeColoringCellCache(x, y);
             this.cancelColorOnRoad(checkRun, fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y));
-            this.setColorToSemiconductorByRoad(null, fromDir, ...this[OPPOSITE_SIDE[fromDir]](x, y));
         }
 
         if (this.canPathCancelColor(road, ROAD_PATH_HEAVY)) {
@@ -142,6 +144,9 @@ class Scheme extends AbstractScheme {
             SIDES_TURN_90[fromDir].map((turnSide) => {
                 let turnPath = SIDE_TO_ROAD_PATH[turnSide];
                 if (this.canPathCancelColor(road, turnPath)) {
+                    if (this.isColoredRoadAtSideFlowsHere(turnSide, ...this[OPPOSITE_SIDE[turnSide]](x, y))) {
+                        this.setColorToSemiconductorByRoad(null, turnSide, ...this[OPPOSITE_SIDE[turnSide]](x, y));
+                    }
                     road.paths[turnPath] = true;
                 }
                 if (road.paths[turnPath]) {
@@ -393,7 +398,6 @@ class Scheme extends AbstractScheme {
     setAwakeColorSemiconductorByStone(color, x, y) {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (!semi || semi.colorAwake == color) { return; }
-        this.removeColoringCellCache(x, y);
 
         semi.colorAwake = color;
         if (!color || semi.colorCharge != semi.colorAwake) {
@@ -406,8 +410,8 @@ class Scheme extends AbstractScheme {
             semi.colorFlow = null;
         }
         this.refreshSemiconductorByColoredRoadsFlowsIn(semi, x, y);
-
         this.visibleUpdate(x, y);
+        this.removeColoringCellCache(x, y);
 
         if (ST_ROAD_AWAKE == semi.type) {
             SIDES.map((toDir) => {
@@ -416,24 +420,24 @@ class Scheme extends AbstractScheme {
         }
     }
 
-    refreshSemiconductorByColoredRoadsFlowsIn(semi, x, y)
-    {
+    refreshSemiconductorByColoredRoadsFlowsIn(semi, x, y) {
         this.getSidesBySemiconductorType(semi).map((side) => {
             if (this.isColoredRoadAtSideFlowsHere(side, x, y)) {
-                let color = this.getColorOfRoadBySide(side, x, y);
                 if (ST_ROAD_AWAKE == semi.type) {
                     setTimeout(() => {
+                        let color = this.getColorOfRoadBySide(side, x, y);
                         this.setColorToSemiconductorByRoad(color, side, x, y);
                     }, NANO_MS);
                 }
                 else if(ST_ROAD_SLEEP == semi.type) {
                     setTimeout(() => {
+                        let color = this.getColorOfRoadBySide(side, x, y);
                         this.coloringCellCache(x, y).push({
                             type: ST_ROAD_SLEEP,
                             method: 'setColorToSemiconductorByRoad',
                             params: [color, side, x, y],
                         });
-                    }, NANO_MS * 4);
+                    }, NANO_MS * 10);
 
                 }
             }
@@ -444,6 +448,7 @@ class Scheme extends AbstractScheme {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (!semi || semi.colorCharge == color || (color && semi.colorAwake != color)) { return; }
 
+        semi.colorCharge = color;
         if (!color) {
             if (ST_ROAD_SLEEP == semi.type && semi.colorFlow) {
                 this.getSidesBySemiconductorType(semi).map((toDir) => {
@@ -452,8 +457,7 @@ class Scheme extends AbstractScheme {
             }
             semi.colorFlow = null;
         }
-
-        semi.colorCharge = color;
+        this.refreshSemiconductorByColoredRoadsFlowsIn(semi, x, y);
         this.visibleUpdate(x, y);
         this.removeColoringCellCache(x, y);
 
@@ -465,10 +469,13 @@ class Scheme extends AbstractScheme {
     }
 
     setColorToSemiconductorByRoad(color, fromDir, x, y) {
+        console.log('setColorToSemiconductorByRoad', color, fromDir, x, y)
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (!semi) { return; }
         if (ST_ROAD_AWAKE == semi.type) {
+            console.log('ST_ROAD_AWAKE == semi.type', x, y)
             if (!color && this.hasTransistorTheSources(x, y)) { return; }
+            console.log('2222', x, y)
             this.setChargeColorToSemiconductorByAwake(color, x, y);
         }
         else if (ST_ROAD_SLEEP == semi.type) {
@@ -485,15 +492,21 @@ class Scheme extends AbstractScheme {
         let semi = this.findCellOrEmpty(x, y).semiconductor;
         if (!semi || ST_ROAD_AWAKE != semi.type || !semi.colorCharge) { return false; }
 
-        if (!checkRun) { checkRun = this.constructor.checkRun; }
+        let exceptThisOne = false;
+        if (!checkRun) {
+            checkRun = this.constructor.checkRun;
+            exceptThisOne = true;
+        }
         if (semi.checkRun == checkRun) { return false; }
         semi.checkRun = checkRun;
 
-        for (let ix = 0; ix < SIDES.length; ix++) {
-            let fromDir = SIDES[ix];
+        if (!exceptThisOne) {
+            for (let ix = 0; ix < SIDES.length; ix++) {
+                let fromDir = SIDES[ix];
 
-            if (this.isRoadFlowColorToSide(semi.colorCharge, OPPOSITE_SIDE[fromDir], ...this[fromDir](x, y))) {
-                return true;
+                if (this.isRoadFlowColorToSide(semi.colorCharge, OPPOSITE_SIDE[fromDir], ...this[fromDir](x, y))) {
+                    return true;
+                }
             }
         }
         for (let ix = 0; ix < SIDES.length; ix++) {
