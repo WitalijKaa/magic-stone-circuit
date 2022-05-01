@@ -33,6 +33,7 @@ class SchemeCell extends Sprite {
         this.sprite.interactive = true;
         this.sprite.on('click', () => { this.handleClick() });
         new MouseClick(this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
+        new MouseOver(this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
     }
 
     init (grid) {
@@ -79,12 +80,19 @@ class SchemeCell extends Sprite {
     }
     handleRightClick() {
         if (ST_ROAD == Scene.controls.pen) {
-            if (!this.isRoadBuildMode) {
-                this.isRoadBuildMode = true;
+            if (!this.scheme.isRoadBuildMode) {
                 this.scheme.startToBuildRoad(...this.schemePosition);
+            }
+            else {
+                this.scheme.finishToBuildRoad(...this.schemePosition);
             }
         }
         else { this.changeSchemeRoad(); }
+    }
+    handleMouseOver() {
+        if (this.scheme.isRoadBuildMode) {
+            this.scheme.continueToBuildRoad(...this.schemePosition);
+        }
     }
 
     changeVisibleType() {

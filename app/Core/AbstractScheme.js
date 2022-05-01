@@ -143,14 +143,16 @@ class AbstractScheme {
     }
 
     updateTick() {
-        if (this.isRoadBuildMode) { return; }
-
-        this.extractCacheActions().map((cache) => {
-            this[cache.method](...cache.params);
-        })
-
+        if (this.isRoadBuildMode) {
+            this.buildRoadTick();
+        }
+        else {
+            this.extractCacheActions().map((cache) => {
+                this[cache.method](...cache.params);
+            })
+            this.updateTickContent();
+        }
         setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
-        this.updateTickContent();
     }
 
     updateTickContent() {
@@ -190,6 +192,10 @@ class AbstractScheme {
         if (!this.isCellEmpty(x, y - 1)) { count++; }
         return count;
     }
+
+    /** abstract **/
+
+    buildRoadTick() { }
 
     /** COLORs **/
 

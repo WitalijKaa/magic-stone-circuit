@@ -362,12 +362,69 @@ class Scheme extends AbstractScheme {
 
     /** ROADs BUILD **/
 
-    startToBuildRoad(x, y) {
+    buildingRoad = { start: [], end: [], path: [] };
 
+    startToBuildRoad(x, y) {
+        this.isRoadBuildMode = true;
+        this.buildingRoad.start = [x, y];
+        this.buildingRoad.painted = [x, y];
+        this.buildingRoad.end = [x, y];
+        this.buildingRoad.path = [];
+    }
+
+    continueToBuildRoad(x, y) {
+        this.buildingRoad.end = [x, y];
     }
 
     finishToBuildRoad(x, y) {
+        this.buildingRoad.end = [x, y];
+        this.isRoadBuildMode = false;
+    }
 
+    buildRoadTick() {
+        if (this.buildingRoad.painted[0] != this.buildingRoad.end[0] || this.buildingRoad.painted[1] != this.buildingRoad.end[1]) {
+            this.removePrevBuiltRoad();
+            this.doBuildRoad();
+
+            this.buildingRoad.painted[0] = this.buildingRoad.end[0];
+            this.buildingRoad.painted[1] = this.buildingRoad.end[1];
+        }
+    }
+
+    removePrevBuiltRoad() {
+        this.buildingRoad.path.map((roadCellMem) => {
+            if (true === roadCellMem.remove) {
+                this.removeRoad(...roadCellMem.position);
+            }
+        })
+        this.buildingRoad.path = [];
+    }
+
+    doBuildRoad() {
+        if (!this.findCellOrEmpty(...this.buildingRoad.start).road) {
+            this.putRoad(...this.buildingRoad.start)
+            this.buildingRoad.path.push({ remove: true, position: [...this.buildingRoad.start]});
+        }
+
+        let xCell = this.buildingRoad.start[0];
+        let yCell = this.buildingRoad.start[1];
+        let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;
+        let yStep = this.buildingRoad.end[1] > this.buildingRoad.start[1] ? 1 : -1;
+
+        while (xCell != this.buildingRoad.end[0]) {
+            xCell += xStep;
+            if (!this.findCellOrEmpty(xCell, yCell).road) {
+                this.putRoad(xCell, yCell)
+                this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+            }
+        }
+        while (yCell != this.buildingRoad.end[1]) {
+            yCell += yStep;
+            if (!this.findCellOrEmpty(xCell, yCell).road) {
+                this.putRoad(xCell, yCell)
+                this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+            }
+        }
     }
 
     /** SEMICONDUCTORs **/
