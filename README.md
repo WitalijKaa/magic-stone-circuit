@@ -8,6 +8,10 @@ In my most cherished dreams, I really wanted to be a pioneer. Create the first t
 
 I decided to try to make a computer game about logic circuits. It will have other laws of physics, which, with a certain imagination, will give me the opportunity to consider myself as a pioneer.
 
+## history of project and some guides
+
+https://www.instagram.com/witalij.kaa/
+
 ## development
 
 - Task 1: game scene should autoscale to browser size.
@@ -20,11 +24,13 @@ I decided to try to make a computer game about logic circuits. It will have othe
 - Task 8: sleepy road may awake.
 - Task 9: correct reset of color.
 - Task 10: restrict to put objects where they should not be.
-- Task 11: cancel of cached action shot be targeted.
+- Task 11: cancel of cached actions should be targeted.
 - Task 12: energy starts coloring roads, not stones. Switchers.
 - Task 13: smiles consume energy.
 - Task 14: put roads by start-end.
-- Task 15: ad variations on putting roads.
+- Task 15: add variations on putting roads.
 - Task 16: big menu at left.
-- Task 17: save blueprints to local storage, add them to menu.
+- Task 17: save current scheme to local storage.
 - Task 18: save local storage to file, load from file.
+- Task 19: save blueprints to local storage, add them to menu.
+- Task 20: help and learn-how-to guide.
