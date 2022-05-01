@@ -161,6 +161,7 @@ class AbstractScheme {
                     type: ST_STONE_VIOLET,
                     method: 'setColorAroundByStone',
                     params: [...this.contentCells[cellName]],
+                    cacheDirections: [SIDES],
                 });
             }
         }
@@ -199,6 +200,18 @@ class AbstractScheme {
     removeColoringCellCache(x, y) {
         let name = this.cellName(x, y);
         if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
+    }
+
+    removeColoringCellCacheToDir(toDir, x, y) {
+        let name = this.cellName(x, y);
+        if (this.cacheColorings[name]) {
+            for (let ix = this.cacheColorings[name].length - 1; ix >= 0; ix--) {
+                let cache = this.cacheColorings[name][ix];
+                if (cache.cacheDirections.includes((toDir))) {
+                    this.cacheColorings[name].splice(ix, 1);
+                }
+            }
+        }
     }
 
     /** ROADs **/
@@ -241,6 +254,12 @@ class AbstractScheme {
         return (this.findCellOrEmpty(...this[side](x, y)).road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]].from == OPPOSITE_SIDE[side]);
     }
 
+    isColoredRoadFlowsOutToDirection(toDir, x, y) {
+        let road = this.findCellOrEmpty(x, y).road;
+        let path = SIDE_TO_ROAD_PATH[toDir];
+        return !!(road && road.paths[path] && true !== road.paths[path] && road.paths[path].from == OPPOSITE_SIDE[toDir]);
+    }
+
     isAnyRoadAtSide(side, x, y) {
         let road = this.findCellOrEmpty(...this[side](x, y)).road;
         return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]);
@@ -251,6 +270,9 @@ class AbstractScheme {
         if (!road || true == road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]) { return; }
         return road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]].color;
     }
+
+    canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
+    canPathCancelColor(road, pathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
     /** SEMICONDUCTOR **/
 
@@ -271,4 +293,7 @@ class AbstractScheme {
         }
         return sides;
     }
+
+    isSemiconductorTypeLeftOrRight(scType, x, y) { return scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type || scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type; }
+
 }
