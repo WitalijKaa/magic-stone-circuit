@@ -52,7 +52,13 @@ class Scene {
             return;
         }
 
-        let texturePath = CONTENT_SPRITES.hasOwnProperty(this.controls.pen) ? CONTENT_SPRITES[this.controls.pen] : SEMICONDUCTOR_SPRITES[this.controls.pen];
+        let texturePath;
+        if (ST_ROAD == this.controls.pen) {
+            texturePath = TT.roadH;
+        }
+        else {
+            texturePath = CONTENT_SPRITES.hasOwnProperty(this.controls.pen) ? CONTENT_SPRITES[this.controls.pen] : SEMICONDUCTOR_SPRITES[this.controls.pen];
+        }
 
         if (!this.tempButton) {
             this.tempButton = FactoryGraphics.spriteByPath(texturePath);

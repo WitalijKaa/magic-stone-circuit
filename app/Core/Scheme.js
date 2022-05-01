@@ -360,7 +360,17 @@ class Scheme extends AbstractScheme {
         return disabled;
     }
 
-    /** SEMICONDUCTOR **/
+    /** ROADs BUILD **/
+
+    startToBuildRoad(x, y) {
+
+    }
+
+    finishToBuildRoad(x, y) {
+
+    }
+
+    /** SEMICONDUCTORs **/
 
     putSemiconductor(scType, x, y) {
         if (!scType) {

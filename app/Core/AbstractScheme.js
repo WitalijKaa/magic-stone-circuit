@@ -74,6 +74,8 @@ class AbstractScheme {
     coloringSpeedCountdownNext = [3, 5];
     coloringAwaitTick = false;
 
+    isRoadBuildMode = false;
+
     Up(x, y) { return [x, y - 1]; }
     Right(x, y) { return [x + 1, y]; }
     Down(x, y) { return [x, y + 1]; }
@@ -141,6 +143,8 @@ class AbstractScheme {
     }
 
     updateTick() {
+        if (this.isRoadBuildMode) { return; }
+
         this.extractCacheActions().map((cache) => {
             this[cache.method](...cache.params);
         })

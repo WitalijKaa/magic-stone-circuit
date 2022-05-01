@@ -77,7 +77,15 @@ class SchemeCell extends Sprite {
             this.changeSemiconductorType(null);
         }
     }
-    handleRightClick() { this.changeSchemeRoad(); }
+    handleRightClick() {
+        if (ST_ROAD == Scene.controls.pen) {
+            if (!this.isRoadBuildMode) {
+                this.isRoadBuildMode = true;
+                this.scheme.startToBuildRoad(...this.schemePosition);
+            }
+        }
+        else { this.changeSchemeRoad(); }
+    }
 
     changeVisibleType() {
         if (this.type) {

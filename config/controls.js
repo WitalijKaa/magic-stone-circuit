@@ -7,4 +7,5 @@ const CONTROL_KEYS = {
     //'5': ST_ENERGY,
     '6': ST_ROAD_SLEEP,
     '7': ST_ROAD_AWAKE,
+    '0': ST_ROAD,
 }
