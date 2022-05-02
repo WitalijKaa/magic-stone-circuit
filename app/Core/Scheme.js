@@ -362,7 +362,7 @@ class Scheme extends AbstractScheme {
 
     /** ROADs BUILD **/
 
-    buildingRoad = { start: [], end: [], path: [] };
+    buildingRoad = { start: [], end: [], path: [], way: {} };
 
     startToBuildRoad(x, y) {
         this.isRoadBuildMode = true;
@@ -384,7 +384,10 @@ class Scheme extends AbstractScheme {
     buildRoadTick() {
         if (this.buildingRoad.painted[0] != this.buildingRoad.end[0] || this.buildingRoad.painted[1] != this.buildingRoad.end[1]) {
             this.removePrevBuiltRoad();
-            this.doBuildRoad();
+            this.findWayToBuildRoad();
+            if (this.isWayPossible(this.buildingRoad.way.auto)) {
+                this.doBuildRoad();
+            }
 
             this.buildingRoad.painted[0] = this.buildingRoad.end[0];
             this.buildingRoad.painted[1] = this.buildingRoad.end[1];
@@ -401,30 +404,135 @@ class Scheme extends AbstractScheme {
     }
 
     doBuildRoad() {
-        if (!this.findCellOrEmpty(...this.buildingRoad.start).road) {
-            this.putRoad(...this.buildingRoad.start)
-            this.buildingRoad.path.push({ remove: true, position: [...this.buildingRoad.start]});
-        }
+        let theWay = this.buildingRoad.way.auto;
 
         let xCell = this.buildingRoad.start[0];
         let yCell = this.buildingRoad.start[1];
         let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;
         let yStep = this.buildingRoad.end[1] > this.buildingRoad.start[1] ? 1 : -1;
 
-        while (xCell != this.buildingRoad.end[0]) {
+        if (!this.findCellOrEmpty(...this.buildingRoad.start).road) {
+            this.putRoad(...this.buildingRoad.start)
+            this.buildingRoad.path.push({ remove: true, position: [...this.buildingRoad.start]});
+        }
+
+        if (BUILD_ROAD_WAY_HORZ_VERT == theWay) {
+            while (xCell != this.buildingRoad.end[0]) {
+                xCell += xStep;
+                if (!this.findCellOrEmpty(xCell, yCell).road) {
+                    this.putRoad(xCell, yCell)
+                    this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+                }
+            }
+            while (yCell != this.buildingRoad.end[1]) {
+                yCell += yStep;
+                if (!this.findCellOrEmpty(xCell, yCell).road) {
+                    this.putRoad(xCell, yCell)
+                    this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+                }
+            }
+        }
+        else if (BUILD_ROAD_WAY_VERT_HORZ == theWay) {
+            while (yCell != this.buildingRoad.end[1]) {
+                yCell += yStep;
+                if (!this.findCellOrEmpty(xCell, yCell).road) {
+                    this.putRoad(xCell, yCell)
+                    this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+                }
+            }
+            while (xCell != this.buildingRoad.end[0]) {
+                xCell += xStep;
+                if (!this.findCellOrEmpty(xCell, yCell).road) {
+                    this.putRoad(xCell, yCell)
+                    this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+                }
+            }
+        }
+    }
+
+    findWayToBuildRoad() {
+        this.buildingRoad.way = { auto: BUILD_ROAD_WAY_HORZ_VERT, fixed: null };
+
+        let xCell = this.buildingRoad.start[0];
+        let yCell = this.buildingRoad.start[1];
+        let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;
+        let yStep = this.buildingRoad.end[1] > this.buildingRoad.start[1] ? 1 : -1;
+        let isFirstHorizontal = this.buildingRoad.end[0] != this.buildingRoad.start[0];
+
+        let theWay = BUILD_ROAD_WAY_HORZ_VERT;
+        while (theWay && xCell != this.buildingRoad.end[0]) {
             xCell += xStep;
-            if (!this.findCellOrEmpty(xCell, yCell).road) {
-                this.putRoad(xCell, yCell)
-                this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+            if (!this.canSetRoadByHorizontal(xCell, yCell)) {
+                theWay = false;
             }
         }
-        while (yCell != this.buildingRoad.end[1]) {
+        if (isFirstHorizontal && yCell != this.buildingRoad.end[1] && !this.canSetRoadByVertical(xCell, yCell)) {
+            theWay = false; // corner check
+        }
+        while (theWay && yCell != this.buildingRoad.end[1]) {
             yCell += yStep;
-            if (!this.findCellOrEmpty(xCell, yCell).road) {
-                this.putRoad(xCell, yCell)
-                this.buildingRoad.path.push({ remove: true, position: [xCell, yCell]});
+            if (!this.canSetRoadByVertical(xCell, yCell)) {
+                theWay = false;
             }
         }
+
+        if (theWay) { this.buildingRoad.way.auto = theWay; return; }
+
+        xCell = this.buildingRoad.start[0];
+        yCell = this.buildingRoad.start[1];
+
+        if (this.buildingRoad.end[0] != this.buildingRoad.start[0] && this.buildingRoad.end[1] != this.buildingRoad.start[1])
+        {
+            theWay = BUILD_ROAD_WAY_VERT_HORZ;
+            while (theWay && yCell != this.buildingRoad.end[1]) {
+                yCell += yStep;
+                if (!this.canSetRoadByVertical(xCell, yCell)) {
+                    theWay = false;
+                }
+            }
+            if (!this.canSetRoadByHorizontal(xCell, yCell)) {
+                theWay = false; // corner check
+            }
+            while (theWay && xCell != this.buildingRoad.end[0]) {
+                xCell += xStep;
+                if (!this.canSetRoadByHorizontal(xCell, yCell)) {
+                    theWay = false;
+                }
+            }
+        }
+
+        if (theWay) { this.buildingRoad.way.auto = theWay; }
+    }
+
+    isWayPossible(theWay) {
+        let xCell = this.buildingRoad.start[0];
+        let yCell = this.buildingRoad.start[1];
+        if (!this.canSetRoad(xCell, yCell)) { return false; }
+
+        let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;
+        let yStep = this.buildingRoad.end[1] > this.buildingRoad.start[1] ? 1 : -1;
+
+        if (BUILD_ROAD_WAY_HORZ_VERT == theWay) {
+            while (xCell != this.buildingRoad.end[0]) {
+                xCell += xStep;
+                if (!this.canSetRoad(xCell, yCell)) { return false; }
+            }
+            while (yCell != this.buildingRoad.end[1]) {
+                yCell += yStep;
+                if (!this.canSetRoad(xCell, yCell)) { return false; }
+            }
+        }
+        else if (BUILD_ROAD_WAY_VERT_HORZ == theWay) {
+            while (yCell != this.buildingRoad.end[1]) {
+                yCell += yStep;
+                if (!this.canSetRoad(xCell, yCell)) { return false; }
+            }
+            while (xCell != this.buildingRoad.end[0]) {
+                xCell += xStep;
+                if (!this.canSetRoad(xCell, yCell)) { return false; }
+            }
+        }
+        return true;
     }
 
     /** SEMICONDUCTORs **/

@@ -41,6 +41,11 @@ const ROAD_TO_LIGHT_COLOR = {
     [COLOR_ORANGE_ROAD]: COLOR_ORANGE_ROAD_LIGHT,
 }
 
+const BUILD_ROAD_WAY_HORZ_VERT = 1;
+const BUILD_ROAD_WAY_VERT_HORZ = 2;
+const BUILD_ROAD_WAY_STEPS_HORZ_VERT = 3;
+const BUILD_ROAD_WAY_STEPS_VERT_HORZ = 4;
+
 class AbstractScheme {
 
     static SIZE_RADIUS = 800000000;
@@ -274,6 +279,27 @@ class AbstractScheme {
         let road = this.findCellOrEmpty(...this[side](x, y)).road;
         return !!(road && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[side]]]);
     }
+
+    canSetRoad(x, y) {
+        if (this.isCellEmpty(x, y)) { return true; }
+        return !!this.findCellOrEmpty(x, y).road;
+    }
+
+    isAnyRoadHorizontal(x, y) {
+        return !!(this.isAnyRoadAtSide(LEFT, x, y) || this.isAnyRoadAtSide(RIGHT, x, y));
+    }
+    isAnyRoadVertical(x, y) {
+        return !!(this.isAnyRoadAtSide(UP, x, y) || this.isAnyRoadAtSide(DOWN, x, y));
+    }
+
+    canSetRoadByOrientation(isHorizontalOrientation, x, y) {
+        if (!this.canSetRoad(x, y)) { return false; }
+        if (!this.findCellOrEmpty(x, y).road) { return true; }
+        if (isHorizontalOrientation) { return this.isAnyRoadHorizontal(x, y); }
+        return this.isAnyRoadVertical(x, y);
+    }
+    canSetRoadByHorizontal(x, y) { return this.canSetRoadByOrientation(true, x, y); }
+    canSetRoadByVertical(x, y) { return this.canSetRoadByOrientation(false, x, y); }
 
     getColorOfRoadBySide(side, x, y) {
         let road = this.findCellOrEmpty(...this[side](x, y)).road;

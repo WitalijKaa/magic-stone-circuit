@@ -34,3 +34,4 @@ https://www.instagram.com/witalij.kaa/
 - Task 18: save local storage to file, load from file.
 - Task 19: save blueprints to local storage, add them to menu.
 - Task 20: help and learn-how-to guide.
+- Task 21: lock tick on any timeout changes.
