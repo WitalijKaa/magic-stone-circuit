@@ -106,7 +106,10 @@ class AbstractScheme {
         }
     }
     changeCellContent(type, x, y) { this.changeCellProperty('content', type, x, y); }
-    changeCellRoad(obj, x, y) { this.changeCellProperty('road', obj, x, y); }
+    changeCellRoad(obj, x, y) {
+        if (obj) { obj.paths = [...ALL_PATHS_EMPTY]; }
+        this.changeCellProperty('road', obj, x, y);
+    }
     changeCellSemiconductor(obj, x, y) { this.changeCellProperty('semiconductor', obj, x, y); }
 
     findCellOrEmpty(x, y) {
@@ -142,6 +145,47 @@ class AbstractScheme {
 
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
+
+    isCellForForcedCornerUp(x, y) {
+        if (!this.isCellEmpty(...this.Up(x, y))) {
+            let road = this.findCellOrEmpty(...this.Up(x, y)).road;
+            if (!road) { return true; }
+            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
+        }
+        return false;
+    }
+    isCellForForcedCornerDown(x, y) {
+        if (!this.isCellEmpty(...this.Down(x, y))) {
+            let road = this.findCellOrEmpty(...this.Down(x, y)).road;
+            if (!road) { return true; }
+            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
+        }
+        return false;
+    }
+    isCellForForcedCornerLeft(x, y) {
+        if (!this.isCellEmpty(...this.Left(x, y))) {
+            let road = this.findCellOrEmpty(...this.Left(x, y)).road;
+            if (!road) { return true; }
+            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
+        }
+        return false;
+    }
+    isCellForForcedCornerRight(x, y) {
+        if (!this.isCellEmpty(...this.Right(x, y))) {
+            let road = this.findCellOrEmpty(...this.Right(x, y)).road;
+            if (!road) { return true; }
+            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
+        }
+        return false;
+    }
+    countCellsForForcedCorner(x, y) {
+        let count = 0;
+        if (this.isCellForForcedCornerUp(x, y)) { count++; }
+        if (this.isCellForForcedCornerRight(x, y)) { count++; }
+        if (this.isCellForForcedCornerDown(x, y)) { count++; }
+        if (this.isCellForForcedCornerLeft(x, y)) { count++; }
+        return count;
+    }
 
     setCellEmpty(x, y) {
         this.changeCellContent(null, x, y);
@@ -285,21 +329,19 @@ class AbstractScheme {
         return !!this.findCellOrEmpty(x, y).road;
     }
 
-    isAnyRoadHorizontal(x, y) {
-        return !!(this.isAnyRoadAtSide(LEFT, x, y) || this.isAnyRoadAtSide(RIGHT, x, y));
-    }
-    isAnyRoadVertical(x, y) {
-        return !!(this.isAnyRoadAtSide(UP, x, y) || this.isAnyRoadAtSide(DOWN, x, y));
-    }
-
-    canSetRoadByOrientation(isHorizontalOrientation, x, y) {
+    canSetRoadAndIsPathsEmptyAtOrientation(isHorizontalOrientation, x, y) {
+        if (this.isCellEmpty(x, y)) { return true; }
         if (!this.canSetRoad(x, y)) { return false; }
-        if (!this.findCellOrEmpty(x, y).road) { return true; }
-        if (isHorizontalOrientation) { return this.isAnyRoadHorizontal(x, y); }
-        return this.isAnyRoadVertical(x, y);
+        let road = this.findCellOrEmpty(x, y).road;
+        if (isHorizontalOrientation) { return (!road.paths[ROAD_PATH_LEFT] && !road.paths[ROAD_PATH_RIGHT]); }
+        return (!road.paths[ROAD_PATH_UP] && !road.paths[ROAD_PATH_DOWN]);
     }
-    canSetRoadByHorizontal(x, y) { return this.canSetRoadByOrientation(true, x, y); }
-    canSetRoadByVertical(x, y) { return this.canSetRoadByOrientation(false, x, y); }
+    isRoadPathsEmptyHorizontal(x, y) { return this.canSetRoadAndIsPathsEmptyAtOrientation(true, x, y); }
+    isRoadPathsEmptyVertical(x, y) { return this.canSetRoadAndIsPathsEmptyAtOrientation(false, x, y); }
+
+    isAnyCornerInPaths(paths) {
+        return !!((paths[ROAD_PATH_UP] || paths[ROAD_PATH_DOWN]) && (paths[ROAD_PATH_LEFT] || paths[ROAD_PATH_RIGHT]));
+    }
 
     getColorOfRoadBySide(side, x, y) {
         let road = this.findCellOrEmpty(...this[side](x, y)).road;

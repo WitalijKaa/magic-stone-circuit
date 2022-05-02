@@ -22,6 +22,7 @@ const ROAD_PATH_TO_SIDE = {
     [ROAD_PATH_DOWN]: DOWN,
     [ROAD_PATH_LEFT]: LEFT,
 };
+const ALL_PATHS_EMPTY = [false, false, false, false, false];
 const ALL_PATHS_ARE = [true, true, true, true, false];
 
 const TT_ROAD = {
