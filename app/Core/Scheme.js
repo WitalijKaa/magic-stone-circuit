@@ -130,7 +130,7 @@ class Scheme extends AbstractScheme {
 
     makeRoadHeavy(x, y) {
         let road = this.findCellOrEmpty(x, y).road;
-        if (!road || ROAD_HEAVY == road.type || this.countObjectsAround(x, y) < 3) { return false; }
+        if (!road || ROAD_HEAVY == road.type || this.countAnyObjectsAround(x, y) < 3) { return false; }
 
         road.type = ROAD_HEAVY;
         this.afterPutRoad(x, y);
@@ -234,7 +234,7 @@ class Scheme extends AbstractScheme {
         let road = this.findCellOrEmpty(x, y).road;
         if (!road) { return; }
 
-        let countAround = this.countObjectsAround(x, y);
+        let countAround = this.countAnyObjectsAround(x, y);
         let emptyAround = !countAround;
 
         if (ROAD_HEAVY == road.type && countAround < 3) { road.type = ROAD_LIGHT; }
@@ -629,7 +629,7 @@ class Scheme extends AbstractScheme {
             return this.putSleepSemiconductor(x, y);
         }
         else if (ST_ROAD_AWAKE == scType) {
-            this.changeCellSemiconductor({ type: ST_ROAD_AWAKE, direction: ROAD_HEAVY }, x, y);
+            this.putAwakeSemiconductor(x, y);
         }
         return false;
     }
@@ -661,6 +661,11 @@ class Scheme extends AbstractScheme {
         }
         this.changeCellSemiconductor({ type: ST_ROAD_SLEEP, direction: direction }, x, y);
         return true;
+    }
+    
+    putAwakeSemiconductor(x, y) {
+        // todo turn sleep and allowedAmountOfAwakesCluster
+        this.changeCellSemiconductor({ type: ST_ROAD_AWAKE, direction: ROAD_HEAVY }, x, y);
     }
 
     setAwakeColorSemiconductorByStone(color, x, y) {

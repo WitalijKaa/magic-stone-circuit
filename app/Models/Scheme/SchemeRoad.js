@@ -90,5 +90,5 @@ class SchemeRoad extends Sprite {
 
     get scheme() { return this.cell.grid.scheme; }
 
-    get countObjectsAround() { return this.scheme.countObjectsAround(...this.cell.schemePosition); }
+    get countAnyObjectsAround() { return this.scheme.countAnyObjectsAround(...this.cell.schemePosition); }
 }

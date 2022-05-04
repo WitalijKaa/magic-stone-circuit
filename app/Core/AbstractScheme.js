@@ -81,6 +81,8 @@ class AbstractScheme {
 
     isRoadBuildMode = false;
 
+    allowedAmountOfAwakesCluster = 2;
+
     Up(x, y) { return [x, y - 1]; }
     Right(x, y) { return [x + 1, y]; }
     Down(x, y) { return [x, y + 1]; }
@@ -233,12 +235,21 @@ class AbstractScheme {
         return cacheColorings;
     }
 
-    countObjectsAround(x, y) {
+    countAnyObjectsAround(x, y) {
         let count = 0;
         if (!this.isCellEmpty(x + 1, y)) { count++; }
         if (!this.isCellEmpty(x - 1, y)) { count++; }
         if (!this.isCellEmpty(x, y + 1)) { count++; }
         if (!this.isCellEmpty(x, y - 1)) { count++; }
+        return count;
+    }
+
+    countTheObjectsAround(param, x, y) {
+        let count = 0;
+        if (this.findCellOrEmpty(...this.Up(x, y))[param]) { count++; }
+        if (this.findCellOrEmpty(...this.Right(x, y))[param]) { count++; }
+        if (this.findCellOrEmpty(...this.Down(x, y))[param]) { count++; }
+        if (this.findCellOrEmpty(...this.Left(x, y))[param]) { count++; }
         return count;
     }
 
@@ -276,14 +287,7 @@ class AbstractScheme {
     /** ROADs **/
 
     isRoadsAround(x, y) { return !!this.countRoadsAround(x, y); }
-    countRoadsAround(x, y) {
-        let count = 0;
-        if (this.findCellOrEmpty(x + 1, y).road) { count++; }
-        if (this.findCellOrEmpty(x - 1, y).road) { count++; }
-        if (this.findCellOrEmpty(x, y + 1).road) { count++; }
-        if (this.findCellOrEmpty(x, y - 1).road) { count++; }
-        return count;
-    }
+    countRoadsAround(x, y) { return this.countTheObjectsAround('road', x, y); }
 
     isRoadLeftOrRight(x, y) { return this.findCellOrEmpty(x + 1, y).road || this.findCellOrEmpty(x - 1, y).road; }
 
@@ -354,13 +358,13 @@ class AbstractScheme {
 
     /** SEMICONDUCTOR **/
 
-    isSemiconductorTypeAround(scType, x, y) { return !!this.countSemiconductorTypeAround(scType, x, y); }
-    countSemiconductorTypeAround(scType, x, y) {
+    isSemiconductorTypeAround(semiType, x, y) { return !!this.countSemiconductorTypeAround(semiType, x, y); }
+    countSemiconductorTypeAround(semiType, x, y) {
         let count = 0;
-        if (scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x, y + 1).semiconductor.type) { count++; }
-        if (scType == this.findSemiconductorCellOrEmpty(x, y - 1).semiconductor.type) { count++; }
+        if (semiType == this.findSemiconductorCellOrEmpty(...this.Up(x, y)).semiconductor.type) { count++; }
+        if (semiType == this.findSemiconductorCellOrEmpty(...this.Right(x, y)).semiconductor.type) { count++; }
+        if (semiType == this.findSemiconductorCellOrEmpty(...this.Down(x, y)).semiconductor.type) { count++; }
+        if (semiType == this.findSemiconductorCellOrEmpty(...this.Left(x, y)).semiconductor.type) { count++; }
         return count;
     }
 
@@ -372,6 +376,9 @@ class AbstractScheme {
         return sides;
     }
 
-    isSemiconductorTypeLeftOrRight(scType, x, y) { return scType == this.findSemiconductorCellOrEmpty(x + 1, y).semiconductor.type || scType == this.findSemiconductorCellOrEmpty(x - 1, y).semiconductor.type; }
+    isSemiconductorTypeLeftOrRight(semiType, x, y) {
+        return semiType == this.findSemiconductorCellOrEmpty(...this.Left(x, y)).semiconductor.type ||
+               semiType == this.findSemiconductorCellOrEmpty(...this.Right(x, y)).semiconductor.type;
+    }
 
 }
