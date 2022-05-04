@@ -148,7 +148,7 @@ class AbstractScheme {
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
 
-    isCellForForcedCornerUp(x, y) {
+    isCellForForcedConnectionUp(x, y) {
         if (!this.isCellEmpty(...this.Up(x, y))) {
             let road = this.findCellOrEmpty(...this.Up(x, y)).road;
             if (!road) { return true; }
@@ -156,7 +156,7 @@ class AbstractScheme {
         }
         return false;
     }
-    isCellForForcedCornerDown(x, y) {
+    isCellForForcedConnectionDown(x, y) {
         if (!this.isCellEmpty(...this.Down(x, y))) {
             let road = this.findCellOrEmpty(...this.Down(x, y)).road;
             if (!road) { return true; }
@@ -164,7 +164,7 @@ class AbstractScheme {
         }
         return false;
     }
-    isCellForForcedCornerLeft(x, y) {
+    isCellForForcedConnectionLeft(x, y) {
         if (!this.isCellEmpty(...this.Left(x, y))) {
             let road = this.findCellOrEmpty(...this.Left(x, y)).road;
             if (!road) { return true; }
@@ -172,7 +172,7 @@ class AbstractScheme {
         }
         return false;
     }
-    isCellForForcedCornerRight(x, y) {
+    isCellForForcedConnectionRight(x, y) {
         if (!this.isCellEmpty(...this.Right(x, y))) {
             let road = this.findCellOrEmpty(...this.Right(x, y)).road;
             if (!road) { return true; }
@@ -180,13 +180,21 @@ class AbstractScheme {
         }
         return false;
     }
-    countCellsForForcedCorner(x, y) {
+    countRoadsAroundAreHorizontalVerticalAndConnected(x, y) {
         let count = 0;
-        if (this.isCellForForcedCornerUp(x, y)) { count++; }
-        if (this.isCellForForcedCornerRight(x, y)) { count++; }
-        if (this.isCellForForcedCornerDown(x, y)) { count++; }
-        if (this.isCellForForcedCornerLeft(x, y)) { count++; }
+        if (this.isCellForForcedConnectionUp(x, y)) { count++; }
+        if (this.isCellForForcedConnectionRight(x, y)) { count++; }
+        if (this.isCellForForcedConnectionDown(x, y)) { count++; }
+        if (this.isCellForForcedConnectionLeft(x, y)) { count++; }
         return count;
+    }
+
+    isForcedCorner(x, y) {
+        if (this.isCellForForcedConnectionUp(x, y) && this.isCellForForcedConnectionRight(x, y) && !this.isCellForForcedConnectionDown(x, y) && !this.isCellForForcedConnectionLeft(x, y)) { return true; }
+        if (this.isCellForForcedConnectionRight(x, y) && this.isCellForForcedConnectionDown(x, y) && !this.isCellForForcedConnectionLeft(x, y) && !this.isCellForForcedConnectionUp(x, y)) { return true; }
+        if (this.isCellForForcedConnectionDown(x, y) && this.isCellForForcedConnectionLeft(x, y) && !this.isCellForForcedConnectionUp(x, y) && !this.isCellForForcedConnectionRight(x, y)) { return true; }
+        if (this.isCellForForcedConnectionLeft(x, y) && this.isCellForForcedConnectionUp(x, y) && !this.isCellForForcedConnectionRight(x, y) && !this.isCellForForcedConnectionDown(x, y)) { return true; }
+        return false;
     }
 
     setCellEmpty(x, y) {

@@ -65,8 +65,12 @@ class Scheme extends AbstractScheme {
                 this.findCellOrEmpty(x, y).road.type = ROAD_HEAVY;
             }
             else if (paths[ROAD_PATH_UP] && paths[ROAD_PATH_DOWN]) {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_LIGHT };
-                this.findCellOrEmpty(x, y).road.type = ROAD_LIGHT;
+                let curr = ROAD_LIGHT;
+                if (!this.isAnyRoadAtSide(UP, x, y) || !this.isAnyRoadAtSide(DOWN, x, y)) {
+                    curr = ROAD_HEAVY;
+                }
+                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: curr };
+                this.findCellOrEmpty(x, y).road.type = curr;
             }
             else {
                 changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_LEFT_RIGHT };
@@ -90,8 +94,12 @@ class Scheme extends AbstractScheme {
                 this.findCellOrEmpty(x, y).road.type = ROAD_HEAVY;
             }
             else if (paths[ROAD_PATH_LEFT] && paths[ROAD_PATH_RIGHT]) {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_LIGHT };
-                this.findCellOrEmpty(x, y).road.type = ROAD_LIGHT;
+                let curr = ROAD_LIGHT;
+                if (!this.isAnyRoadAtSide(LEFT, x, y) || !this.isAnyRoadAtSide(RIGHT, x, y)) {
+                    curr = ROAD_HEAVY;
+                }
+                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: curr };
+                this.findCellOrEmpty(x, y).road.type = curr;
             }
             else {
                 changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_UP_DOWN };
@@ -104,7 +112,7 @@ class Scheme extends AbstractScheme {
 
     putRoadTurning(x, y) {
         let changeParams = { prev: null, curr: null };
-        let cellType = this.countCellsForForcedCorner(x, y) > 2 ? ROAD_HEAVY : ROAD_LIGHT;
+        let cellType = this.countRoadsAroundAreHorizontalVerticalAndConnected(x, y) > 2 ? ROAD_HEAVY : ROAD_LIGHT;
         if (this.isCellEmpty(x, y)) {
             changeParams = { prev: null, curr: cellType };
             this.changeCellRoad({ type: cellType }, x, y);
@@ -237,8 +245,6 @@ class Scheme extends AbstractScheme {
         let countAround = this.countAnyObjectsAround(x, y);
         let emptyAround = !countAround;
 
-        if (ROAD_HEAVY == road.type && countAround < 3) { road.type = ROAD_LIGHT; }
-
         if (emptyAround) {
             if (ROAD_LEFT_RIGHT != road.type && ROAD_UP_DOWN != road.type) {
                 if (!road.paths[ROAD_PATH_UP] && road.paths[ROAD_PATH_RIGHT] && !road.paths[ROAD_PATH_DOWN] && road.paths[ROAD_PATH_LEFT]) {
@@ -250,11 +256,11 @@ class Scheme extends AbstractScheme {
             }
         }
 
-        if (ROAD_LIGHT == road.type && 2 == this.countCellsForForcedCorner(x, y)) {
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, this.isCellForForcedCornerLeft(x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, this.isCellForForcedCornerRight(x, y), updateMode)
-            this.defineRoadPath(x, y, ROAD_PATH_UP, this.isCellForForcedCornerUp(x, y), updateMode)
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, this.isCellForForcedCornerDown(x, y), updateMode)
+        if (ROAD_LIGHT == road.type && this.isForcedCorner(x, y)) {
+            this.defineRoadPath(x, y, ROAD_PATH_LEFT, this.isCellForForcedConnectionLeft(x, y), updateMode);
+            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, this.isCellForForcedConnectionRight(x, y), updateMode)
+            this.defineRoadPath(x, y, ROAD_PATH_UP, this.isCellForForcedConnectionUp(x, y), updateMode)
+            this.defineRoadPath(x, y, ROAD_PATH_DOWN, this.isCellForForcedConnectionDown(x, y), updateMode)
         }
         else if (ROAD_LEFT_RIGHT == road.type || emptyAround || this.isEmptyUpDown(x, y) ||
             (ROAD_LIGHT == road.type && countAround == 3 && (this.isCellEmpty(...this.Up(x, y)) || this.isCellEmpty(...this.Down(x, y))))
@@ -277,7 +283,7 @@ class Scheme extends AbstractScheme {
             this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(...this.Left(x, y)), updateMode);
         }
 
-        this.defineRoadPath(x, y, ROAD_PATH_HEAVY, ROAD_HEAVY == road.type, updateMode);
+        this.defineRoadPath(x, y, ROAD_PATH_HEAVY, (ROAD_HEAVY == road.type && countAround > 2), updateMode);
     }
 
     updatePathsOnNeighborsRoads(x, y) {
