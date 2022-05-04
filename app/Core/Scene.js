@@ -1,4 +1,16 @@
 class Scene {
+
+    static schemes = [];
+    static currentScheme;
+
+    static addSchemeModel(sceneModel) {
+        this.currentScheme = sceneModel.scheme; // temp
+        this.schemes.push(sceneModel.scheme);
+
+        window.pixiApp.stage.addChild(sceneModel.sprite);
+        this.addResizeCallbacks(sceneModel);
+    }
+
     static addModel(sceneModel) {
         window.pixiApp.stage.addChild(sceneModel.sprite);
         this.addResizeCallbacks(sceneModel);
@@ -18,6 +30,15 @@ class Scene {
         let resizeCallbacks = sceneModel.resizeCallbacks;
         if (resizeCallbacks && resizeCallbacks.length) {
             this.resizeCallbacks.push(...resizeCallbacks);
+        }
+    }
+
+    static eventHandler(eventMethod) {
+        if (this[eventMethod]) {
+            return;
+        }
+        if (this.currentScheme[eventMethod]) {
+            this.currentScheme[eventMethod]();
         }
     }
 

@@ -9,3 +9,7 @@ const CONTROL_KEYS = {
     '7': ST_ROAD_AWAKE,
     '0': ST_ROAD,
 }
+
+const CONTROL_EVENTS_KEYS = {
+    'r': 'changeBuildRoadWayFixed',
+}

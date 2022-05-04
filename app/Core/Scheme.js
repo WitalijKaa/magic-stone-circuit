@@ -448,12 +448,35 @@ class Scheme extends AbstractScheme {
 
     buildingRoad = { start: [], end: [], path: [], way: {} };
 
+    changeBuildRoadWayFixed() {
+        if (this.isRoadBuildMode) {
+            if (!this.buildingRoad.way.fixed) {
+                this.buildingRoad.way.fixed = this.nextWayToBuildRoadOnQueue(this.buildingRoad.way.auto);
+            }
+            else {
+                this.buildingRoad.way.fixed = this.nextWayToBuildRoadOnQueue(this.buildingRoad.way.fixed);
+            }
+        }
+    }
+
+    nextWayToBuildRoadOnQueue(prevQueue) {
+        let nextAutoWay = BUILD_ROAD_WAY_HORZ_VERT;
+        if (nextAutoWay == prevQueue) { nextAutoWay = BUILD_ROAD_WAY_VERT_HORZ; }
+        return nextAutoWay;
+    }
+
+    get buildRoadWay() {
+        if (this.buildingRoad.way.fixed) { return this.buildingRoad.way.fixed; }
+        return this.buildingRoad.way.auto;
+    }
+
     startToBuildRoad(x, y) {
         this.isRoadBuildMode = true;
         this.buildingRoad.start = [x, y];
         this.buildingRoad.painted = [x, y];
         this.buildingRoad.end = [x, y];
         this.buildingRoad.path = [];
+        this.buildingRoad.way = { auto: BUILD_ROAD_WAY_HORZ_VERT, fixed: null, last: null };
     }
 
     continueToBuildRoad(x, y) {
@@ -466,13 +489,17 @@ class Scheme extends AbstractScheme {
     }
 
     buildRoadTick() {
-        if (this.buildingRoad.painted[0] != this.buildingRoad.end[0] || this.buildingRoad.painted[1] != this.buildingRoad.end[1]) {
+        if (this.buildingRoad.painted[0] != this.buildingRoad.end[0] ||
+            this.buildingRoad.painted[1] != this.buildingRoad.end[1] ||
+            this.buildingRoad.way.last != this.buildRoadWay
+        ) {
             this.removePrevBuiltRoad();
             this.findWayToBuildRoad();
-            if (this.isWayPossible(this.buildingRoad.way.auto)) {
+            if (this.isWayPossible(this.buildRoadWay)) {
                 this.doBuildRoad();
             }
 
+            this.buildingRoad.way.last = this.buildRoadWay;
             this.buildingRoad.painted[0] = this.buildingRoad.end[0];
             this.buildingRoad.painted[1] = this.buildingRoad.end[1];
         }
@@ -494,8 +521,6 @@ class Scheme extends AbstractScheme {
     }
 
     doBuildRoad() {
-        let theWay = this.buildingRoad.way.auto;
-
         let xCell = this.buildingRoad.start[0];
         let yCell = this.buildingRoad.start[1];
         let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;
@@ -503,7 +528,7 @@ class Scheme extends AbstractScheme {
 
         let isFirstHorizontal = this.buildingRoad.end[0] != this.buildingRoad.start[0];
 
-        if (BUILD_ROAD_WAY_HORZ_VERT == theWay) {
+        if (BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay) {
             let changeParams = isFirstHorizontal ? this.putRoadHorizontal(xCell, yCell) : this.putRoadVertical(xCell, yCell);
             this.buildingRoad.path.push({ change: changeParams, position: [...this.buildingRoad.start]});
 
@@ -521,7 +546,7 @@ class Scheme extends AbstractScheme {
                 this.buildingRoad.path.push({ change: this.putRoadVertical(xCell, yCell), position: [xCell, yCell]});
             }
         }
-        else if (BUILD_ROAD_WAY_VERT_HORZ == theWay) {
+        else if (BUILD_ROAD_WAY_VERT_HORZ == this.buildRoadWay) {
             this.buildingRoad.path.push({ change: this.putRoadVertical(xCell, yCell), position: [...this.buildingRoad.start]});
 
             while (yCell != this.buildingRoad.end[1]) {
@@ -541,8 +566,7 @@ class Scheme extends AbstractScheme {
     }
 
     findWayToBuildRoad() {
-        this.buildingRoad.way = { auto: BUILD_ROAD_WAY_HORZ_VERT, fixed: null };
-
+        this.buildingRoad.way.auto = BUILD_ROAD_WAY_HORZ_VERT;
         let xCell = this.buildingRoad.start[0];
         let yCell = this.buildingRoad.start[1];
         let xStep = this.buildingRoad.end[0] > this.buildingRoad.start[0] ? 1 : -1;

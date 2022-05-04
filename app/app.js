@@ -7,7 +7,7 @@ window.pixiApp = new PIXI.Application({
 });
 window.pixiAppContainer.appendChild(window.pixiApp.view);
 
-Scene.addModel(
+Scene.addSchemeModel(
     Factory.sceneModel({
         model: SchemeGrid,
         name: 'mainGrid',
@@ -24,10 +24,12 @@ Scene.addModel(
 Scene.controls.pen = ST_STONE_VIOLET;
 Scene.setTempButton()
 document.addEventListener('keypress', (event) => {
-    //console.log('KEY', event.key);
     if (CONTROL_KEYS.hasOwnProperty(event.key)) {
         Scene.controls.pen = CONTROL_KEYS[event.key];
         Scene.setTempButton()
+    }
+    if (CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
+        Scene.eventHandler(CONTROL_EVENTS_KEYS[event.key])
     }
 });
 
