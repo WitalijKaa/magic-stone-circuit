@@ -148,6 +148,13 @@ class AbstractScheme {
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
 
+    isPerpendicularRoadAtSide(side, x, y) {
+        let road = this.findCellOrEmpty(...this[side](x, y)).road;
+        if (!road) { return false; }
+        if (LEFT == side || RIGHT == side) { return ROAD_UP_DOWN == road.type; }
+        return ROAD_LEFT_RIGHT == road.type;
+    }
+
     isCellForForcedConnectionUp(x, y) {
         if (!this.isCellEmpty(...this.Up(x, y))) {
             let road = this.findCellOrEmpty(...this.Up(x, y)).road;

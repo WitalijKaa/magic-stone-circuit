@@ -112,7 +112,7 @@ class Scheme extends AbstractScheme {
 
     putRoadTurning(x, y) {
         let changeParams = { prev: null, curr: null };
-        let cellType = this.countRoadsAroundAreHorizontalVerticalAndConnected(x, y) > 2 ? ROAD_HEAVY : ROAD_LIGHT;
+        let cellType = this.countRoadsAroundAreHorizontalVerticalAndConnected(x, y) > 1 ? ROAD_HEAVY : ROAD_LIGHT;
         if (this.isCellEmpty(x, y)) {
             changeParams = { prev: null, curr: cellType };
             this.changeCellRoad({ type: cellType }, x, y);
@@ -277,10 +277,10 @@ class Scheme extends AbstractScheme {
             this.defineRoadPath(x, y, ROAD_PATH_DOWN, true, updateMode)
         }
         else {
-            this.defineRoadPath(x, y, ROAD_PATH_UP, !this.isCellEmpty(...this.Up(x, y)), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, !this.isCellEmpty(...this.Right(x, y)), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, !this.isCellEmpty(...this.Down(x, y)), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(...this.Left(x, y)), updateMode);
+            this.defineRoadPath(x, y, ROAD_PATH_UP, !this.isCellEmpty(...this.Up(x, y)) && !this.isPerpendicularRoadAtSide(UP, x, y), updateMode);
+            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, !this.isCellEmpty(...this.Right(x, y)) && !this.isPerpendicularRoadAtSide(RIGHT, x, y), updateMode);
+            this.defineRoadPath(x, y, ROAD_PATH_DOWN, !this.isCellEmpty(...this.Down(x, y)) && !this.isPerpendicularRoadAtSide(DOWN, x, y), updateMode);
+            this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(...this.Left(x, y)) && !this.isPerpendicularRoadAtSide(LEFT, x, y), updateMode);
         }
 
         this.defineRoadPath(x, y, ROAD_PATH_HEAVY, (ROAD_HEAVY == road.type && countAround > 2), updateMode);
