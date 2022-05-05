@@ -22,12 +22,12 @@ https://www.instagram.com/witalij.kaa/
 - Task 6: transport roads.
 - Task 7: coloring roads with energy.
 - Task 8: sleepy road may awake.
-- Task 9: correct reset of color.
+- Task 9: correct reset of color. Done 1-9
 - Task 10: restrict to put objects where they should not be.
-- Task 11: cancel of cached actions should be targeted.
+- Task 11: cancel of cached actions should be targeted. D
 - Task 12: energy starts coloring roads, not stones. Switchers.
 - Task 13: smiles consume energy.
-- Task 14: put roads by start-end.
+- Task 14: put roads by start-end. D
 - Task 15: add variations on putting roads.
 - Task 16: big menu at left.
 - Task 17: save current scheme to local storage.
@@ -35,3 +35,6 @@ https://www.instagram.com/witalij.kaa/
 - Task 19: save blueprints to local storage, add them to menu.
 - Task 20: help and learn-how-to guide.
 - Task 21: lock tick on any timeout changes.
+- Task 22: variations on road-cell switch.
+- Task 23: one-way energy filter.
+- Task 24: turn semiconductors; disable big semiconductors.
