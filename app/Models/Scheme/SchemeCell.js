@@ -67,7 +67,15 @@ class SchemeCell extends Sprite {
     }
 
     handleClick() {
-        if (CONTENT_SPRITES.hasOwnProperty(Scene.controls.pen)) {
+        if (ST_ROAD == Scene.controls.pen) {
+            if (!this.scheme.isRoadBuildMode) {
+                this.scheme.startToBuildRoad(...this.schemePosition);
+            }
+            else {
+                this.scheme.finishToBuildRoad(...this.schemePosition);
+            }
+        }
+        else if (CONTENT_SPRITES.hasOwnProperty(Scene.controls.pen)) {
             this.scheme.putContent(Scene.controls.pen, ...this.schemePosition);
         }
         else if (ST_ROAD_SLEEP == Scene.controls.pen || ST_ROAD_AWAKE == Scene.controls.pen) {
@@ -78,17 +86,7 @@ class SchemeCell extends Sprite {
             this.changeSemiconductorType(null);
         }
     }
-    handleRightClick() {
-        if (ST_ROAD == Scene.controls.pen) {
-            if (!this.scheme.isRoadBuildMode) {
-                this.scheme.startToBuildRoad(...this.schemePosition);
-            }
-            else {
-                this.scheme.finishToBuildRoad(...this.schemePosition);
-            }
-        }
-        else { this.changeSchemeRoad(); }
-    }
+    handleRightClick() { this.scheme.tapRoad(...this.schemePosition); }
     handleMouseOver() {
         if (this.scheme.isRoadBuildMode) {
             this.scheme.continueToBuildRoad(...this.schemePosition);
@@ -113,17 +111,6 @@ class SchemeCell extends Sprite {
             }
         }
         else { this.destroyChild('content'); }
-    }
-
-    changeSchemeRoad() {
-        if (this.scheme.isCellEmpty(...this.schemePosition)) {
-            this.scheme.putRoad(...this.schemePosition);
-        }
-        else if (this.scheme.findCellOrEmpty(...this.schemePosition).road) {
-            if (!this.scheme.makeRoadHeavy(...this.schemePosition)) {
-                this.scheme.removeRoad(...this.schemePosition);
-            }
-        }
     }
     
     changeVisibleRoad() {

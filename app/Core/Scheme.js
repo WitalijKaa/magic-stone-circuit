@@ -46,6 +46,17 @@ class Scheme extends AbstractScheme {
     }
 
     /** ROADs **/
+    
+    tapRoad(x, y) {
+        if (this.isCellEmpty(x, y)) {
+            this.putRoad(x, y);
+        }
+        else if (this.findCellOrEmpty(x, y).road) {
+            if (!this.evaluateRoadType(x, y)) {
+                this.removeRoad(x, y);
+            }
+        }
+    }
 
     putRoad(x, y) {
         this.changeCellRoad({ type: ROAD_LIGHT }, x, y);
@@ -112,7 +123,7 @@ class Scheme extends AbstractScheme {
 
     putRoadTurning(x, y) {
         let changeParams = { prev: null, curr: null };
-        let cellType = this.countRoadsAroundAreHorizontalVerticalAndConnected(x, y) > 1 ? ROAD_HEAVY : ROAD_LIGHT;
+        let cellType = this.countRoadsAroundForcedForConnect(x, y) > 1 ? ROAD_HEAVY : ROAD_LIGHT;
         if (this.isCellEmpty(x, y)) {
             changeParams = { prev: null, curr: cellType };
             this.changeCellRoad({ type: cellType }, x, y);
@@ -136,11 +147,18 @@ class Scheme extends AbstractScheme {
         this.cancelNeighborsColorPathForAnyRoadByPaths(this.findCellOrEmpty(x, y).road.paths, x, y);
     }
 
-    makeRoadHeavy(x, y) {
+    evaluateRoadType(x, y) {
         let road = this.findCellOrEmpty(x, y).road;
-        if (!road || ROAD_HEAVY == road.type || this.countAnyObjectsAround(x, y) < 3) { return false; }
+        if (!road) { return false; }
 
-        road.type = ROAD_HEAVY;
+        if ((ROAD_LEFT_RIGHT == road.type || ROAD_UP_DOWN == road.type) && this.countRoadsAroundForcedForConnect(x, y) < 3) {
+            road.type = ROAD_LIGHT;
+        }
+        else if (ROAD_HEAVY != road.type && this.countAnyObjectsAround(x, y) > 2) {
+            road.type = ROAD_HEAVY;
+        }
+        else { return false; }
+
         this.afterPutRoad(x, y);
         return true;
     }

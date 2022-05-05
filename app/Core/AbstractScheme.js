@@ -155,10 +155,27 @@ class AbstractScheme {
         return ROAD_LEFT_RIGHT == road.type;
     }
 
+    isCellConnectedButNotRoadAtSide(side, x, y) {
+        if (!this.isCellEmpty(...this[side](x, y))) {
+            let cell = this.findCellOrEmpty(...this.Up(x, y));
+            if (cell.road) { return false; }
+            if (cell.semiconductor && ST_ROAD_SLEEP == cell.semiconductor.type) {
+                if (LEFT == side || RIGHT == side) {
+                    if (cell.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
+                }
+                else {
+                    if (cell.semiconductor.direction != ROAD_UP_DOWN) { return false; }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     isCellForForcedConnectionUp(x, y) {
         if (!this.isCellEmpty(...this.Up(x, y))) {
             let road = this.findCellOrEmpty(...this.Up(x, y)).road;
-            if (!road) { return true; }
+            if (!road) { return this.isCellConnectedButNotRoadAtSide(UP, x, y); }
             return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
         }
         return false;
@@ -166,7 +183,7 @@ class AbstractScheme {
     isCellForForcedConnectionDown(x, y) {
         if (!this.isCellEmpty(...this.Down(x, y))) {
             let road = this.findCellOrEmpty(...this.Down(x, y)).road;
-            if (!road) { return true; }
+            if (!road) { return this.isCellConnectedButNotRoadAtSide(DOWN, x, y); }
             return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
         }
         return false;
@@ -174,7 +191,7 @@ class AbstractScheme {
     isCellForForcedConnectionLeft(x, y) {
         if (!this.isCellEmpty(...this.Left(x, y))) {
             let road = this.findCellOrEmpty(...this.Left(x, y)).road;
-            if (!road) { return true; }
+            if (!road) { return this.isCellConnectedButNotRoadAtSide(LEFT, x, y); }
             return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
         }
         return false;
@@ -182,12 +199,12 @@ class AbstractScheme {
     isCellForForcedConnectionRight(x, y) {
         if (!this.isCellEmpty(...this.Right(x, y))) {
             let road = this.findCellOrEmpty(...this.Right(x, y)).road;
-            if (!road) { return true; }
+            if (!road) { return this.isCellConnectedButNotRoadAtSide(RIGHT, x, y); }
             return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
         }
         return false;
     }
-    countRoadsAroundAreHorizontalVerticalAndConnected(x, y) {
+    countRoadsAroundForcedForConnect(x, y) {
         let count = 0;
         if (this.isCellForForcedConnectionUp(x, y)) { count++; }
         if (this.isCellForForcedConnectionRight(x, y)) { count++; }
