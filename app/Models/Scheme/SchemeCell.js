@@ -79,11 +79,11 @@ class SchemeCell extends Sprite {
             this.scheme.putContent(Scene.controls.pen, ...this.schemePosition);
         }
         else if (ST_ROAD_SLEEP == Scene.controls.pen || ST_ROAD_AWAKE == Scene.controls.pen) {
-            this.changeSemiconductorType(Scene.controls.pen);
+            this.scheme.putSemiconductor(Scene.controls.pen, ...this.schemePosition);
         }
         else if (!Scene.controls.pen) {
             this.scheme.removeContent(...this.schemePosition);
-            this.changeSemiconductorType(null);
+            this.scheme.putSemiconductor(null, ...this.schemePosition);
         }
     }
     handleRightClick() { this.scheme.tapRoad(...this.schemePosition); }
@@ -127,12 +127,6 @@ class SchemeCell extends Sprite {
         }
     }
     refreshVisibleRoad() { this.road && this.road.refreshPaths(); }
-
-    changeSemiconductorType(scType) {
-        this.scheme.putSemiconductor(scType, ...this.schemePosition);
-        this.refreshVisibleAll();
-        this.scheme.updatePathsOnNeighborsRoads(...this.schemePosition);
-    }
 
     changeVisibleSemiconductor() {
         if (this.typeOfSemiconductor) {

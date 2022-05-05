@@ -159,7 +159,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this[side](x, y))) {
             let cell = this.findCellOrEmpty(...this.Up(x, y));
             if (cell.road) { return false; }
-            if (cell.semiconductor && ST_ROAD_SLEEP == cell.semiconductor.type) {
+            if (cell.semiconductor && ROAD_HEAVY != cell.semiconductor.direction) {
                 if (LEFT == side || RIGHT == side) {
                     if (cell.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
                 }
@@ -411,6 +411,40 @@ class AbstractScheme {
     isSemiconductorTypeLeftOrRight(semiType, x, y) {
         return semiType == this.findSemiconductorCellOrEmpty(...this.Left(x, y)).semiconductor.type ||
                semiType == this.findSemiconductorCellOrEmpty(...this.Right(x, y)).semiconductor.type;
+    }
+
+    countAwakeClusterAtSide(checkRun, side, x, y) {
+        let nextXY = []; nextXY.push(...this[side](x, y));
+        let semi = this.findCellOrEmpty(...nextXY).semiconductor;
+        if (!semi || ST_ROAD_AWAKE != semi.type) { return 0; }
+
+        if (!checkRun) { checkRun = this.constructor.checkRun; }
+        if (semi.checkRun == checkRun) { return 0; }
+        semi.checkRun = checkRun;
+
+        let count = 1;
+        SIDES.map((toDir) => {
+            if (toDir == OPPOSITE_SIDE[side]) { return; }
+            count += this.countAwakeClusterAtSide(checkRun, toDir, ...nextXY)
+        })
+        return count;
+    }
+
+    turnSleepSemiconductorHere(side, x, y) {
+        let semi = this.findCellOrEmpty(...this[side](x, y)).semiconductor;
+        if (!semi || ST_ROAD_SLEEP != semi.type) { return false; }
+        if (LEFT == side || RIGHT == side) {
+            if (semi.direction != ROAD_LEFT_RIGHT) {
+                semi.direction = ROAD_LEFT_RIGHT;
+                return true;
+            }
+        }
+        else {
+            if (semi.direction != ROAD_UP_DOWN) {
+                semi.direction = ROAD_UP_DOWN;
+                return true;
+            }
+        }
     }
 
 }
