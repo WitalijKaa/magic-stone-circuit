@@ -426,6 +426,15 @@ class AbstractScheme {
         if (semiType == this.findSemiconductorCellOrEmpty(...this.Left(x, y)).semiconductor.type) { count++; }
         return count;
     }
+    isChargedSemiconductorAround(x, y) { return !!this.countChargedSemiconductorAround(x, y); }
+    countChargedSemiconductorAround(x, y) {
+        let count = 0;
+        if (this.findSemiconductorCellOrEmpty(...this.Up(x, y)).semiconductor.colorCharge) { count++; }
+        if (this.findSemiconductorCellOrEmpty(...this.Right(x, y)).semiconductor.colorCharge) { count++; }
+        if (this.findSemiconductorCellOrEmpty(...this.Down(x, y)).semiconductor.colorCharge) { count++; }
+        if (this.findSemiconductorCellOrEmpty(...this.Left(x, y)).semiconductor.colorCharge) { count++; }
+        return count;
+    }
 
     getSidesBySemiconductorType(semi) {
         let sides = SIDES;
@@ -472,6 +481,20 @@ class AbstractScheme {
                 return true;
             }
         }
+    }
+    
+    isConnectedSemiconductorAtSideToThisSemiconductor(toDir, x, y) {
+        let semi = this.findCellOrEmpty(...this[toDir](x, y)).semiconductor;
+        if (!semi) { return false; }
+        if (ST_ROAD_SLEEP == semi.type && !this.isSemiSleepConnectedToSide(semi, OPPOSITE_SIDE[toDir])) { return false; }
+        return true;
+    }
+    
+    isSemiSleepConnectedToSide(semi, side) {
+        if (!semi || ST_ROAD_SLEEP != semi.type) { return false; }
+        if ((LEFT == side || RIGHT == side) && ROAD_LEFT_RIGHT != semi.direction) { return false; }
+        if ((UP == side || DOWN == side) && ROAD_UP_DOWN != semi.direction) { return false; }
+        return true;
     }
 
     _devCell
