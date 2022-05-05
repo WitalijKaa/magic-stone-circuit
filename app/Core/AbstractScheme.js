@@ -447,4 +447,9 @@ class AbstractScheme {
         }
     }
 
+    _devCell
+    devCell(x, y) {
+        this._devCell = [x, y];
+    }
+    devCellEcho() { console.log('devCellEcho', this._devCell, this.findCellOrEmpty(...this._devCell)) }
 }

@@ -91,6 +91,7 @@ class SchemeCell extends Sprite {
         if (this.scheme.isRoadBuildMode) {
             this.scheme.continueToBuildRoad(...this.schemePosition);
         }
+        this.scheme.devCell(...this.schemePosition);
     }
 
     changeVisibleType() {

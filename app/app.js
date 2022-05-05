@@ -31,6 +31,7 @@ document.addEventListener('keypress', (event) => {
     if (CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
         Scene.eventHandler(CONTROL_EVENTS_KEYS[event.key])
     }
+    if ('m' == event.key) { Scene.currentScheme.devCellEcho(); }
 });
 
 function mainContainerResize() {
