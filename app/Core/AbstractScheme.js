@@ -246,12 +246,24 @@ class AbstractScheme {
             this.coloringAwaitTick = true;
 
             for (let cellName in this.contentCells) {
-                this.coloringCellCache(...this.contentCells[cellName]).push({
-                    type: ST_STONE_VIOLET,
-                    method: 'setColorAroundByStone',
-                    params: [...this.contentCells[cellName]],
-                    cacheDirections: [SIDES],
-                });
+                let cell = this.findCellOrEmpty(...this.contentCells[cellName]);
+
+                if (cell.content) {
+                    this.coloringCellCache(...this.contentCells[cellName]).push({
+                        type: ST_STONE_VIOLET,
+                        method: 'setColorAroundByStone',
+                        params: [...this.contentCells[cellName]],
+                        cacheDirections: SIDES,
+                    });
+                }
+                else if (cell.semiconductor && ST_ROAD_SLEEP == cell.semiconductor.type) {
+                    this.coloringCellCache(...this.contentCells[cellName]).push({
+                        type: ST_ROAD_SLEEP,
+                        method: 'setColorAroundBySleep',
+                        params: [false, ...this.contentCells[cellName]],
+                        cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
+                    });
+                }
             }
         }
     }
@@ -314,6 +326,21 @@ class AbstractScheme {
                 }
             }
         }
+    }
+
+    disabledDirsToMoveColor(road, countRoadsAround, fromDir) {
+        let disabled = [fromDir];
+        if (ROAD_HEAVY != road.type && countRoadsAround > 2) {
+            if (fromDir == LEFT || fromDir == RIGHT) {
+                disabled.push(UP);
+                disabled.push(DOWN);
+            }
+            else {
+                disabled.push(LEFT);
+                disabled.push(RIGHT);
+            }
+        }
+        return disabled;
     }
 
     /** ROADs **/
@@ -451,5 +478,12 @@ class AbstractScheme {
     devCell(x, y) {
         this._devCell = [x, y];
     }
-    devCellEcho() { console.log('devCellEcho', this._devCell, this.findCellOrEmpty(...this._devCell)) }
+    devCellEcho() {
+        let cell = this.findCellOrEmpty(...this._devCell);
+        console.log(
+            'devCellEcho',
+            this._devCell,
+            cell.road ? cell.road : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
+        );
+    }
 }
