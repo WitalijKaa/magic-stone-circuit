@@ -9,6 +9,8 @@ class SchemeGrid extends Sprite {
     offsetX = 0; offsetY = 0; // px offset on scroll
     dragX; dragY;
 
+    mouseLock = false;
+
     needToResize = true;
 
     constructor(config) {
@@ -158,6 +160,14 @@ class SchemeGrid extends Sprite {
         this.execForVisibleCells('refreshVisibleAll');
     }
 
+    globalPxToLocalCellPx(pxGlobalX, pxGlobalY) {
+        let localX = Math.floor(pxGlobalX / this.cellPxSize);
+        let cellX = Math.floor(pxGlobalX - (localX * this.cellPxSize));
+        let localY = Math.floor(pxGlobalY / this.cellPxSize);
+        let cellY = Math.floor(pxGlobalY - (localY * this.cellPxSize));
+        return [cellX, cellY];
+    }
+
     schemeToVisiblePosition(x, y) { return [x - this.dragX + this.constructor.GRID_OFFSET, y - this.dragY + this.constructor.GRID_OFFSET]; }
 
     get visibleCellsAreaSize() {
@@ -170,10 +180,15 @@ class SchemeGrid extends Sprite {
     get cellPxSize() {
         if (this.needToResize) {
             this._cellPxSize = Math.floor(this.configParams.cellSizePx / this.scheme.ratio)
+            this.cellPxSizeConfig = {
+                lineA: Math.floor(this._cellPxSize / 3),
+                lineB: Math.floor(this._cellPxSize / 3) + Math.floor(this._cellPxSize / 3),
+            };
             this.needToResize = false; // todo
         }
         return this._cellPxSize;
     }
+    cellPxSizeConfig = {};
 
     get visibleCellsAreaCurrentWidth() { return this.visibleCells.length; }
     get visibleCellsAreaCurrentHeight() { return this.visibleCells[0].length; }

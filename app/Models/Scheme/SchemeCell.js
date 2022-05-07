@@ -17,6 +17,7 @@ const OPPOSITE_SIDE = {
     [LEFT]: RIGHT,
     [RIGHT]: LEFT,
 };
+const OVER_CENTER = 'Center';
 
 class SchemeCell extends Sprite {
 
@@ -33,7 +34,7 @@ class SchemeCell extends Sprite {
         this.sprite.interactive = true;
         this.sprite.on('click', () => { this.handleClick() });
         new MouseClick(this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
-        new MouseOver(this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
+        new MouseOver(this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver', [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
     }
 
     init (grid) {
@@ -92,6 +93,34 @@ class SchemeCell extends Sprite {
             this.scheme.continueToBuildRoad(...this.schemePosition);
         }
         this.scheme.devCell(...this.schemePosition);
+    }
+    handleMouseMove(pxGlobalX, pxGlobalY) {
+        if (!this.grid.mouseLock) {
+            this.grid.mouseLock = true;
+
+            // console.log(
+            //     this.findOverZoneType(...this.grid.globalPxToLocalCellPx(pxGlobalX, pxGlobalY)),
+            //     this.schemePosition
+            // );
+
+            setTimeout(() => { this.grid.mouseLock = false;}, NANO_MS);
+        }
+    }
+
+    findOverZoneType(pxLocalX, pxLocalY) {
+        if (pxLocalY <= this.grid.cellPxSizeConfig.lineA) {
+            if (pxLocalX < this.grid.cellPxSizeConfig.lineB) { return UP; }
+            return RIGHT;
+        }
+        if (pxLocalY <= this.grid.cellPxSizeConfig.lineB) {
+            if (pxLocalX < this.grid.cellPxSizeConfig.lineA) { return LEFT; }
+            if (pxLocalX < this.grid.cellPxSizeConfig.lineB) { return OVER_CENTER; }
+            return RIGHT;
+        }
+        else {
+            if (pxLocalX < this.grid.cellPxSizeConfig.lineA) { return LEFT; }
+            return DOWN;
+        }
     }
 
     changeVisibleType() {
