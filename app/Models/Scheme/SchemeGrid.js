@@ -136,13 +136,17 @@ class SchemeGrid extends Sprite {
         }
     }
 
+    lastMouseMovePositions;
     handleMouseMove(pxGlobalX, pxGlobalY) {
         if (!this.mouseLock) {
             this.mouseLock = true;
-            let cellPositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
-            let zone = this.pointedCellZone.findOverZoneType(...cellPositions.localCellPx);
-            this.pointedCellZone.showZone(zone, ...cellPositions.localGrid);
-            this.scheme.setActiveCursorPosition(zone, ...cellPositions.globalGrid);
+            this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
+            let zone = this.pointedCellZone.findOverZoneType(...this.lastMouseMovePositions.localCellPx);
+            this.lastMouseMovePositions.zone = zone;
+            if (ST_ROAD == Scene.controls.pen) {
+                this.pointedCellZone.showZone(zone, ...this.lastMouseMovePositions.localGrid);
+            }
+            this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);
 
             setTimeout(() => { this.mouseLock = false;}, NANO_MS);
         }

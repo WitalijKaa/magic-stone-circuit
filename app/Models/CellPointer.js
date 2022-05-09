@@ -2,7 +2,13 @@ class CellPointer extends AbstractCell {
 
     zone = OVER_CENTER;
 
+    init(grid) {
+        this.sprite.alpha = 0;
+        return super.init(grid);
+    }
+
     showZone(zone, xCell, yCell) {
+        this.sprite.alpha = 1;
         if (zone != this.zone) {
             this.zone = zone;
             let zConf = this.configParams.textureForZone[zone];
@@ -10,6 +16,10 @@ class CellPointer extends AbstractCell {
         }
 
         this.setPosition(xCell, yCell);
+    }
+
+    hideZone() {
+        this.sprite.alpha = 0;
     }
 
     findOverZoneType(pxLocalX, pxLocalY) {

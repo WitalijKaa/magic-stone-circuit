@@ -1,9 +1,11 @@
 class Scene {
 
     static schemes = [];
+    static currentGrid;
     static currentScheme;
 
     static addSchemeModel(sceneModel) {
+        this.currentGrid = sceneModel; // temp
         this.currentScheme = sceneModel.scheme; // temp
         this.schemes.push(sceneModel.scheme);
 
@@ -75,9 +77,11 @@ class Scene {
 
         let texturePath;
         if (ST_ROAD == this.controls.pen) {
+            this.currentGrid.pointedCellZone.showZone(this.currentGrid.lastMouseMovePositions.zone, ...this.currentGrid.lastMouseMovePositions.localGrid);
             texturePath = TT.roadH;
         }
         else {
+            this.currentGrid.pointedCellZone.hideZone();
             texturePath = CONTENT_SPRITES.hasOwnProperty(this.controls.pen) ? CONTENT_SPRITES[this.controls.pen] : SEMICONDUCTOR_SPRITES[this.controls.pen];
         }
 
