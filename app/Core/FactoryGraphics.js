@@ -13,11 +13,17 @@ class FactoryGraphics {
         );
     }
 
-    static spriteByPath(filePath) {
-        return new PIXI.Sprite(FactoryGraphics.textureByPath(filePath));
+    static spriteByPath(filePath, rotate = null) {
+        return new PIXI.Sprite(FactoryGraphics.textureByPath(filePath, rotate));
     }
     
-    static textureByPath(filePath) {
-        return PIXI.Texture.from(filePath);
+    static textureByPath(filePath, rotate) {
+        return new PIXI.Texture(
+            PIXI.BaseTexture.from(filePath),
+            null,
+            null,
+            null,
+            rotate
+        );
     }
 }

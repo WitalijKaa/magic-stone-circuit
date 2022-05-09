@@ -27,7 +27,7 @@ class Sprite {
                 );
             }
             else {
-                this.sprite = FactoryGraphics.spriteByPath(texture.path);
+                this.sprite = FactoryGraphics.spriteByPath(texture.path, texture.rotate);
             }
         }
         return this;
@@ -35,7 +35,7 @@ class Sprite {
 
     changeTexture(filePath, parentModel, rotate = null) {
         if (!parentModel) {
-            this.sprite.texture = FactoryGraphics.textureByPath(filePath);
+            this.sprite.texture = FactoryGraphics.textureByPath(filePath, rotate);
         }
         else {
             this.sprite.texture = FactoryGraphics.textureByPathInsideParentSprite(filePath, parentModel.sprite, rotate);

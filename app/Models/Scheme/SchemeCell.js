@@ -19,7 +19,7 @@ const OPPOSITE_SIDE = {
 };
 const OVER_CENTER = 'Center';
 
-class SchemeCell extends Sprite {
+class SchemeCell extends AbstractCell {
 
     content = null;
     road = null;
@@ -27,44 +27,19 @@ class SchemeCell extends Sprite {
     grid = null;
 
     Up; Right; Left; Down;
-    gridX; gridY;
 
     constructor(config) {
         super(config);
         this.sprite.interactive = true;
         this.sprite.on('click', () => { this.handleClick() });
         new MouseClick(this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
-        new MouseOver(this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver', [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
-    }
-
-    init (grid) {
-        this.grid = grid;
-        return this;
+        new MouseOver(this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
     }
 
     initNeighbors() {
         SIDES.map((dir) => {
             this[dir] = this.grid.getVisibleCell(...this.getVisiblePosition(dir));
         });
-    }
-
-    setSize(px, updatePosition = true) {
-        this.w = this.h = px;
-        if (updatePosition) { this.updatePosition(); }
-        return this;
-    }
-
-    setPosition(gridX, gridY) {
-        this.gridX = gridX - SchemeGrid.GRID_OFFSET;
-        this.gridY = gridY - SchemeGrid.GRID_OFFSET;
-        this.updatePosition();
-        return this;
-    }
-
-    updatePosition() {
-        this.x = this.gridX * this.w + this.grid.offsetX;
-        this.y = this.gridY * this.h + this.grid.offsetY;
-        return this;
     }
 
     handleClick() {
@@ -93,34 +68,6 @@ class SchemeCell extends Sprite {
             this.scheme.continueToBuildRoad(...this.schemePosition);
         }
         this.scheme.devCell(...this.schemePosition);
-    }
-    handleMouseMove(pxGlobalX, pxGlobalY) {
-        if (!this.grid.mouseLock) {
-            this.grid.mouseLock = true;
-
-            // console.log(
-            //     this.findOverZoneType(...this.grid.globalPxToLocalCellPx(pxGlobalX, pxGlobalY)),
-            //     this.schemePosition
-            // );
-
-            setTimeout(() => { this.grid.mouseLock = false;}, NANO_MS);
-        }
-    }
-
-    findOverZoneType(pxLocalX, pxLocalY) {
-        if (pxLocalY <= this.grid.cellPxSizeConfig.lineA) {
-            if (pxLocalX < this.grid.cellPxSizeConfig.lineB) { return UP; }
-            return RIGHT;
-        }
-        if (pxLocalY <= this.grid.cellPxSizeConfig.lineB) {
-            if (pxLocalX < this.grid.cellPxSizeConfig.lineA) { return LEFT; }
-            if (pxLocalX < this.grid.cellPxSizeConfig.lineB) { return OVER_CENTER; }
-            return RIGHT;
-        }
-        else {
-            if (pxLocalX < this.grid.cellPxSizeConfig.lineA) { return LEFT; }
-            return DOWN;
-        }
     }
 
     changeVisibleType() {

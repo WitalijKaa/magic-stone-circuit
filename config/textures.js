@@ -1,4 +1,6 @@
 const TT = {
+    zoneCenter: 'resources/cell_center.png',
+    zoneSide: 'resources/cell_up.png',
     stoneV: 'resources/stone_violet.png',
     stoneR: 'resources/stone_red.png',
     stoneI: 'resources/stone_indigo.png',

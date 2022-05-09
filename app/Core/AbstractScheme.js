@@ -83,6 +83,8 @@ class AbstractScheme {
 
     allowedAmountOfAwakesCluster = 2;
 
+    activeCursor = { x: 0, y: 0, zone: OVER_CENTER }
+
     Up(x, y) { return [x, y - 1]; }
     Right(x, y) { return [x + 1, y]; }
     Down(x, y) { return [x, y + 1]; }
@@ -147,6 +149,12 @@ class AbstractScheme {
 
     isEmptyUpDown(x, y) { return this.isCellEmpty(x, y + 1) && this.isCellEmpty(x, y - 1); }
     isEmptyLeftRight(x, y) { return this.isCellEmpty(x + 1, y) && this.isCellEmpty(x - 1, y); }
+
+    setActiveCursorPosition(zone, x, y) {
+        this.activeCursor.x = x;
+        this.activeCursor.y = y;
+        this.activeCursor.zone = zone;
+    }
 
     isPerpendicularRoadAtSide(side, x, y) {
         let road = this.findCellOrEmpty(...this[side](x, y)).road;

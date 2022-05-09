@@ -13,6 +13,8 @@ class SchemeGrid extends Sprite {
 
     needToResize = true;
 
+    pointedCellZone;
+
     constructor(config) {
         super(config);
 
@@ -28,6 +30,11 @@ class SchemeGrid extends Sprite {
         setTimeout(() => { this.scheme.updateTick(); }, this.constructor.START_TIMEOUT);
 
         new MouseDrag(this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGrid' });
+
+        new MouseOver(this, { [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
+        this.pointedCellZone = Factory.sceneModel(MM.cellPointer);
+        this.pointedCellZone.init(this).setSize(this.cellPxSize);
+        Scene.addModelToContainer(this.pointedCellZone, this);
     }
 
     createVisibleGrid() {
@@ -49,9 +56,7 @@ class SchemeGrid extends Sprite {
     createVisibleCell(xCell, yCell) {
         this.configParams.cell.name = xCell + '|' + yCell;
         let cellModel = Factory.sceneModel(this.configParams.cell)
-        cellModel.init(this);
-        cellModel.setSize(this.cellPxSize);
-        cellModel.setPosition(xCell, yCell);
+        cellModel.init(this).setSize(this.cellPxSize).setPosition(xCell, yCell);
         Scene.addModelToContainer(cellModel, this);
         return cellModel;
     }
@@ -131,6 +136,18 @@ class SchemeGrid extends Sprite {
         }
     }
 
+    handleMouseMove(pxGlobalX, pxGlobalY) {
+        if (!this.mouseLock) {
+            this.mouseLock = true;
+            let cellPositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
+            let zone = this.pointedCellZone.findOverZoneType(...cellPositions.localCellPx);
+            this.pointedCellZone.showZone(zone, ...cellPositions.localGrid);
+            this.scheme.setActiveCursorPosition(zone, ...cellPositions.globalGrid);
+
+            setTimeout(() => { this.mouseLock = false;}, NANO_MS);
+        }
+    }
+
     dragGrid(x, y) {
         this.offsetX += x;
         this.offsetY += y;
@@ -161,11 +178,15 @@ class SchemeGrid extends Sprite {
     }
 
     globalPxToLocalCellPx(pxGlobalX, pxGlobalY) {
-        let localX = Math.floor(pxGlobalX / this.cellPxSize);
-        let cellX = Math.floor(pxGlobalX - (localX * this.cellPxSize));
-        let localY = Math.floor(pxGlobalY / this.cellPxSize);
-        let cellY = Math.floor(pxGlobalY - (localY * this.cellPxSize));
-        return [cellX, cellY];
+        let localX = Math.floor((pxGlobalX - this.offsetX) / this.cellPxSize);
+        let cellX = Math.floor((pxGlobalX - this.offsetX) - (localX * this.cellPxSize));
+        let localY = Math.floor((pxGlobalY - this.offsetY) / this.cellPxSize);
+        let cellY = Math.floor((pxGlobalY - this.offsetY) - (localY * this.cellPxSize));
+        return {
+            localGrid: [localX + SchemeGrid.GRID_OFFSET, localY + SchemeGrid.GRID_OFFSET],
+            globalGrid: [localX + this.dragY, localY + this.dragY],
+            localCellPx: [cellX, cellY],
+        };
     }
 
     schemeToVisiblePosition(x, y) { return [x - this.dragX + this.constructor.GRID_OFFSET, y - this.dragY + this.constructor.GRID_OFFSET]; }
