@@ -184,7 +184,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this.Up(x, y))) {
             let road = this.findCellOrEmpty(...this.Up(x, y)).road;
             if (!road) { return this.isCellConnectedButNotRoadAtSide(UP, x, y); }
-            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
+            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type || (road.zones && road.zones.includes(DOWN)));
         }
         return false;
     }
@@ -192,7 +192,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this.Down(x, y))) {
             let road = this.findCellOrEmpty(...this.Down(x, y)).road;
             if (!road) { return this.isCellConnectedButNotRoadAtSide(DOWN, x, y); }
-            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type);
+            return !!(ROAD_UP_DOWN == road.type || ROAD_HEAVY == road.type || (road.zones && road.zones.includes(UP)));
         }
         return false;
     }
@@ -200,7 +200,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this.Left(x, y))) {
             let road = this.findCellOrEmpty(...this.Left(x, y)).road;
             if (!road) { return this.isCellConnectedButNotRoadAtSide(LEFT, x, y); }
-            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
+            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type || (road.zones && road.zones.includes(RIGHT)));
         }
         return false;
     }
@@ -208,7 +208,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this.Right(x, y))) {
             let road = this.findCellOrEmpty(...this.Right(x, y)).road;
             if (!road) { return this.isCellConnectedButNotRoadAtSide(RIGHT, x, y); }
-            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
+            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type || (road.zones && road.zones.includes(LEFT)));
         }
         return false;
     }
@@ -423,15 +423,25 @@ class AbstractScheme {
     canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
     canPathCancelColor(road, pathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
+    /** ZONES **/
+
     roadPathsToZones(x, y) {
         let road = this.findCellOrEmpty(x, y).road;
-        if (!road) { return; }
         let zones = [];
-        if (road.paths[ROAD_PATH_UP]) { zones.push(UP); }
-        if (road.paths[ROAD_PATH_RIGHT]) { zones.push(RIGHT); }
-        if (road.paths[ROAD_PATH_DOWN]) { zones.push(DOWN); }
-        if (road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
+        if (road) {
+            if (road.paths[ROAD_PATH_UP]) { zones.push(UP); }
+            if (road.paths[ROAD_PATH_RIGHT]) { zones.push(RIGHT); }
+            if (road.paths[ROAD_PATH_DOWN]) { zones.push(DOWN); }
+            if (road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
+        }
         return zones;
+    }
+
+    mergeZones(zones, x, y) {
+        let resultZones = [...zones];
+        let zonesOfPaths = this.roadPathsToZones(x, y);
+        zonesOfPaths.map((pZone) => { if (!resultZones.includes(pZone)) { resultZones.push(pZone); } });
+        return resultZones;
     }
 
     /** SEMICONDUCTOR **/
@@ -526,9 +536,8 @@ class AbstractScheme {
         let showInConsole = '';
         if (cell.road) { showInConsole =
             'Type ' + ROAD_DEV[cell.road.type] +
-            ' ## paths ' +
-            cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|') +
-            ' ## zones ' + (cell.road.zones ? cell.road.zones.join('|') : 'no');
+            ' ## ' +
+            cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
         }
         console.log(
             'devCellEcho',

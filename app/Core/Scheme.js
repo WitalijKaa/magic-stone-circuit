@@ -64,95 +64,19 @@ class Scheme extends AbstractScheme {
     }
 
     putRoadHorizontal(preferHeavy, x, y) {
-        let changeParams = { prev: null, curr: null };
-        if (this.isCellEmpty(x, y)) {
-            changeParams = { prev: null, curr: ROAD_LEFT_RIGHT };
-            this.changeCellRoad({ type: ROAD_LEFT_RIGHT }, x, y);
-        }
-        else if (this.findCellOrEmpty(x, y).road) {
-            let paths = this.findCellOrEmpty(x, y).road.paths;
-            if (paths[ROAD_PATH_HEAVY] || this.isAnyCornerInPaths(paths)) {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_HEAVY };
-                this.findCellOrEmpty(x, y).road.type = ROAD_HEAVY;
-            }
-            else if (paths[ROAD_PATH_UP] && paths[ROAD_PATH_DOWN]) {
-                let curr = ROAD_LIGHT;
-                if (preferHeavy || !this.isAnyRoadAtSide(UP, x, y) || !this.isAnyRoadAtSide(DOWN, x, y)) {
-                    curr = ROAD_HEAVY;
-                }
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: curr };
-                this.findCellOrEmpty(x, y).road.type = curr;
-            }
-            else {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_LEFT_RIGHT };
-                this.findCellOrEmpty(x, y).road.type = ROAD_LEFT_RIGHT;
-            }
-        }
-        if (changeParams.curr) { this.afterPutRoad(x, y); }
-        return changeParams;
+        return this.setPathsOnRoad(false, LEFT, RIGHT, preferHeavy ? ROAD_HEAVY : ROAD_LEFT_RIGHT, x, y);
     }
 
     putRoadZonal(zoneFrom, zoneTo, x, y) {
-        let changeParams = { prev: null, curr: null };
-        if (zoneFrom == OVER_CENTER || zoneTo == OVER_CENTER) { return changeParams; }
-        let zones = [zoneFrom, zoneTo];
-
-        if (this.isCellEmpty(x, y)) {
-            changeParams = { prev: null, curr: ROAD_LIGHT };
-        }
-        else {
-            let road = this.findCellOrEmpty(x, y).road;
-            if (!road) { return changeParams; }
-
-            changeParams = { prev: road.type, curr: ROAD_LIGHT };
-            if (road.zones) {
-                changeParams.zonesPrev = [...road.zones];
-                road.zones.map((prevZone) => { if (!zones.includes(prevZone)) { zones.push(prevZone); } });
-            }
-            else {
-                let prevZones = this.roadPathsToZones(x, y);
-                prevZones.map((prevZone) => { if (!zones.includes(prevZone)) { zones.push(prevZone); } });
-            }
-        }
-        this.changeCellRoad({ type: ROAD_LIGHT, zones: zones }, x, y);
-        if (changeParams.curr) { this.afterPutRoad(x, y); }
-        return changeParams;
+        return this.setPathsOnRoad(false, zoneFrom, zoneTo, ROAD_LIGHT, x, y);
     }
 
     putRoadVertical(preferHeavy, x, y) {
-        let changeParams = { prev: null, curr: null };
-        if (this.isCellEmpty(x, y)) {
-            changeParams = { prev: null, curr: ROAD_UP_DOWN };
-            this.changeCellRoad({ type: ROAD_UP_DOWN }, x, y);
-        }
-        else if (this.findCellOrEmpty(x, y).road) {
-            let paths = this.findCellOrEmpty(x, y).road.paths;
-            if (paths[ROAD_PATH_HEAVY] || this.isAnyCornerInPaths(paths)) {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_HEAVY };
-                this.findCellOrEmpty(x, y).road.type = ROAD_HEAVY;
-            }
-            else if (paths[ROAD_PATH_LEFT] && paths[ROAD_PATH_RIGHT]) {
-                let curr = ROAD_LIGHT;
-                if (preferHeavy || !this.isAnyRoadAtSide(LEFT, x, y) || !this.isAnyRoadAtSide(RIGHT, x, y)) {
-                    curr = ROAD_HEAVY;
-                }
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: curr };
-                this.findCellOrEmpty(x, y).road.type = curr;
-            }
-            else {
-                changeParams = { prev: this.findCellOrEmpty(x, y).road.type, curr: ROAD_UP_DOWN };
-                this.findCellOrEmpty(x, y).road.type = ROAD_UP_DOWN;
-            }
-        }
-        if (changeParams.curr) { this.afterPutRoad(x, y); }
-        return changeParams;
+        return this.setPathsOnRoad(false, UP, DOWN, preferHeavy ? ROAD_HEAVY : ROAD_UP_DOWN, x, y);
     }
 
     afterPutRoad(x, y) {
         this.removeColoringCellCache(x, y);
-        this.resetPathsOnRoad(x, y);
-        this.visibleUpdate(x, y);
-        this.updatePathsOnNeighborsRoads(x, y);
         this.cancelNeighborsColorPathForAnyRoadByPaths(this.findCellOrEmpty(x, y).road.paths, x, y);
     }
 
@@ -179,8 +103,6 @@ class Scheme extends AbstractScheme {
         this.removeColoringCellCache(x, y);
 
         this.visibleUpdate(x, y);
-
-        this.updatePathsOnNeighborsRoads(x, y);
     }
 
     doCheckRunForRoads(checkRun, x, y) {
@@ -195,7 +117,6 @@ class Scheme extends AbstractScheme {
 
             if (road && checkRun != road.checkRun) {
                 road.checkRun = checkRun;
-                this.updatePathsOnRoad(...sideXY);
                 this.visibleUpdate(...sideXY);
                 this.doCheckRunForRoads(checkRun, ...sideXY);
                 this.removeColoringCellCache(...sideXY)
@@ -205,75 +126,58 @@ class Scheme extends AbstractScheme {
 
     /** PATHs of road **/
 
-    resetPathsOnRoad(x, y) { this.setPathsOnRoadByScheme(false, x, y) }
-    updatePathsOnRoad(x, y) { this.setPathsOnRoadByScheme(true, x, y) }
+    setPathsOnRoadByArr(updatePathsMode, replaceZonesMode, zones, preferType, x, y) {
+        let change = { prev: null, curr: null };
+        if (zones.length < 2 && replaceZonesMode) { return change; }
 
-    setPathsOnRoadByScheme(updateMode, x, y) {
         let road = this.findCellOrEmpty(x, y).road;
-        if (!road) { return; }
+        if (!road && !this.isCellEmpty(x, y)) { return change; }
 
-        let countAround = this.countAnyObjectsAround(x, y);
-        let emptyAround = !countAround;
+        let mergedZones = (replaceZonesMode || !road) ? [...zones] : this.mergeZones(zones, x, y);
 
-        if (emptyAround) {
-            if (ROAD_LEFT_RIGHT != road.type && ROAD_UP_DOWN != road.type) {
-                if (!road.paths[ROAD_PATH_UP] && road.paths[ROAD_PATH_RIGHT] && !road.paths[ROAD_PATH_DOWN] && road.paths[ROAD_PATH_LEFT]) {
-                    return;
-                }
-                else if (road.paths[ROAD_PATH_UP] && !road.paths[ROAD_PATH_RIGHT] && road.paths[ROAD_PATH_DOWN] && !road.paths[ROAD_PATH_LEFT]) {
-                    return;
-                }
-            }
+        if (!preferType ||
+            (ROAD_LEFT_RIGHT == preferType && (!zones.includes(LEFT) || !zones.includes(RIGHT))) ||
+            (ROAD_UP_DOWN == preferType && (!zones.includes(UP) || !zones.includes(DOWN))) ||
+            (ROAD_HEAVY == preferType && 2 >= mergedZones.length))
+        {
+            preferType = ROAD_LIGHT;
         }
 
-        if (road.zones && road.zones.length < 2) {
-            delete road.zones;
-        }
-
-        if (road.zones) {
-            road.type = ROAD_LIGHT;
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, road.zones.includes(LEFT), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, road.zones.includes(RIGHT), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_UP, road.zones.includes(UP), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, road.zones.includes(DOWN), updateMode);
-
-            this.defineRoadPath(x, y, ROAD_PATH_HEAVY, !!(road.zones.length > 2), updateMode);
-            return;
-        }
-        else if (ROAD_LIGHT == road.type && this.isForcedCorner(x, y)) {
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, this.isCellForForcedConnectionLeft(x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, this.isCellForForcedConnectionRight(x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_UP, this.isCellForForcedConnectionUp(x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, this.isCellForForcedConnectionDown(x, y), updateMode);
-        }
-        else if (ROAD_LEFT_RIGHT == road.type || emptyAround || this.isEmptyUpDown(x, y) ||
-            (ROAD_LIGHT == road.type && countAround == 3 && (this.isCellEmpty(...this.Up(x, y)) || this.isCellEmpty(...this.Down(x, y))))
-        ) {
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, true, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, true, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_UP, false, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, false, updateMode);
-        }
-        else if (ROAD_UP_DOWN == road.type || this.isEmptyLeftRight(x, y) || (ROAD_HEAVY != road.type && countAround == 3)) {
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, false, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, false, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_UP, true, updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, true, updateMode);
+        if (this.isCellEmpty(x, y)) {
+            change = { prev: null, curr: preferType };
+            this.changeCellRoad({ type: preferType }, x, y);
+            road = this.findCellOrEmpty(x, y).road;
         }
         else {
-            this.defineRoadPath(x, y, ROAD_PATH_UP, !this.isCellEmpty(...this.Up(x, y)) && !this.isPerpendicularRoadAtSide(UP, x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_RIGHT, !this.isCellEmpty(...this.Right(x, y)) && !this.isPerpendicularRoadAtSide(RIGHT, x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_DOWN, !this.isCellEmpty(...this.Down(x, y)) && !this.isPerpendicularRoadAtSide(DOWN, x, y), updateMode);
-            this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(...this.Left(x, y)) && !this.isPerpendicularRoadAtSide(LEFT, x, y), updateMode);
+            if (mergedZones.length == 3) { preferType = ROAD_HEAVY; }
+            change = { prev: road.type, prevPaths: [...road.paths.map((path) => { return !!path; })], curr: preferType };
+
+            // todo is the same
         }
 
-        this.defineRoadPath(x, y, ROAD_PATH_HEAVY, (ROAD_HEAVY == road.type && countAround > 2), updateMode);
+        road.type = preferType;
+        this.defineRoadPath(x, y, ROAD_PATH_LEFT, mergedZones.includes(LEFT), updatePathsMode);
+        this.defineRoadPath(x, y, ROAD_PATH_RIGHT, mergedZones.includes(RIGHT), updatePathsMode);
+        this.defineRoadPath(x, y, ROAD_PATH_UP, mergedZones.includes(UP), updatePathsMode);
+        this.defineRoadPath(x, y, ROAD_PATH_DOWN, mergedZones.includes(DOWN), updatePathsMode);
+        this.defineRoadPath(x, y, ROAD_PATH_HEAVY, ROAD_HEAVY == preferType, updatePathsMode);
+        this.visibleUpdate(x, y);
+        //this._devCell = [x, y];this.devCellEcho();
+        return change;
+    }
+
+    setPathsOnRoad(updateMode, zoneFrom, zoneTo, preferType, x, y) {
+        if (zoneFrom == OVER_CENTER || zoneTo == OVER_CENTER) { return { prev: null, curr: null }; }
+        return this.setPathsOnRoadByArr(updateMode, false, [zoneFrom, zoneTo], preferType, x, y);
+    }
+    setPathOnRoad(updateMode, zone, x, y) {
+        if (zone == OVER_CENTER) { return { prev: null, curr: null }; }
+        return this.setPathsOnRoadByArr(updateMode, false, [zone], ROAD_LIGHT, x, y);
     }
 
     updatePathsOnNeighborsRoads(x, y) {
         SIDES.map((toDir) => {
-            this.updatePathsOnRoad(...this[toDir](x, y));
-            this.visibleUpdate(...this[toDir](x, y));
+            // this.visibleUpdate(...this[toDir](x, y));
         });
     }
 
@@ -543,7 +447,7 @@ class Scheme extends AbstractScheme {
                 else {
                     let road = this.findCellOrEmpty(...roadCellMem.position).road;
                     road.type = roadCellMem.change.prev;
-                    road.zones = roadCellMem.change.zonesPrev;
+                    road.paths = roadCellMem.change.prevPaths;
                     this.afterPutRoad(...roadCellMem.position);
                 }
             }
@@ -594,6 +498,7 @@ class Scheme extends AbstractScheme {
                     else { // last cell of road logic when road is horizontal line
                         let zoneTo = this.activeCursor.zone;
                         if (zoneTo == OVER_CENTER || zoneFrom == zoneTo || zoneFrom == OPPOSITE_SIDE[zoneTo]) {
+                            // todo setPathOnRoad
                             this.buildingRoad.path.push({ change: this.putRoadHorizontal(true, xCell, yCell), position: [xCell, yCell]});
                         }
                         else {
