@@ -1,18 +1,31 @@
 class CellPointer extends AbstractCell {
 
     zone = OVER_CENTER;
+    sidePointer;
 
     init(grid) {
         this.sprite.alpha = 0;
+
+        this.sidePointer = Factory.sceneModel(MM.cellPointerSide);
+        this.sidePointer.sprite.alpha = 0;
+        Scene.addModelToContainer(this.sidePointer, this);
+
         return super.init(grid);
     }
 
     showZone(zone, xCell, yCell) {
         this.sprite.alpha = 1;
+        if (OVER_CENTER != zone) {
+            this.sidePointer.sprite.alpha = 1;
+        }
         if (zone != this.zone) {
             this.zone = zone;
+            if (OVER_CENTER == zone) {
+                this.sidePointer.sprite.alpha = 0;
+                return;
+            }
             let zConf = this.configParams.textureForZone[zone];
-            this.changeTexture(zConf.path, null, zConf.rotate)
+            this.sidePointer.changeTexture(zConf.path, null, zConf.rotate)
         }
 
         this.setPosition(xCell, yCell);
@@ -20,6 +33,7 @@ class CellPointer extends AbstractCell {
 
     hideZone() {
         this.sprite.alpha = 0;
+        this.sidePointer.sprite.alpha = 0;
     }
 
     findOverZoneType(pxLocalX, pxLocalY) {

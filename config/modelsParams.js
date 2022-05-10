@@ -7,6 +7,7 @@ const MM = {
         },
     },
     cellPointer: {
+        name: 'cellPointerContainer',
         model: CellPointer,
         texture: TT.zoneCenter,
         params: {
@@ -18,5 +19,10 @@ const MM = {
                 [LEFT]: { path: TT.zoneSide, rotate: PIXI_ROTATE_LEFT },
             }
         }
-    }
+    },
+    cellPointerSide: {
+        model: Sprite,
+        name: 'cellPointerSide',
+        texture: TT.zoneSide,
+    },
 };
