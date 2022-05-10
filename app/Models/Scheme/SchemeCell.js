@@ -1,24 +1,3 @@
-const UP = 'Up';
-const RIGHT = 'Right';
-const DOWN = 'Down';
-const LEFT = 'Left';
-const SIDES = [UP, RIGHT, DOWN, LEFT];
-const SIDES_LEFT_RIGHT = [RIGHT, LEFT];
-const SIDES_UP_DOWN = [UP, DOWN];
-const SIDES_TURN_90 = {
-    [UP]: SIDES_LEFT_RIGHT,
-    [DOWN]: SIDES_LEFT_RIGHT,
-    [LEFT]: SIDES_UP_DOWN,
-    [RIGHT]: SIDES_UP_DOWN,
-};
-const OPPOSITE_SIDE = {
-    [UP]: DOWN,
-    [DOWN]: UP,
-    [LEFT]: RIGHT,
-    [RIGHT]: LEFT,
-};
-const OVER_CENTER = 'Center';
-
 class SchemeCell extends AbstractCell {
 
     content = null;
@@ -48,7 +27,7 @@ class SchemeCell extends AbstractCell {
                 this.scheme.startToBuildRoad(...this.schemePosition);
             }
             else {
-                this.scheme.finishToBuildRoad(...this.schemePosition);
+                this.scheme.finishToBuildRoad();
             }
         }
         else if (CONTENT_SPRITES.hasOwnProperty(Scene.controls.pen)) {
@@ -64,9 +43,6 @@ class SchemeCell extends AbstractCell {
     }
     handleRightClick() { this.scheme.tapRoad(...this.schemePosition); }
     handleMouseOver() {
-        if (this.scheme.isRoadBuildMode) {
-            this.scheme.continueToBuildRoad(...this.schemePosition);
-        }
         this.scheme.devCell(...this.schemePosition);
     }
 

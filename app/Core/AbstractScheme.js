@@ -423,6 +423,17 @@ class AbstractScheme {
     canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
     canPathCancelColor(road, pathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
+    roadPathsToZones(x, y) {
+        let road = this.findCellOrEmpty(x, y).road;
+        if (!road) { return; }
+        let zones = [];
+        if (road.paths[ROAD_PATH_UP]) { zones.push(UP); }
+        if (road.paths[ROAD_PATH_RIGHT]) { zones.push(RIGHT); }
+        if (road.paths[ROAD_PATH_DOWN]) { zones.push(DOWN); }
+        if (road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
+        return zones;
+    }
+
     /** SEMICONDUCTOR **/
 
     isSemiconductorTypeAround(semiType, x, y) { return !!this.countSemiconductorTypeAround(semiType, x, y); }
@@ -511,10 +522,18 @@ class AbstractScheme {
     }
     devCellEcho() {
         let cell = this.findCellOrEmpty(...this._devCell);
+
+        let showInConsole = '';
+        if (cell.road) { showInConsole =
+            'Type ' + ROAD_DEV[cell.road.type] +
+            ' ## paths ' +
+            cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|') +
+            ' ## zones ' + (cell.road.zones ? cell.road.zones.join('|') : 'no');
+        }
         console.log(
             'devCellEcho',
             this._devCell,
-            cell.road ? cell.road : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
+            cell.road ? showInConsole : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
         );
     }
 }

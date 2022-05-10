@@ -4,11 +4,25 @@ const ROAD_LEFT_RIGHT = 3;
 const ROAD_UP_DOWN = 4;
 const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: null, [ROAD_UP_DOWN]: PIXI_ROTATE_90, [ROAD_HEAVY]: null, [ROAD_LIGHT]: null };
 
+const ROAD_DEV = {
+    [ROAD_LIGHT]: 'LIGHT',
+    [ROAD_HEAVY]: 'HEAVY',
+    [ROAD_LEFT_RIGHT]: 'LEFT_RIGHT',
+    [ROAD_UP_DOWN]: 'UP_DOWN',
+}
 const ROAD_PATH_UP = 0;
 const ROAD_PATH_RIGHT = 1;
 const ROAD_PATH_DOWN = 2;
 const ROAD_PATH_LEFT = 3;
 const ROAD_PATH_HEAVY = 4;
+
+const ROAD_DEV_PATH = {
+    [ROAD_PATH_UP]: 'UP',
+    [ROAD_PATH_RIGHT]: 'RIGHT',
+    [ROAD_PATH_DOWN]: 'DOWN',
+    [ROAD_PATH_LEFT]: 'LEFT',
+    [ROAD_PATH_HEAVY]: 'CENTER-heavy',
+}
 
 const SIDE_TO_ROAD_PATH = {
     [UP]: ROAD_PATH_UP,
