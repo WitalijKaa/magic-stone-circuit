@@ -148,24 +148,6 @@ class Scheme extends AbstractScheme {
         return changeParams;
     }
 
-    putRoadTurning(x, y) {
-        let changeParams = { prev: null, curr: null };
-        let cellType = this.countRoadsAroundForcedForConnect(x, y) > 1 ? ROAD_HEAVY : ROAD_LIGHT;
-        if (this.isCellEmpty(x, y)) {
-            changeParams = { prev: null, curr: cellType };
-            this.changeCellRoad({ type: cellType }, x, y);
-        }
-        else if (this.findCellOrEmpty(x, y).road) {
-            let type = this.findCellOrEmpty(x, y).road.type;
-            if (ROAD_LEFT_RIGHT == type || ROAD_UP_DOWN == type) {
-                changeParams = { prev: type, curr: cellType };
-                this.findCellOrEmpty(x, y).road.type = cellType;
-            }
-        }
-        if (changeParams.curr) { this.afterPutRoad(x, y); }
-        return changeParams;
-    }
-
     afterPutRoad(x, y) {
         this.removeColoringCellCache(x, y);
         this.resetPathsOnRoad(x, y);
@@ -603,13 +585,14 @@ class Scheme extends AbstractScheme {
                 xCell += xStep;
                 if (xCell == this.activeCursor.x) // last horizontal cell
                 {
+                    let zoneFrom = xStep > 0 ? LEFT : RIGHT;
+
                     if (yCell != this.activeCursor.y) { // turning cell
-                        this.buildingRoad.path.push({ change: this.putRoadTurning(xCell, yCell), position: [xCell, yCell]});
+                        let zoneTo = yStep > 0 ? DOWN : UP;
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, xCell, yCell), position: [xCell, yCell]});
                     }
                     else { // last cell of road logic when road is horizontal line
-                        let zoneFrom = xStep > 0 ? LEFT : RIGHT;
                         let zoneTo = this.activeCursor.zone;
-
                         if (zoneTo == OVER_CENTER || zoneFrom == zoneTo || zoneFrom == OPPOSITE_SIDE[zoneTo]) {
                             this.buildingRoad.path.push({ change: this.putRoadHorizontal(true, xCell, yCell), position: [xCell, yCell]});
                         }
@@ -655,11 +638,13 @@ class Scheme extends AbstractScheme {
                 yCell += yStep;
                 if (yCell == this.activeCursor.y) // last vertical cell
                 {
+                    let zoneFrom = yStep > 0 ? UP : DOWN;
+
                     if (xCell != this.activeCursor.x) { // turning cell
-                        this.buildingRoad.path.push({ change: this.putRoadTurning(xCell, yCell), position: [xCell, yCell]});
+                        zoneTo = xStep > 0 ? RIGHT : LEFT;
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, xCell, yCell), position: [xCell, yCell]});
                     }
                     else { // last cell of road logic when road is vertical line
-                        let zoneFrom = yStep > 0 ? UP : DOWN;
                         let zoneTo = this.activeCursor.zone;
 
                         if (zoneTo == OVER_CENTER || zoneFrom == zoneTo || zoneFrom == OPPOSITE_SIDE[zoneTo]) {
