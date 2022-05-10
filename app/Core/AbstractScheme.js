@@ -423,6 +423,13 @@ class AbstractScheme {
     canPathSetColor(road, pathType) { return true === road.paths[pathType]; }
     canPathCancelColor(road, pathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
+    arePathsTheSame(pathsA, pathsB) {
+        for (let ix = 0; ix < 5; ix++) {
+            if (!!pathsA[ix] != !!pathsB[ix]) { return false; }
+        }
+        return true;
+    }
+
     /** ZONES **/
 
     roadPathsToZones(x, y) {
@@ -435,6 +442,12 @@ class AbstractScheme {
             if (road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
         }
         return zones;
+    }
+
+    zonesToRoadPaths(zones, isHeavy) {
+        let paths = [false, false, false, false, !!isHeavy];
+        zones.map((zone) => { paths[SIDE_TO_ROAD_PATH[zone]] = true; });
+        return paths;
     }
 
     mergeZones(zones, x, y) {
