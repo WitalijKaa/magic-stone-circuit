@@ -188,7 +188,7 @@ class SchemeGrid extends Sprite {
         let cellY = Math.floor((pxGlobalY - this.offsetY) - (localY * this.cellPxSize));
         return {
             localGrid: [localX + SchemeGrid.GRID_OFFSET, localY + SchemeGrid.GRID_OFFSET],
-            globalGrid: [localX + this.dragY, localY + this.dragY],
+            globalGrid: [localX + this.dragX, localY + this.dragY],
             localCellPx: [cellX, cellY],
         };
     }

@@ -65,34 +65,11 @@ class Scene {
     }
 
     // todo
-    static tempButton;
     static setTempButton() {
-        if (!this.controls.pen) {
-            if (this.tempButton) {
-                this.tempButton.destroy();
-            }
-            this.tempButton = null;
-            return;
-        }
-
-        let texturePath;
-        if (ST_ROAD == this.controls.pen) {
-            this.currentGrid.pointedCellZone.showZone(this.currentGrid.lastMouseMovePositions.zone, ...this.currentGrid.lastMouseMovePositions.localGrid);
-            texturePath = TT.roadH;
-        }
-        else {
-            this.currentGrid.pointedCellZone.hideZone();
-            texturePath = CONTENT_SPRITES.hasOwnProperty(this.controls.pen) ? CONTENT_SPRITES[this.controls.pen] : SEMICONDUCTOR_SPRITES[this.controls.pen];
-        }
-
-        if (!this.tempButton) {
-            this.tempButton = FactoryGraphics.spriteByPath(texturePath);
-            this.tempButton.width = 100;
-            this.tempButton.height = 100;
-            this.addModel({ sprite: this.tempButton })
-        }
-        else {
-            this.tempButton.texture = FactoryGraphics.textureByPath(texturePath);
+        let $el = document.querySelector('[data-tip="' + this.controls.pen + '"]');
+        if ($el) {
+            //document.getElementById('current-btn').attr("src", $el.currentSrc);
+            document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
         }
     }
 }

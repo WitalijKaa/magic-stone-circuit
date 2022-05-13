@@ -36,7 +36,7 @@ class SchemeCell extends AbstractCell {
         else if (ST_ROAD_SLEEP == Scene.controls.pen || ST_ROAD_AWAKE == Scene.controls.pen) {
             this.scheme.putSemiconductor(Scene.controls.pen, ...this.schemePosition);
         }
-        else if (!Scene.controls.pen) {
+        else if ('q' === Scene.controls.pen) {
             this.scheme.removeContent(...this.schemePosition);
             this.scheme.putSemiconductor(null, ...this.schemePosition);
         }

@@ -217,7 +217,6 @@ class Scheme extends AbstractScheme {
         }
 
         if (road && ROAD_LIGHT == road.type && this.countPathsSidesOfRoad(x, y) == 4) {
-            console.log('!!')
             return this.setPathsOnRoadByArr(false, false, [], ROAD_HEAVY, x, y);
         }
         if (road && ROAD_HEAVY != road.type) {

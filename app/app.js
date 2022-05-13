@@ -28,6 +28,15 @@ document.addEventListener('keypress', (event) => {
     if ('m' == event.key) { Scene.currentScheme.devCellEcho(); }
 });
 
+let $buttons = document.getElementsByClassName('img-btn');
+for (let $btn of $buttons) {
+    let $subscriber = $btn;
+    $btn.addEventListener('click', () => {
+        Scene.controls.pen = findButtonCode($subscriber);
+        Scene.setTempButton()
+    })
+}
+
 function mainContainerResize() {
     window.pixiApp.renderer.resize(window.pixiAppContainer.offsetWidth, window.pixiAppContainer.offsetHeight);
     Scene.resize();
