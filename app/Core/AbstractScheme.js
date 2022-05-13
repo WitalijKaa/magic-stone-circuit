@@ -200,7 +200,7 @@ class AbstractScheme {
         if (!this.isCellEmpty(...this.Left(x, y))) {
             let road = this.findCellOrEmpty(...this.Left(x, y)).road;
             if (!road) { return this.isCellConnectedButNotRoadAtSide(LEFT, x, y); }
-            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type || (road.zones && road.zones.includes(RIGHT)));
+            return !!(ROAD_LEFT_RIGHT == road.type || ROAD_HEAVY == road.type);
         }
         return false;
     }
@@ -431,6 +431,11 @@ class AbstractScheme {
     }
 
     /** ZONES **/
+
+    countPathsSidesOfRoad(x, y) {
+        if (!this.findCellOrEmpty(x, y).road) { return 0; }
+        return this.roadPathsToZones(x, y).length;
+    }
 
     roadPathsToZones(x, y) {
         let road = this.findCellOrEmpty(x, y).road;

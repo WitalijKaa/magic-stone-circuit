@@ -48,13 +48,10 @@ class Scheme extends AbstractScheme {
     /** ROADs **/
     
     tapRoad(x, y) {
-        if (this.isCellEmpty(x, y)) {
-            this.putRoad(x, y);
-        }
-        else if (this.findCellOrEmpty(x, y).road) {
-            if (!this.evaluateRoadType(x, y)) {
-                this.removeRoad(x, y);
-            }
+        if (this.isRoadBuildMode) { return; }
+
+        if (false === this.setPathsOnRoadByTap(x, y)) {
+            this.removeRoad(x, y);
         }
     }
 
@@ -170,14 +167,15 @@ class Scheme extends AbstractScheme {
             preferType = ROAD_LIGHT;
         }
 
+        if (mergedZones.length == 3) { preferType = ROAD_HEAVY; }
+        if (ROAD_HEAVY != preferType && mergedZones.length == 4) { preferType = ROAD_LIGHT; }
+
         if (this.isCellEmpty(x, y)) {
             change = { prev: null, curr: preferType };
             this.changeCellRoad({ type: preferType }, x, y);
             road = this.findCellOrEmpty(x, y).road;
         }
         else {
-            if (mergedZones.length == 3) { preferType = ROAD_HEAVY; }
-
             if (road.type == preferType && this.arePathsTheSame(road.paths, this.zonesToRoadPaths(mergedZones, preferType == ROAD_HEAVY))) {
                 return change;
             }
@@ -202,6 +200,48 @@ class Scheme extends AbstractScheme {
     setPathOnRoad(updateMode, zone, x, y) {
         if (zone == OVER_CENTER) { return { prev: null, curr: null }; }
         return this.setPathsOnRoadByArr(updateMode, false, [zone], ROAD_LIGHT, x, y);
+    }
+
+    setPathsOnRoadByTap(x, y) {
+        let road = this.findCellOrEmpty(x, y).road;
+        if (!road && !this.isCellEmpty(x, y)) { return null; }
+
+        let countAround = this.countAnyObjectsAround(x, y);
+        let emptyAround = !countAround;
+
+        if (emptyAround && road) {
+            if (!road.paths[ROAD_PATH_UP] && road.paths[ROAD_PATH_RIGHT] && !road.paths[ROAD_PATH_DOWN] && road.paths[ROAD_PATH_LEFT]) {
+                return this.setPathsOnRoadByArr(false, true, [UP, DOWN], ROAD_LIGHT, x, y);
+            }
+            return false;
+        }
+
+        if (road && ROAD_LIGHT == road.type && this.countPathsSidesOfRoad(x, y) == 4) {
+            console.log('!!')
+            return this.setPathsOnRoadByArr(false, false, [], ROAD_HEAVY, x, y);
+        }
+        if (road && ROAD_HEAVY != road.type) {
+            return false;
+        }
+        else if (road && ROAD_HEAVY == road.type) {
+            return false;
+        }
+        else if (!road) {
+            let sides = [];
+            if (this.isCellForForcedConnectionLeft(x, y)) { sides.push(LEFT); }
+            if (this.isCellForForcedConnectionRight(x, y)) { sides.push(RIGHT); }
+            if (this.isCellForForcedConnectionUp(x, y)) { sides.push(UP); }
+            if (this.isCellForForcedConnectionDown(x, y)) { sides.push(DOWN); }
+
+            if (sides.length > 1) { return this.setPathsOnRoadByArr(false, true, sides, null, x, y); }
+            else { return this.setPathsOnRoadByArr(false, true, [LEFT, RIGHT], ROAD_LIGHT, x, y); }
+
+            // this.defineRoadPath(x, y, ROAD_PATH_UP, !this.isCellEmpty(...this.Up(x, y)) && !this.isPerpendicularRoadAtSide(UP, x, y), updateMode);
+            // this.defineRoadPath(x, y, ROAD_PATH_RIGHT, !this.isCellEmpty(...this.Right(x, y)) && !this.isPerpendicularRoadAtSide(RIGHT, x, y), updateMode);
+            // this.defineRoadPath(x, y, ROAD_PATH_DOWN, !this.isCellEmpty(...this.Down(x, y)) && !this.isPerpendicularRoadAtSide(DOWN, x, y), updateMode);
+            // this.defineRoadPath(x, y, ROAD_PATH_LEFT, !this.isCellEmpty(...this.Left(x, y)) && !this.isPerpendicularRoadAtSide(LEFT, x, y), updateMode);
+        }
+        return null;
     }
 
     updatePathsOnNeighborsRoads(x, y) {

@@ -39,5 +39,6 @@ https://www.instagram.com/witalij.kaa/
 - Task 23: one-way energy filter.
 - Task 24: turn semiconductors; disable big semiconductors. --D
 - Task 25: special colors while road building.
-- Task 26: delete LIGHT HEAVY road types; implement directions types.
+- Task 26: delete LIGHT HEAVY road types; implement directions types. --D
 - Task 27: variations on road-cell switch 2.
+- Task 28: right click road build feature improve.
