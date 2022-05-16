@@ -55,8 +55,20 @@ class AbstractScheme {
     static getNamedScheme(name) {
         if (!Scheme.schemes[name]) {
             Scheme.schemes[name] = new Scheme();
+            Scheme.schemes[name].name = name;
         }
         return Scheme.schemes[name];
+    }
+
+    storage;
+
+    setStorage(storage) {
+        this.storage = storage;
+        this.scheme = this.storage.getSchema(this.name);
+    }
+
+    afterChange() {
+        this.storage.saveScheme(this.name, this.scheme)
     }
 
     static _checkRunIX = 1;
@@ -66,6 +78,7 @@ class AbstractScheme {
         return Math.floor(Math.random() * (max - min) + min);
     }
 
+    name;
     scheme = {};
 
     contentCells = {};

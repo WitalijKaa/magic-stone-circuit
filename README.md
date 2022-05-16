@@ -29,8 +29,8 @@ https://www.instagram.com/witalij.kaa/
 - Task 13: smiles consume energy.
 - Task 14: put roads by start-end. --D
 - Task 15: add variations on putting roads.
-- Task 16: big menu at left. !
-- Task 17: save current scheme to local storage. !
+- Task 16: big menu at left. --D
+- Task 17: save current scheme to local storage. --D
 - Task 18: save local storage to file, load from file.
 - Task 19: save blueprints to local storage, add them to menu.
 - Task 20: help and learn-how-to guide. !

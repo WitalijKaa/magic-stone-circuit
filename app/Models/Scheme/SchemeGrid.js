@@ -35,6 +35,8 @@ class SchemeGrid extends Sprite {
         this.pointedCellZone = Factory.sceneModel(MM.cellPointer);
         this.pointedCellZone.init(this).setSize(this.cellPxSize);
         Scene.addModelToContainer(this.pointedCellZone, this);
+
+        setTimeout(() => { this.execForVisibleCells('refreshVisibleAll') }, NANO_MS)
     }
 
     createVisibleGrid() {

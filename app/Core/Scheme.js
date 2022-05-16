@@ -23,6 +23,8 @@ class Scheme extends AbstractScheme {
                 cacheDirections: SIDES,
             });
         }
+
+        this.afterChange();
     }
 
     removeContent(x, y) {
@@ -34,6 +36,8 @@ class Scheme extends AbstractScheme {
         delete(this.contentCells[this.cellName(x, y)]);
         this.setCellEmpty(x, y);
         this.updatePathsOnNeighborsRoads(x, y);
+
+        this.afterChange();
     }
 
     setColorAroundByStone(x, y) {
@@ -53,6 +57,8 @@ class Scheme extends AbstractScheme {
         if (false === this.setPathsOnRoadByTap(x, y)) {
             this.removeRoad(x, y);
         }
+        
+        this.afterChange();
     }
 
     putRoad(x, y) {

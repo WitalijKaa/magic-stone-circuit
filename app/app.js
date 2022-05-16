@@ -7,10 +7,14 @@ window.pixiApp = new PIXI.Application({
 });
 window.pixiAppContainer.appendChild(window.pixiApp.view);
 
+let schemeName = 'mainGrid';
+let scheme = Scheme.getNamedScheme(schemeName);
+scheme.setStorage(new StorageScheme());
+
 Scene.addSchemeModel(
     Factory.sceneModel({
         model: SchemeGrid,
-        name: 'mainGrid',
+        name: schemeName,
         params: MM.schemeCell,
     })
 );
