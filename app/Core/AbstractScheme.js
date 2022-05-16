@@ -363,9 +363,9 @@ class AbstractScheme {
         }
     }
 
-    disabledDirsToMoveColor(road, countRoadsAround, fromDir) {
+    disabledDirsToMoveColor(road, fromDir) {
         let disabled = [fromDir];
-        if (ROAD_HEAVY != road.type && countRoadsAround > 2) {
+        if (ROAD_HEAVY != road.type && road.paths[SIDE_TO_ROAD_PATH[OPPOSITE_SIDE[fromDir]]]) {
             if (fromDir == LEFT || fromDir == RIGHT) {
                 disabled.push(UP);
                 disabled.push(DOWN);
@@ -579,10 +579,10 @@ class AbstractScheme {
         let cell = this.findCellOrEmpty(...this._devCell);
 
         let showInConsole = '';
-        if (cell.road) { showInConsole = cell.road;
-            // 'Type ' + ROAD_DEV[cell.road.type] +
-            // ' ## ' +
-            // cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
+        if (cell.road) { showInConsole =
+            'Type ' + ROAD_DEV[cell.road.type] +
+            ' ## ' +
+            cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
         }
         console.log(
             'devCellEcho',

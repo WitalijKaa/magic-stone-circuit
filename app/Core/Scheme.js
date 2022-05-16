@@ -329,7 +329,7 @@ class Scheme extends AbstractScheme {
                 this.moveColorToNextPaths(
                     x, y,
                     color,
-                    this.disabledDirsToMoveColor(road, this.countRoadsAround(x, y), fromDir)
+                    this.disabledDirsToMoveColor(road, fromDir)
                 );
             }
         }
