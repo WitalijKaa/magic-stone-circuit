@@ -38,6 +38,7 @@ class SchemeCell extends AbstractCell {
         }
         else if ('q' === Scene.controls.pen) {
             this.scheme.removeContent(...this.schemePosition);
+            this.scheme.removeRoad(...this.schemePosition);
             this.scheme.putSemiconductor(null, ...this.schemePosition);
         }
     }

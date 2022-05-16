@@ -57,13 +57,8 @@ class Scheme extends AbstractScheme {
         if (false === this.setPathsOnRoadByTap(x, y)) {
             this.removeRoad(x, y);
         }
-        
+        this.removeColoringCellCache(x, y);
         this.afterChange();
-    }
-
-    putRoad(x, y) {
-        this.changeCellRoad({ type: ROAD_LIGHT }, x, y);
-        this.afterPutRoad(x, y);
     }
 
     putRoadHorizontal(x, y) {
@@ -110,29 +105,15 @@ class Scheme extends AbstractScheme {
         this.cancelNeighborsColorPathForAnyRoadByPaths(this.findCellOrEmpty(x, y).road.paths, x, y);
     }
 
-    evaluateRoadType(x, y) {
-        let road = this.findCellOrEmpty(x, y).road;
-        if (!road) { return false; }
-
-        if ((ROAD_LEFT_RIGHT == road.type || ROAD_UP_DOWN == road.type) && this.countRoadsAroundForcedForConnect(x, y) < 3) {
-            road.type = ROAD_LIGHT;
-        }
-        else if (ROAD_HEAVY != road.type && this.countAnyObjectsAround(x, y) > 2) {
-            road.type = ROAD_HEAVY;
-        }
-        else { return false; }
-
-        this.afterPutRoad(x, y);
-        return true;
-    }
-
     removeRoad(x, y) {
-        this.cancelNeighborsColorPathForAnyRoadByPaths(this.findCellOrEmpty(x, y).road.paths, x, y);
+        if (!this.findCellOrEmpty(x, y).road) { return; }
+
+        this.cancelNeighborsColorPathForAnyRoadByPaths(ALL_PATHS_ARE, x, y);
 
         this.changeCellRoad(null, x, y);
         this.removeColoringCellCache(x, y);
-
         this.visibleUpdate(x, y);
+        this.afterChange();
     }
 
     doCheckRunForRoads(checkRun, x, y) {
@@ -491,6 +472,7 @@ class Scheme extends AbstractScheme {
 
     finishToBuildRoad() {
         this.isRoadBuildMode = false;
+        this.afterChange();
     }
 
     buildRoadTick() {
@@ -771,6 +753,7 @@ class Scheme extends AbstractScheme {
         }
         this.visibleUpdate(x, y);
         this.updatePathsOnNeighborsRoads(x, y);
+        this.afterChange();
     }
 
     putSleepSemiconductor(x, y) {

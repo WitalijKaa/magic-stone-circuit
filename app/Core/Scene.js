@@ -68,7 +68,6 @@ class Scene {
     static setTempButton() {
         let $el = document.querySelector('[data-tip="' + this.controls.pen + '"]');
         if ($el) {
-            //document.getElementById('current-btn').attr("src", $el.currentSrc);
             document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
         }
     }

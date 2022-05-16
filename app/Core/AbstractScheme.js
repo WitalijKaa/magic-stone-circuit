@@ -65,6 +65,20 @@ class AbstractScheme {
     setStorage(storage) {
         this.storage = storage;
         this.scheme = this.storage.getSchema(this.name);
+
+        for (let x in this.scheme) {
+            for (let y in this.scheme[x]) {
+                if (this.scheme[x][y].content || this.scheme[x][y].semiconductor) {
+                    this.contentCells[this.cellName(x, y)] = [x, y];
+
+                    if (this.scheme[x][y].content) {
+                        SIDES.map((sideTo) => {
+                            this.setAwakeColorSemiconductorByStone(STONE_TYPE_TO_ROAD_COLOR[this.scheme[x][y].content], ...this[sideTo](x, y))
+                        });
+                    }
+                }
+            }
+        }
     }
 
     afterChange() {
@@ -98,10 +112,10 @@ class AbstractScheme {
 
     activeCursor = { x: 0, y: 0, zone: OVER_CENTER }
 
-    Up(x, y) { return [x, y - 1]; }
-    Right(x, y) { return [x + 1, y]; }
-    Down(x, y) { return [x, y + 1]; }
-    Left(x, y) { return [x - 1, y]; }
+    Up(x, y) { return [+x, +y - 1]; }
+    Right(x, y) { return [+x + 1, +y]; }
+    Down(x, y) { return [+x, +y + 1]; }
+    Left(x, y) { return [+x - 1, +y]; }
 
     cellName (x, y) { return x + '|' + y; }
 
@@ -565,10 +579,10 @@ class AbstractScheme {
         let cell = this.findCellOrEmpty(...this._devCell);
 
         let showInConsole = '';
-        if (cell.road) { showInConsole =
-            'Type ' + ROAD_DEV[cell.road.type] +
-            ' ## ' +
-            cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
+        if (cell.road) { showInConsole = cell.road;
+            // 'Type ' + ROAD_DEV[cell.road.type] +
+            // ' ## ' +
+            // cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
         }
         console.log(
             'devCellEcho',

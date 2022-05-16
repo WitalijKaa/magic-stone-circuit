@@ -9,7 +9,27 @@ class StorageScheme {
     }
 
     saveScheme(name, schema) {
-        this.save('__schema__' + name, JSON.stringify(schema))
+        let copySchema = {};
+
+        for (let row in schema) {
+            for (let column in schema[row]) {
+                if (schema[row][column]) {
+                    if (!copySchema[row]) { copySchema[row] = {}; }
+
+                    if (schema[row][column].road && schema[row][column].road.paths) {
+                        copySchema[row][column] = { road: { type: schema[row][column].road.type, paths: schema[row][column].road.paths.map((path) => { return !!path; }) }}
+                    }
+                    else if (schema[row][column].semiconductor) {
+                        copySchema[row][column] = { semiconductor: { type: schema[row][column].semiconductor.type, direction: schema[row][column].semiconductor.direction }}
+                    }
+                    else {
+                        copySchema[row][column] = schema[row][column];
+                    }
+                }
+            }
+        }
+
+        this.save('__schema__' + name, JSON.stringify(copySchema))
     }
 
     getSchema(name) {
