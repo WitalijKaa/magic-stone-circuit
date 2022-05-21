@@ -20,9 +20,8 @@ const CONTROL_EVENTS_KEYS = {
 function findButtonCode($imgBtnElem) {
     let code;
     for (let ix = 0; ix < $imgBtnElem.childNodes.length; ix++) {
-        $imgBtnElem.childNodes[ix].className
-        if ($imgBtnElem.childNodes[ix].className == "img-btn__tip") {
-            code = $imgBtnElem.childNodes[ix].innerText;
+        if ($imgBtnElem.childNodes[ix].dataset && $imgBtnElem.childNodes[ix].dataset.tip) {
+            code = $imgBtnElem.childNodes[ix].dataset.tip;
             break;
         }
     }

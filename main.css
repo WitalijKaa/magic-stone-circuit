@@ -12,10 +12,9 @@ html, body {
 }
 
 #app {
-    position: relative;
     background-color: black;
-    left: 2.5%;
-    width: 97.5%;
+    margin-left: 35px;
+    width: calc(100% - 35px);
     height: 100%;
 }
 
@@ -23,23 +22,27 @@ html, body {
 .side-menu {
     position: absolute;
     background-color: #263238;
-    width: 2.5%;
+    width: 35px;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .side-menu__current, .side-menu__buttons {
-    width: 100%;
 }
 
 .side-menu__current {
-    height: 100px;
-    background-image: url("/resources/stone_orange.png");
+    height: 65px;
+    background-image: url("/resources/stone_empty.png");
     background-size: contain;
     background-repeat: no-repeat;
 }
 
 .side-menu__buttons {
-
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex-grow: 1;
 }
 
 .img-btn {
@@ -48,7 +51,6 @@ html, body {
 
 .img-btn__image {
     width: 100%;
-    margin-bottom: 10px;
 }
 
 .img-btn__tip {
