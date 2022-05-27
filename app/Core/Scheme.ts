@@ -1,3 +1,5 @@
-class Scheme extends SchemeBase {
+import { SchemeBase } from "./SchemeBase";
+
+export class Scheme extends SchemeBase {
 
 }

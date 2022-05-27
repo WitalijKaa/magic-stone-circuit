@@ -1,4 +1,6 @@
-class SchemeStorage {
+import { Scheme } from './Scheme'
+
+export class SchemeStorage {
 
     schemes: object;
 

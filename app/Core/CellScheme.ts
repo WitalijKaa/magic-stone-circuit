@@ -1,4 +1,7 @@
-class CellScheme {
+import { Cell } from "./Cell";
+import { Scheme } from "./Scheme";
+
+export class CellScheme {
 
     cellPosition: Cell;
     scheme: Scheme;

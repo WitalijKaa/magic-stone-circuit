@@ -1,18 +1,26 @@
 document.addEventListener('contextmenu', event => event.preventDefault());
 
-import * as PIXI from 'pixi.js'
+import { Application as PixiApplication } from 'pixi.js'
 const pixiAppContainer = document.getElementById('app');
+
+import { SchemeStorage } from "./Core/SchemeStorage";
+import { SchemeGrid } from "./Models/Scheme/SchemeGrid";
 
 if (pixiAppContainer)
 {
-    const pixiApp = new PIXI.Application({
+    const pixiApp = new PixiApplication({
         width: pixiAppContainer.offsetWidth,
         height: pixiAppContainer.offsetHeight,
     });
     pixiAppContainer.appendChild(pixiApp.view);
 
+    const mainSchemeName = 'mainGrid';
+
     const schemeStorage = new SchemeStorage();
-    schemeStorage.getNamedScheme('mainGrid');
+    const scheme = schemeStorage.getNamedScheme(mainSchemeName);
+
+    const schemeGrid = new SchemeGrid(mainSchemeName, scheme);
+    pixiApp.stage.addChild(schemeGrid.container);
 }
 else {
     console.error('no #app div in html :(');

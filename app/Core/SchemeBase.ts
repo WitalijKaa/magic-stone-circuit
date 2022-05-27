@@ -1,12 +1,21 @@
-class SchemeBase {
+import { Cell } from "./Cell";
+import { CellScheme } from "./CellScheme";
+import { SchemeGrid } from "../Models/Scheme/SchemeGrid";
+
+export class SchemeBase {
 
     name: string;
 
     scheme: object;
+    visibleGrid!: SchemeGrid;
 
     constructor(name: string) {
         this.name = name;
         this.scheme = {};
+    }
+
+    init(grid: SchemeGrid) : void {
+        this.visibleGrid = grid
     }
 
     isCellEmpty(cell: Cell) : boolean {
@@ -34,4 +43,6 @@ class SchemeBase {
 
         return cellScheme;
     }
+
+    get sizeRadius() : number { return 800000000; }
 }

@@ -3,7 +3,7 @@ class AbstractCell extends Sprite {
     gridX = 0; gridY = 0;
 
     init (grid) {
-        this.grid = grid;
+        this.visibleGrid = grid;
         return this;
     }
 
