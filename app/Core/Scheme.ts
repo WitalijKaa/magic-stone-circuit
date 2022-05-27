@@ -1,0 +1,3 @@
+class Scheme extends SchemeBase {
+
+}

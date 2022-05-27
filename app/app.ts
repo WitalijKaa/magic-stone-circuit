@@ -3,18 +3,22 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 import * as PIXI from 'pixi.js'
 const pixiAppContainer = document.getElementById('app');
 
-const pixiApp = new PIXI.Application({
-    width: pixiAppContainer.offsetWidth,
-    height: pixiAppContainer.offsetHeight,
-});
-pixiAppContainer.appendChild(pixiApp.view);
+if (pixiAppContainer)
+{
+    const pixiApp = new PIXI.Application({
+        width: pixiAppContainer.offsetWidth,
+        height: pixiAppContainer.offsetHeight,
+    });
+    pixiAppContainer.appendChild(pixiApp.view);
 
-let schemeName = 'mainGrid';
+    const schemeStorage = new SchemeStorage();
+    schemeStorage.getNamedScheme('mainGrid');
+}
+else {
+    console.error('no #app div in html :(');
+}
 
 /*
-let scheme = Scheme.getNamedScheme(schemeName);
-scheme.setStorage(new StorageScheme());
-
 let schemeGrid = Factory.sceneModel({
     model: SchemeGrid,
     name: schemeName,

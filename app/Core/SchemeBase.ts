@@ -1,0 +1,37 @@
+class SchemeBase {
+
+    name: string;
+
+    scheme: object;
+
+    constructor(name: string) {
+        this.name = name;
+        this.scheme = {};
+    }
+
+    isCellEmpty(cell: Cell) : boolean {
+        return !!this.scheme[cell.x] || !!this.scheme[cell.x][cell.y]
+    }
+
+    public getCell(cell: Cell) : CellScheme {
+        if (!this.scheme[cell.x] || !this.scheme[cell.x][cell.y]) {
+            return this.createCell(cell);
+        }
+        return this.scheme[cell.x][cell.y];
+    }
+
+    public killCell(cell: Cell) : void {
+        if (!this.scheme[cell.x] || !this.scheme[cell.x][cell.y]) {
+            delete this.scheme[cell.x][cell.y];
+        }
+    }
+
+    private createCell(cell: Cell) : CellScheme {
+        let cellScheme = new CellScheme(cell.x, cell.y, this);
+
+        if (!this.scheme[cell.x]) { this.scheme[cell.x] = {}; }
+        this.scheme[cell.x][cell.y] = cellScheme;
+
+        return cellScheme;
+    }
+}

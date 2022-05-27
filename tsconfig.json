@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
-    "sourceMap": true
+    "target": "es5",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
   }
 }
