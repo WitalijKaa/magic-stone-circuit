@@ -1,3 +1,5 @@
+import {SchemeContainer} from "./Models/Scheme/SchemeContainer";
+
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 import { Application as PixiApplication } from 'pixi.js'
@@ -19,7 +21,8 @@ if (pixiAppContainer)
     const schemeStorage = new SchemeStorage();
     const scheme = schemeStorage.getNamedScheme(mainSchemeName);
 
-    const schemeGrid = new SchemeGrid(mainSchemeName, scheme);
+    const schemeContainer = new SchemeContainer(pixiAppContainer);
+    const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
     pixiApp.stage.addChild(schemeGrid.container);
 }
 else {
