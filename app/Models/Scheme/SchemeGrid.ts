@@ -5,6 +5,8 @@ import {Scheme} from "../../Core/Scheme";
 import {SchemeContainer} from "./SchemeContainer";
 import {Size} from "../../Core/Size";
 import {Cell} from "../../Core/Cell";
+import {MouseDrag} from "../../Core/Behaviors/MouseDrag";
+import {ContainerModel} from "../ContainerModel";
 
 export class SchemeGrid {
 
@@ -33,11 +35,32 @@ export class SchemeGrid {
 
         this.dragX = this.dragY = scheme.sizeRadius;
         this.createGrid();
+
+        new MouseDrag(new ContainerModel(this.container), this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGridPx' });
     }
 
-    public addCellToStage(cell: CellGrid) : void {
+    private addCellToStage(cell: CellGrid) : void {
         this.container.addChild(cell.model);
     }
+
+    private execForCells(method: string, params: any[] = [], reverseMode: boolean = false) {
+        if (!reverseMode) {
+            for (let xCell = 0; xCell < this.grid.length; xCell++) {
+                for (let yCell = 0; yCell < this.grid[xCell].length; yCell++) {
+                    this.grid[xCell][yCell][method](...params);
+                }
+            }
+        }
+        else {
+            for (let xCell = this.grid.length - 1; xCell >= 0; xCell--) {
+                for (let yCell = this.grid[xCell].length - 1; yCell >= 0; yCell--) {
+                    this.grid[xCell][yCell][method](...params);
+                }
+            }
+        }
+    }
+
+    // CREATING
 
     private createGrid() : void {
         this.grid = [];
@@ -62,6 +85,8 @@ export class SchemeGrid {
         return cellModel;
     }
 
+    // RESIZING
+
     public resetVisibleGrid() : void {
         while (this.visibleCellsAreaCurrentWidth > this.gridCellsAreaSize.width) {
             this.removeCellsColumn();
@@ -79,7 +104,7 @@ export class SchemeGrid {
         }
     }
 
-    addCellsRow(skipLast = 0) {
+    private addCellsRow(skipLast = 0) {
         let yCell = this.grid[0].length;
         for (let xCell = 0; xCell < this.grid.length - skipLast; xCell++) {
             this.grid[xCell].push(this.createCell(xCell, yCell));
@@ -99,6 +124,36 @@ export class SchemeGrid {
             this.grid[lastIX][yCell].destroy();
         }
         this.grid.pop();
+    }
+
+    // DRAGGING
+
+    dragGridPx(x: number, y: number) {
+        this.offsetX += x;
+        this.offsetY += y;
+
+        let cellsOffset: [number, number] = [0, 0];
+        if (Math.abs(this.offsetX) > this.htmlContainer.cellSizePx) {
+            let dir = this.offsetX < 0 ? 1 : -1;
+            cellsOffset[0] = dir;
+            this.offsetX += dir * this.htmlContainer.cellSizePx;
+        }
+        if (Math.abs(this.offsetY) > this.htmlContainer.cellSizePx) {
+            let dir = this.offsetY < 0 ? 1 : -1;
+            cellsOffset[1] = dir;
+            this.offsetY += dir * this.htmlContainer.cellSizePx;
+        }
+        this.dragGrid(...cellsOffset);
+        this.execForCells('updatePosition');
+    }
+
+    dragGrid(x: number, y: number) {
+        if (!x && !y) { return; }
+
+        this.dragX += x; // todo out of diameter
+        this.dragY += y;
+
+        //this.execForVisibleCells('refreshVisibleAll');
     }
 
     get visibleCellsAreaCurrentWidth() : number { return this.grid.length; }

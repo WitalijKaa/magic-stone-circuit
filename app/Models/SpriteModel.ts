@@ -1,11 +1,13 @@
-import { Sprite, Texture } from 'pixi.js';
+import {Sprite} from 'pixi.js';
 import {FactoryGraphics} from "../Core/FactoryGraphics";
+import {DisplayModel} from "./DisplayModel";
 
-export class SpriteModel {
+export class SpriteModel extends DisplayModel {
 
     model: Sprite;
 
     constructor(texture: string | Sprite) {
+        super();
         if ('string' == typeof texture) {
             this.model = Sprite.from(texture);
         }

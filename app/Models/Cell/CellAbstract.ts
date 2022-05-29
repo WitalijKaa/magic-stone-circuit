@@ -29,7 +29,7 @@ export class CellAbstract extends SpriteModel {
 
     updatePosition() : CellAbstract {
         this.x = this.gridPosition.x * this.w + this.grid.offsetX;
-        this.y = this.gridPosition.y * this.h + this.grid.offsetX;
+        this.y = this.gridPosition.y * this.h + this.grid.offsetY;
         return this;
     }
 
