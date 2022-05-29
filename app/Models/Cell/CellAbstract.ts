@@ -7,7 +7,7 @@ import {Sprite} from "pixi.js";
 export class CellAbstract extends SpriteModel {
 
     private gridPosition: Cell;
-    private grid: SchemeGrid;
+    protected grid: SchemeGrid;
 
     constructor(position: Cell, grid: SchemeGrid, sprite: Sprite) {
         super(sprite);

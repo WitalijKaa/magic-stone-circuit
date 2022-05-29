@@ -7,11 +7,17 @@ import {Size} from "../../Core/Size";
 import {Cell} from "../../Core/Cell";
 import {MouseDrag} from "../../Core/Behaviors/MouseDrag";
 import {ContainerModel} from "../ContainerModel";
+import {MouseOver} from "../../Core/Behaviors/MouseOver";
+import {CellPointer} from "../Cell/CellPointer";
+import {SpriteModel} from "../SpriteModel";
+import {NANO_MS, ST_ROAD} from "../../config/pixi";
+import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
+import {Poss} from "../../Core/Poss";
 
 export class SchemeGrid {
 
     name: string;
-    htmlContainer: SchemeContainer;
+    private htmlContainer: SchemeContainer;
     container: Container;
     scheme: Scheme;
     grid!: Array<Array<CellGrid>>
@@ -20,6 +26,9 @@ export class SchemeGrid {
     dragY: number;
     offsetX: number = 0;
     offsetY: number = 0;
+
+    mouseLock = false;
+    pointedCellZone: CellPointer;
 
     constructor(name: string, scheme: Scheme, htmlContainer: SchemeContainer) {
         this.name = name;
@@ -37,9 +46,14 @@ export class SchemeGrid {
         this.createGrid();
 
         new MouseDrag(new ContainerModel(this.container), this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGridPx' });
+
+        new MouseOver(new ContainerModel(this.container), this, { [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
+        this.pointedCellZone = new CellPointer(this);
+        this.pointedCellZone.setSize(this.cellSizePx);
+        this.addCellToStage(this.pointedCellZone);
     }
 
-    private addCellToStage(cell: CellGrid) : void {
+    private addCellToStage(cell: SpriteModel | ContainerModel) : void {
         this.container.addChild(cell.model);
     }
 
@@ -67,7 +81,6 @@ export class SchemeGrid {
         for (let xCell = 0; xCell < this.gridCellsAreaSize.width; xCell++) {
             this.addCellsColumn(xCell);
         }
-        //this.execForVisibleCells('initNeighbors');
     }
 
     private addCellsColumn(xCell: number) : void {
@@ -80,7 +93,7 @@ export class SchemeGrid {
 
     private createCell(x: number, y: number) : CellGrid {
         let cellModel = new CellGrid(new Cell(x, y), this);
-        cellModel.setSize(this.htmlContainer.cellSizePx).setPosition(x, y);
+        cellModel.setSize(this.cellSizePx).setPosition(x, y);
         this.addCellToStage(cellModel);
         return cellModel;
     }
@@ -132,16 +145,16 @@ export class SchemeGrid {
         this.offsetX += x;
         this.offsetY += y;
 
-        let cellsOffset: [number, number] = [0, 0];
-        if (Math.abs(this.offsetX) > this.htmlContainer.cellSizePx) {
+        let cellsOffset: Poss = [0, 0];
+        if (Math.abs(this.offsetX) > this.cellSizePx) {
             let dir = this.offsetX < 0 ? 1 : -1;
             cellsOffset[0] = dir;
-            this.offsetX += dir * this.htmlContainer.cellSizePx;
+            this.offsetX += dir * this.cellSizePx;
         }
-        if (Math.abs(this.offsetY) > this.htmlContainer.cellSizePx) {
+        if (Math.abs(this.offsetY) > this.cellSizePx) {
             let dir = this.offsetY < 0 ? 1 : -1;
             cellsOffset[1] = dir;
-            this.offsetY += dir * this.htmlContainer.cellSizePx;
+            this.offsetY += dir * this.cellSizePx;
         }
         this.dragGrid(...cellsOffset);
         this.execForCells('updatePosition');
@@ -156,6 +169,40 @@ export class SchemeGrid {
         //this.execForVisibleCells('refreshVisibleAll');
     }
 
+    // HANDLERS
+
+    lastMouseMovePositions!: MousePossOnGrid;
+    handleMouseMove(pxGlobalX, pxGlobalY) {
+        if (!this.mouseLock) {
+            this.mouseLock = true;
+            this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
+            let zone = this.pointedCellZone.findOverZoneType(...this.lastMouseMovePositions.localCellPx);
+            this.lastMouseMovePositions.zone = zone;
+            if (ST_ROAD == ST_ROAD) { // todo
+                this.pointedCellZone.showZone(zone, ...this.lastMouseMovePositions.localGrid);
+            }
+            this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);
+
+            setTimeout(() => { this.mouseLock = false;}, NANO_MS);
+        }
+    }
+
+    // CURSOR
+
+    globalPxToLocalCellPx(pxGlobalX, pxGlobalY) : MousePossOnGrid {
+        let localX = Math.floor((pxGlobalX - this.offsetX) / this.cellSizePx);
+        let cellX = Math.floor((pxGlobalX - this.offsetX) - (localX * this.cellSizePx));
+        let localY = Math.floor((pxGlobalY - this.offsetY) / this.cellSizePx);
+        let cellY = Math.floor((pxGlobalY - this.offsetY) - (localY * this.cellSizePx));
+        return {
+            localGrid: [localX + GRID_OFFSET, localY + GRID_OFFSET],
+            globalGrid: [localX + this.dragX, localY + this.dragY],
+            localCellPx: [cellX, cellY],
+        };
+    }
+
+    // GETTERS
+
     get visibleCellsAreaCurrentWidth() : number { return this.grid.length; }
     get visibleCellsAreaCurrentHeight() : number { return this.grid[0].length; }
 
@@ -165,4 +212,5 @@ export class SchemeGrid {
             height: GRID_OFFSET * 2 + this.htmlContainer.heightCells,
         };
     }
+    get cellSizePx() : number { return this.htmlContainer.cellSizePx; }
 }
