@@ -1,4 +1,4 @@
-const TT = {
+export const TT = {
     zoneCenter: 'resources/cell_center.png',
     zoneSide: 'resources/cell_up.png',
     stoneV: 'resources/stone_violet.png',
@@ -6,7 +6,7 @@ const TT = {
     stoneI: 'resources/stone_indigo.png',
     stoneO: 'resources/stone_orange.png',
     energy: 'resources/energy.png',
-    cell: 'resources/scheme_cell.png',
+    cell: 'resources/40/scheme_cell2.png',
     roadL: 'resources/road_left.png',
     roadR: 'resources/road_right.png',
     roadH: 'resources/road_heavy.png',

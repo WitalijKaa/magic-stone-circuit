@@ -1,11 +1,10 @@
-import { Container, Rectangle } from 'pixi.js'
-import { CellGrid } from "../Cell/CellGrid";
-import { Scheme } from "../../Core/Scheme";
-import { SchemeContainer } from "./SchemeContainer";
-import { Size } from "../../Core/Size";
+import {GRID_OFFSET} from "../../config/params";
+import {Container, Rectangle} from 'pixi.js'
+import {CellGrid} from "../Cell/CellGrid";
+import {Scheme} from "../../Core/Scheme";
+import {SchemeContainer} from "./SchemeContainer";
+import {Size} from "../../Core/Size";
 import {Cell} from "../../Core/Cell";
-
-const GRID_OFFSET = 2;
 
 export class SchemeGrid {
 
@@ -17,6 +16,8 @@ export class SchemeGrid {
 
     dragX: number;
     dragY: number;
+    offsetX: number = 0;
+    offsetY: number = 0;
 
     constructor(name: string, scheme: Scheme, htmlContainer: SchemeContainer) {
         this.name = name;
@@ -35,7 +36,7 @@ export class SchemeGrid {
     }
 
     public addCellToStage(cell: CellGrid) : void {
-        this.container.addChild(cell.sprite.model);
+        this.container.addChild(cell.model);
     }
 
     private createGrid() : void {
@@ -51,11 +52,10 @@ export class SchemeGrid {
     }
 
     private createCell(x: number, y: number) : CellGrid {
-        let model = new CellGrid(new Cell(x, y), this);
-        //let cellModel = Factory.sceneModel(this.configParams.cell)
-        //cellModel.init(this).setSize(this.cellPxSize).setPosition(xCell, yCell);
-        //Scene.addModelToContainer(cellModel, this);
-        return model;
+        let cellModel = new CellGrid(new Cell(x, y), this);
+        cellModel.setSize(this.htmlContainer.cellSizePx).setPosition(x, y);
+        this.addCellToStage(cellModel);
+        return cellModel;
     }
 
     get gridCellsAreaSize() : Size {

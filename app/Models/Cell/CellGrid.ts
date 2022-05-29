@@ -1,15 +1,12 @@
-import { SpriteModel } from "../SpriteModel";
-import { Cell } from "../../Core/Cell";
-import { SchemeGrid } from "../Scheme/SchemeGrid";
+import {Cell} from "../../Core/Cell";
+import {SchemeGrid} from "../Scheme/SchemeGrid";
+import {CellAbstract} from "./CellAbstract";
+import {TT} from "../../config/textures";
+import {SpriteModel} from "../SpriteModel";
 
-export class CellGrid {
-
-    sprite!: SpriteModel;
-    cellPosition: Cell;
-    grid: SchemeGrid;
+export class CellGrid extends CellAbstract {
 
     constructor(position: Cell, grid: SchemeGrid) {
-        this.cellPosition = position;
-        this.grid = grid;
+        super(position, grid, SpriteModel.from(TT.cell));
     }
 }

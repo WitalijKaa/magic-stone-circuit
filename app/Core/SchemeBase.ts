@@ -1,6 +1,6 @@
-import { Cell } from "./Cell";
-import { CellScheme } from "./CellScheme";
-import { SchemeGrid } from "../Models/Scheme/SchemeGrid";
+import {Cell} from "./Cell";
+import {CellScheme} from "./CellScheme";
+import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 
 export class SchemeBase {
 

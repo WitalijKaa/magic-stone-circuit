@@ -1,4 +1,4 @@
-import {SchemeContainer} from "./Models/Scheme/SchemeContainer";
+import { SchemeContainer } from "./Models/Scheme/SchemeContainer";
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
@@ -7,6 +7,8 @@ const pixiAppContainer = document.getElementById('app');
 
 import { SchemeStorage } from "./Core/SchemeStorage";
 import { SchemeGrid } from "./Models/Scheme/SchemeGrid";
+import { FactoryGraphics } from "./Core/FactoryGraphics";
+import {SpriteModel} from "./Models/SpriteModel";
 
 if (pixiAppContainer)
 {
@@ -16,14 +18,18 @@ if (pixiAppContainer)
     });
     pixiAppContainer.appendChild(pixiApp.view);
 
-    const mainSchemeName = 'mainGrid';
+    const loader = new FactoryGraphics();
+    SpriteModel.implementGraphics(loader);
+    loader.loadTextures(() => {
+        const mainSchemeName = 'mainGrid';
 
-    const schemeStorage = new SchemeStorage();
-    const scheme = schemeStorage.getNamedScheme(mainSchemeName);
+        const schemeStorage = new SchemeStorage();
+        const scheme = schemeStorage.getNamedScheme(mainSchemeName);
 
-    const schemeContainer = new SchemeContainer(pixiAppContainer);
-    const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
-    pixiApp.stage.addChild(schemeGrid.container);
+        const schemeContainer = new SchemeContainer(pixiAppContainer);
+        const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
+        pixiApp.stage.addChild(schemeGrid.container);
+    });
 }
 else {
     console.error('no #app div in html :(');

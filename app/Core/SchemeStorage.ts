@@ -1,4 +1,4 @@
-import { Scheme } from './Scheme'
+import {Scheme} from './Scheme'
 
 export class SchemeStorage {
 
