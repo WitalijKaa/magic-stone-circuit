@@ -45,6 +45,7 @@ export const ST_STONE_VIOLET = 1;
 export const ST_STONE_RED = 2;
 export const ST_STONE_INDIGO = 3;
 export const ST_STONE_ORANGE = 4;
+export type ST_STONES = 1 | 2 | 3 | 4;
 export const ST_ENERGY = 5;
 export const ST_ROAD = 6;
 export const ST_ROAD_SLEEP = 7;

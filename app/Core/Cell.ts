@@ -1,4 +1,6 @@
-export class Cell {
+import {IPoss} from "./IPoss";
+
+export class Cell implements IPoss {
     x: number;
     y: number;
 

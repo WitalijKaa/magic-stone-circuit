@@ -25,6 +25,4 @@ class AbstractCell extends Sprite {
         this.y = this.gridY * this.h + this.grid.offsetY;
         return this;
     }
-
-
 }

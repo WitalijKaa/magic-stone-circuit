@@ -33,4 +33,6 @@ export class CellAbstract extends SpriteModel {
         return this;
     }
 
+    get gridX() { return this.gridPosition.x; }
+    get gridY() { return this.gridPosition.y; }
 }

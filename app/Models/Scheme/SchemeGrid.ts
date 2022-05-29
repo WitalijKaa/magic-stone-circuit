@@ -13,6 +13,7 @@ import {SpriteModel} from "../SpriteModel";
 import {NANO_MS, ST_ROAD} from "../../config/pixi";
 import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
 import {Poss} from "../../Core/Poss";
+import {IPoss} from "../../Core/IPoss";
 
 export class SchemeGrid {
 
@@ -200,6 +201,26 @@ export class SchemeGrid {
             localCellPx: [cellX, cellY],
         };
     }
+
+    // VISIBLE GRID
+
+    refreshVisibleCell(poss: IPoss) {
+        let cell = this.getVisibleCell(this.schemeToVisiblePosition(poss));
+        if (cell) {
+            cell.refreshVisibleAll();
+        }
+    }
+
+    getVisibleCell(poss: IPoss) : CellGrid | null {
+        if (poss.x >= 0 && poss.x < this.grid.length) {
+            if (poss.y >= 0 && poss.y < this.grid[0].length) {
+                return this.grid[poss.x][poss.y];
+            }
+        }
+        return null;
+    }
+
+    schemeToVisiblePosition(poss: IPoss) : IPoss { return { x: poss.x - this.dragX + GRID_OFFSET, y: poss.y - this.dragY + GRID_OFFSET }; }
 
     // GETTERS
 

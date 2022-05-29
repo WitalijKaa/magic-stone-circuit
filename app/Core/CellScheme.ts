@@ -1,12 +1,15 @@
 import {Cell} from "./Cell";
-import {Scheme} from "./Scheme";
+import {SchemeBase} from "./SchemeBase";
+import {ST_STONES} from "../config/pixi";
 
 export class CellScheme {
 
     cellPosition: Cell;
-    scheme: Scheme;
+    scheme: SchemeBase;
 
-    constructor(x: number, y: number, scheme: Scheme) {
+    content: ST_STONES | null = null;
+
+    constructor(x: number, y: number, scheme: SchemeBase) {
         this.cellPosition = new Cell(x, y);
         this.scheme = scheme;
     }
@@ -14,8 +17,8 @@ export class CellScheme {
     get x() : number { return this.cellPosition.x; }
     get y() : number { return this.cellPosition.y; }
 
-    get up() : CellScheme { return this.scheme.getCell(this.cellPosition.up); }
-    get right() : CellScheme { return this.scheme.getCell(this.cellPosition.right); }
-    get down() : CellScheme { return this.scheme.getCell(this.cellPosition.down); }
-    get left() : CellScheme { return this.scheme.getCell(this.cellPosition.left); }
+    get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
+    get right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.right); }
+    get down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.down); }
+    get left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.left); }
 }
