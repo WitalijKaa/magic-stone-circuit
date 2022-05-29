@@ -29,52 +29,17 @@ if (pixiAppContainer)
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
+
+        function mainContainerResize() {
+            if (!pixiAppContainer || !schemeGrid) { return; }
+            pixiApp.renderer.resize(pixiAppContainer.offsetWidth, pixiAppContainer.offsetHeight);
+            schemeGrid.resetVisibleGrid();
+        }
+        window.addEventListener('resize', function() {
+            mainContainerResize();
+        });
     });
 }
 else {
     console.error('no #app div in html :(');
 }
-
-/*
-let schemeGrid = Factory.sceneModel({
-    model: SchemeGrid,
-    name: schemeName,
-    params: MM.schemeCell,
-});
-
-Scene.addSchemeModel(schemeGrid);
-
-// todo preload graphics
-setTimeout(() => { schemeGrid.init() }, 500);
-
-Scene.controls.pen = ST_STONE_VIOLET;
-Scene.setTempButton()
-document.addEventListener('keypress', (event) => {
-    if (CONTROL_KEYS.hasOwnProperty(event.key)) {
-        schemeGrid.pointedCellZone.hideZone();
-        Scene.controls.pen = CONTROL_KEYS[event.key];
-        Scene.setTempButton();
-    }
-    if (CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
-        Scene.eventHandler(CONTROL_EVENTS_KEYS[event.key])
-    }
-    if ('m' == event.key) { Scene.currentScheme.devCellEcho(); }
-});
-
-let $buttons = document.getElementsByClassName('img-btn');
-for (let $btn of $buttons) {
-    let $subscriber = $btn;
-    $btn.addEventListener('click', () => {
-        Scene.controls.pen = findButtonCode($subscriber);
-        Scene.setTempButton()
-    })
-}
-
-function mainContainerResize() {
-    pixiApp.renderer.resize(pixiAppContainer.offsetWidth, pixiAppContainer.offsetHeight);
-    Scene.resize();
-}
-addEventListener('resize', function() {
-    mainContainerResize();
-});
-*/

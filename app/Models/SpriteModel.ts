@@ -23,6 +23,8 @@ export class SpriteModel {
         return Sprite.from(this.factoryGraphics.texture(name));
     }
 
+    public destroy() : void { this.model.destroy(); }
+
     get x () : number { return this.model.x; }
     get y () : number { return this.model.y; }
     get w () : number { return this.model.width; }

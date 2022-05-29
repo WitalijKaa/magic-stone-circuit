@@ -42,13 +42,17 @@ export class SchemeGrid {
     private createGrid() : void {
         this.grid = [];
         for (let xCell = 0; xCell < this.gridCellsAreaSize.width; xCell++) {
-            let column: Array<CellGrid> = [];
-            for (let yCell = 0; yCell < this.gridCellsAreaSize.height; yCell++) {
-                column.push(this.createCell(xCell, yCell));
-            }
-            this.grid.push(column);
+            this.addCellsColumn(xCell);
         }
         //this.execForVisibleCells('initNeighbors');
+    }
+
+    private addCellsColumn(xCell: number) : void {
+        let column: Array<CellGrid> = [];
+        for (let yCell = 0; yCell < this.gridCellsAreaSize.height; yCell++) {
+            column.push(this.createCell(xCell, yCell));
+        }
+        this.grid.push(column);
     }
 
     private createCell(x: number, y: number) : CellGrid {
@@ -57,6 +61,48 @@ export class SchemeGrid {
         this.addCellToStage(cellModel);
         return cellModel;
     }
+
+    public resetVisibleGrid() : void {
+        while (this.visibleCellsAreaCurrentWidth > this.gridCellsAreaSize.width) {
+            this.removeCellsColumn();
+        }
+        while (this.visibleCellsAreaCurrentHeight > this.gridCellsAreaSize.height) {
+            this.removeCellsRow();
+        }
+        let columnAdded = 0;
+        while (this.visibleCellsAreaCurrentWidth < this.gridCellsAreaSize.width) {
+            this.addCellsColumn(this.grid.length);
+            columnAdded++;
+        }
+        while (this.visibleCellsAreaCurrentHeight < this.gridCellsAreaSize.height) {
+            this.addCellsRow(columnAdded);
+        }
+    }
+
+    addCellsRow(skipLast = 0) {
+        let yCell = this.grid[0].length;
+        for (let xCell = 0; xCell < this.grid.length - skipLast; xCell++) {
+            this.grid[xCell].push(this.createCell(xCell, yCell));
+        }
+    }
+
+    private removeCellsRow() : void {
+        for (let xCell = 0; xCell < this.grid.length; xCell++) {
+            let lastIX = this.grid[xCell].length - 1;
+            this.grid[xCell][lastIX].destroy();
+            this.grid[xCell].pop();
+        }
+    }
+    private removeCellsColumn() : void {
+        let lastIX = this.grid.length - 1;
+        for (let yCell = 0; yCell < this.grid[lastIX].length; yCell++) {
+            this.grid[lastIX][yCell].destroy();
+        }
+        this.grid.pop();
+    }
+
+    get visibleCellsAreaCurrentWidth() : number { return this.grid.length; }
+    get visibleCellsAreaCurrentHeight() : number { return this.grid[0].length; }
 
     get gridCellsAreaSize() : Size {
         return {
