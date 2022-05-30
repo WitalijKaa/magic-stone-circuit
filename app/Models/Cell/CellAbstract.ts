@@ -6,13 +6,8 @@ import {Sprite} from "pixi.js";
 
 export class CellAbstract extends SpriteModel {
 
-    private gridPosition: Cell;
-    protected grid: SchemeGrid;
-
-    constructor(position: Cell, grid: SchemeGrid, sprite: Sprite) {
+    constructor(private gridPosition: Cell, protected grid: SchemeGrid, sprite: Sprite) {
         super(sprite);
-        this.gridPosition = position;
-        this.grid = grid;
     }
 
     setSize(px: number) : CellAbstract {

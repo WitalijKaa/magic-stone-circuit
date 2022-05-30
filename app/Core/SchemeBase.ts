@@ -1,4 +1,3 @@
-import {Cell} from "./Cell";
 import {CellScheme} from "./CellScheme";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 import * as CONF from "../config/pixi";

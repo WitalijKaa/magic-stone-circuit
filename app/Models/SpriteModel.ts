@@ -26,6 +26,10 @@ export class SpriteModel extends DisplayModel {
         return Sprite.from(this.factoryGraphics.texture(name));
     }
 
+    public changeTexture(name: string) {
+        this.model.texture = SpriteModel.factoryGraphics.texture(name)
+    }
+
     public destroy() : void { this.model.destroy(); }
 
     set centeredPivot(val: boolean) {

@@ -17,10 +17,7 @@ import {IPoss} from "../../Core/IPoss";
 
 export class SchemeGrid {
 
-    name: string;
-    private htmlContainer: SchemeContainer;
     container: Container;
-    scheme: Scheme;
     grid!: Array<Array<CellGrid>>
 
     dragX: number;
@@ -31,7 +28,7 @@ export class SchemeGrid {
     mouseLock = false;
     pointedCellZone: CellPointer;
 
-    constructor(name: string, scheme: Scheme, htmlContainer: SchemeContainer) {
+    constructor(public readonly name: string, public scheme: Scheme, public htmlContainer: SchemeContainer) {
         this.name = name;
         this.htmlContainer = htmlContainer;
         this.scheme = scheme;
@@ -179,7 +176,7 @@ export class SchemeGrid {
             this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
             let zone = this.pointedCellZone.findOverZoneType(...this.lastMouseMovePositions.localCellPx);
             this.lastMouseMovePositions.zone = zone;
-            if (ST_ROAD == ST_ROAD) { // todo
+            if (0) { // todo
                 this.pointedCellZone.showZone(zone, ...this.lastMouseMovePositions.localGrid);
             }
             this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);

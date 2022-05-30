@@ -5,17 +5,23 @@ import {TT} from "../../config/textures";
 import {SpriteModel} from "../SpriteModel";
 import {ST_STONE_ORANGE} from "../../config/pixi";
 import {GRID_OFFSET} from "../../config/params";
-import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
 import {CellScheme} from "../../Core/CellScheme";
+import {CellContent} from "./CellContent";
 
 export class CellGrid extends CellAbstract {
+
+    private cellContent;
 
     constructor(position: Cell, grid: SchemeGrid) {
         super(position, grid, SpriteModel.from(TT.cell));
 
+        this.cellContent = new CellContent(this);
+
         this.on('click', () => { this.handleClick() });
     }
+
+    public static get defaultTexture () : string { return TT.cell; }
 
     handleClick() {
         this.scheme.putContent(ST_STONE_ORANGE, this.schemePosition);
@@ -27,7 +33,11 @@ export class CellGrid extends CellAbstract {
     get scheme() { return this.grid.scheme; }
     get schemeCell() : null | CellScheme { return this.grid.scheme.findCell(this.schemePosition) }
 
-    refreshVisibleAll() : void {
-        console.log(this)
+    refreshVisibleAll() {
+        this.updateVisibleContent();
+    }
+
+    updateVisibleContent() {
+        this.cellContent.updateVisibleStone();
     }
 }

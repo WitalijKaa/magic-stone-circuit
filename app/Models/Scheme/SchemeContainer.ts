@@ -1,17 +1,9 @@
 export class SchemeContainer {
 
-    element: HTMLElement;
-
-    constructor(element: HTMLElement) {
+    constructor(private element: HTMLElement) {
         this.element = element;
     }
 
-    get widthPx() : number {
-        return this.element.offsetWidth;
-    }
-    get heightPx() : number {
-        return this.element.offsetHeight;
-    }
     get cellSizePx() : number {
         return 40;
     }

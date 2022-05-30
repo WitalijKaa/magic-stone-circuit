@@ -1,17 +1,24 @@
 import {Cell} from "./Cell";
 import {SchemeBase} from "./SchemeBase";
-import {ST_STONES} from "../config/pixi";
+import * as CONF from "../config/pixi";
 
 export class CellScheme {
 
     cellPosition: Cell;
     scheme: SchemeBase;
 
-    content: ST_STONES | null = null;
+    content: CONF.ST_STONES | null = null;
 
     constructor(x: number, y: number, scheme: SchemeBase) {
         this.cellPosition = new Cell(x, y);
         this.scheme = scheme;
+    }
+
+    get stone() : CONF.ST_STONES | null {
+        if (this.content && CONF.STONES.includes(this.content)) {
+            return this.content;
+        }
+        return null;
     }
 
     get x() : number { return this.cellPosition.x; }

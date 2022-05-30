@@ -6,7 +6,6 @@ export class MouseDrag {
 
     static DRAGGING_RIGHT = 'dragR';
 
-    model: SpriteModel | ContainerModel;
     events = {};
 
     isDrag = false;
@@ -14,7 +13,7 @@ export class MouseDrag {
     startX!: number; startY!: number;
     draggedX!: number; draggedY!: number;
 
-    constructor(model: SpriteModel | ContainerModel, subscriber: object, config: { [key: string]: string } = {}) {
+    constructor(private model: SpriteModel | ContainerModel, subscriber: object, config: { [key: string]: string } = {}) {
         this.model = model;
         this.model.on('pointerdown', (event) => { this.handleMoveStart(event) });
         this.model.on('pointermove', (event) => { this.handleMove(event) });
