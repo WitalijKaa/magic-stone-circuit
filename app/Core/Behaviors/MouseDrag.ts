@@ -1,4 +1,4 @@
-import { PIXI_MOUSE_RIGHT } from "../../config/pixi";
+import * as CONF from "../../config/game";
 import {SpriteModel} from "../../Models/SpriteModel";
 import {ContainerModel} from "../../Models/ContainerModel";
 
@@ -36,7 +36,7 @@ export class MouseDrag {
 
     handleMove(event) {
         if (this.isDrag) {
-            if (PIXI_MOUSE_RIGHT === this.button && this.events[MouseDrag.DRAGGING_RIGHT]) {
+            if (CONF.PIXI_MOUSE_RIGHT === this.button && this.events[MouseDrag.DRAGGING_RIGHT]) {
                 let changeX = Math.floor(event.data.global.x - this.startX);
                 let changeY = Math.floor(event.data.global.y - this.startY);
 

@@ -1,4 +1,4 @@
-import {GRID_OFFSET} from "../../config/params";
+import * as CONF from "../../config/game";
 import {Container, Rectangle} from 'pixi.js'
 import {CellGrid} from "../Cell/CellGrid";
 import {Scheme} from "../../Core/Scheme";
@@ -10,7 +10,6 @@ import {ContainerModel} from "../ContainerModel";
 import {MouseOver} from "../../Core/Behaviors/MouseOver";
 import {CellPointer} from "../Cell/CellPointer";
 import {SpriteModel} from "../SpriteModel";
-import {NANO_MS, ST_ROAD, ST_STONE_VIOLET, STONES} from "../../config/pixi";
 import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
 import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
@@ -28,7 +27,7 @@ export class SchemeGrid {
     mouseLock = false;
     private pointedCellZone: CellPointer;
 
-    private controlPenCode: any = ST_STONE_VIOLET;
+    private controlPenCode: any = CONF.ST_STONE_VIOLET;
 
     constructor(public readonly name: string, public scheme: Scheme, public htmlContainer: SchemeContainer) {
         this.name = name;
@@ -77,11 +76,10 @@ export class SchemeGrid {
 
     // CONTROL
 
-    public get paint() { return this.controlPenCode; }
+    public get controlPen() { return this.controlPenCode; }
 
     public set controlPen(val) {
-        console.log(val)
-        if (STONES.includes(val)) {
+        if (CONF.STONES.includes(val)) {
             this.controlPenCode = val;
             this.pointedCellZone.hideZone();
         }
@@ -191,12 +189,12 @@ export class SchemeGrid {
             this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
             let zone = this.pointedCellZone.findOverZoneType(...this.lastMouseMovePositions.localCellPx);
             this.lastMouseMovePositions.zone = zone;
-            if (this.controlPenCode == ST_ROAD) {
+            if (this.controlPenCode == CONF.ST_ROAD) {
                 this.pointedCellZone.showZone(zone, ...this.lastMouseMovePositions.localGrid);
             }
             this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);
 
-            setTimeout(() => { this.mouseLock = false;}, NANO_MS);
+            setTimeout(() => { this.mouseLock = false;}, CONF.NANO_MS);
         }
     }
 
@@ -208,7 +206,7 @@ export class SchemeGrid {
         let localY = Math.floor((pxGlobalY - this.offsetY) / this.cellSizePx);
         let cellY = Math.floor((pxGlobalY - this.offsetY) - (localY * this.cellSizePx));
         return {
-            localGrid: [localX + GRID_OFFSET, localY + GRID_OFFSET],
+            localGrid: [localX + CONF.GRID_OFFSET, localY + CONF.GRID_OFFSET],
             globalGrid: [localX + this.dragX, localY + this.dragY],
             localCellPx: [cellX, cellY],
         };
@@ -232,7 +230,7 @@ export class SchemeGrid {
         return null;
     }
 
-    schemeToVisiblePosition(poss: IPoss) : IPoss { return { x: poss.x - this.dragX + GRID_OFFSET, y: poss.y - this.dragY + GRID_OFFSET }; }
+    schemeToVisiblePosition(poss: IPoss) : IPoss { return { x: poss.x - this.dragX + CONF.GRID_OFFSET, y: poss.y - this.dragY + CONF.GRID_OFFSET }; }
 
     // GETTERS
 
@@ -241,8 +239,8 @@ export class SchemeGrid {
 
     get gridCellsAreaSize() : Size {
         return {
-            width: GRID_OFFSET * 2 + this.htmlContainer.widthCells,
-            height: GRID_OFFSET * 2 + this.htmlContainer.heightCells,
+            width: CONF.GRID_OFFSET * 2 + this.htmlContainer.widthCells,
+            height: CONF.GRID_OFFSET * 2 + this.htmlContainer.heightCells,
         };
     }
     get cellSizePx() : number { return this.htmlContainer.cellSizePx; }

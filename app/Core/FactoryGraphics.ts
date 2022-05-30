@@ -1,5 +1,5 @@
-import {Loader, Texture} from 'pixi.js';
 import {TT} from "../config/textures";
+import {Loader, Texture} from 'pixi.js';
 
 export class FactoryGraphics {
 

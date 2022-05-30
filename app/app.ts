@@ -1,14 +1,14 @@
 import * as CONTROL from "./config/controls";
-import { SchemeContainer } from "./Models/Scheme/SchemeContainer";
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 import { Application as PixiApplication } from 'pixi.js'
 const pixiAppContainer = document.getElementById('app');
 
-import { SchemeStorage } from "./Core/SchemeStorage";
-import { SchemeGrid } from "./Models/Scheme/SchemeGrid";
-import { FactoryGraphics } from "./Core/FactoryGraphics";
+import {SchemeContainer} from "./Models/Scheme/SchemeContainer";
+import {SchemeStorage} from "./Core/SchemeStorage";
+import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
+import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
 
 if (pixiAppContainer)
@@ -43,13 +43,22 @@ if (pixiAppContainer)
         document.addEventListener('keypress', (event) => {
             if (CONTROL.CONTROL_KEYS.hasOwnProperty(event.key)) {
                 schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
-                //Scene.setTempButton();
+                let $el = document.querySelector('[data-tip="' + event.key + '"]');
+                if ($el) {
+                    // @ts-ignore
+                    document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
+                }
             }
             if (CONTROL.CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
                 //Scene.eventHandler(CONTROL.CONTROL_EVENTS_KEYS[event.key])
             }
             if ('m' == event.key) { schemeGrid.scheme.devCellEcho(); }
         });
+        let $el = document.querySelector('[data-tip="' + schemeGrid.controlPen + '"]');
+        if ($el) {
+            // @ts-ignore
+            document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
+        }
     });
 }
 else {

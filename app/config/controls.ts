@@ -1,4 +1,4 @@
-import * as CONF from "./pixi";
+import * as CONF from "./game";
 
 export const CONTROL_KEYS = {
     '1': CONF.ST_STONE_VIOLET,

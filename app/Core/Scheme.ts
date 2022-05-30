@@ -1,7 +1,6 @@
+import * as CONF from "../config/game"
 import {SchemeBase} from "./SchemeBase";
-import {ST_STONES} from "../config/pixi";
 import {IPoss} from "./IPoss";
-import * as CONF from "../config/pixi"
 
 export class Scheme extends SchemeBase {
 
@@ -12,7 +11,7 @@ export class Scheme extends SchemeBase {
 
     /** STONEs **/
 
-    putContent(type: ST_STONES, poss: IPoss) : void {
+    putContent(type: CONF.ST_STONES, poss: IPoss) : void {
         let cell = this.getCellForContent(poss);
         if (!cell) { return; }
         let oldType = cell.content;

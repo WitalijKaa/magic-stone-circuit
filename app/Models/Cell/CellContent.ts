@@ -1,5 +1,5 @@
+import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
-import {CONTENT_SPRITES} from "../../config/pixi";
 
 export class CellContent {
 
@@ -7,7 +7,7 @@ export class CellContent {
 
     updateVisibleStone() : void {
         if (this.cell.schemeCell?.stone) {
-            this.cell.changeTexture(CONTENT_SPRITES[this.cell.schemeCell.stone])
+            this.cell.changeTexture(CONF.CONTENT_SPRITES[this.cell.schemeCell.stone])
         }
         else {
             this.cell.changeTexture(CellGrid.defaultTexture)

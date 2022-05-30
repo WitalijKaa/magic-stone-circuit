@@ -1,30 +1,21 @@
-import {CellAbstract} from "./CellAbstract";
-import {
-    DOWN,
-    LEFT,
-    OVER_CENTER,
-    PIXI_ROTATE_DOWN,
-    PIXI_ROTATE_LEFT,
-    PIXI_ROTATE_RIGHT, PIXI_ROTATE_UP,
-    RIGHT,
-    UP
-} from "../../config/pixi";
-import {SpriteModel} from "../SpriteModel";
+import * as CONF from "../../config/game";
 import {TT} from "../../config/textures";
+import {CellAbstract} from "./CellAbstract";
+import {SpriteModel} from "../SpriteModel";
 import {Cell} from "../../Core/Cell";
 import {SchemeGrid} from "../Scheme/SchemeGrid";
 import {GridZone} from "../../Core/Types/GridCursor";
 
 export class CellPointer extends CellAbstract {
 
-    zone = OVER_CENTER;
+    zone = CONF.OVER_CENTER;
     sidePointer: SpriteModel;
 
     zoneRotate = {
-        [UP]: PIXI_ROTATE_UP,
-        [RIGHT]: PIXI_ROTATE_RIGHT,
-        [DOWN]: PIXI_ROTATE_DOWN,
-        [LEFT]: PIXI_ROTATE_LEFT,
+        [CONF.UP]: CONF.PIXI_ROTATE_UP,
+        [CONF.RIGHT]: CONF.PIXI_ROTATE_RIGHT,
+        [CONF.DOWN]: CONF.PIXI_ROTATE_DOWN,
+        [CONF.LEFT]: CONF.PIXI_ROTATE_LEFT,
     }
     cellPxSizeConfig: { lineA: number, lineB: number };
 
@@ -47,12 +38,12 @@ export class CellPointer extends CellAbstract {
 
     showZone(zone: GridZone, xCell: number, yCell: number) {
         this.model.alpha = 1;
-        if (OVER_CENTER != zone) {
+        if (CONF.OVER_CENTER != zone) {
             this.sidePointer.model.alpha = 1;
         }
         if (zone != this.zone) {
             this.zone = zone;
-            if (OVER_CENTER == zone) {
+            if (CONF.OVER_CENTER == zone) {
                 this.sidePointer.model.alpha = 0;
                 return;
             }
@@ -71,17 +62,17 @@ export class CellPointer extends CellAbstract {
 
     findOverZoneType(pxLocalX: number, pxLocalY: number) : GridZone {
         if (pxLocalY <= this.cellPxSizeConfig.lineA) {
-            if (pxLocalX < this.cellPxSizeConfig.lineB) { return UP; }
-            return RIGHT;
+            if (pxLocalX < this.cellPxSizeConfig.lineB) { return CONF.UP; }
+            return CONF.RIGHT;
         }
         if (pxLocalY <= this.cellPxSizeConfig.lineB) {
-            if (pxLocalX < this.cellPxSizeConfig.lineA) { return LEFT; }
-            if (pxLocalX < this.cellPxSizeConfig.lineB) { return OVER_CENTER; }
-            return RIGHT;
+            if (pxLocalX < this.cellPxSizeConfig.lineA) { return CONF.LEFT; }
+            if (pxLocalX < this.cellPxSizeConfig.lineB) { return CONF.OVER_CENTER; }
+            return CONF.RIGHT;
         }
         else {
-            if (pxLocalX < this.cellPxSizeConfig.lineA) { return LEFT; }
-            return DOWN;
+            if (pxLocalX < this.cellPxSizeConfig.lineA) { return CONF.LEFT; }
+            return CONF.DOWN;
         }
     }
     

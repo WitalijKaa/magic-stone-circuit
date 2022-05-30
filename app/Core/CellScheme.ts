@@ -1,6 +1,6 @@
+import * as CONF from "../config/game";
 import {Cell} from "./Cell";
 import {SchemeBase} from "./SchemeBase";
-import * as CONF from "../config/pixi";
 
 export class CellScheme {
 

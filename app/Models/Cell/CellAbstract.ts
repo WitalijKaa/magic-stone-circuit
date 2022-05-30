@@ -1,5 +1,5 @@
+import * as CONF from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
-import {GRID_OFFSET} from "../../config/params";
 import {Cell} from "../../Core/Cell";
 import {SchemeGrid} from "../Scheme/SchemeGrid";
 import {Sprite} from "pixi.js";
@@ -16,8 +16,8 @@ export class CellAbstract extends SpriteModel {
     }
 
     setPosition(gridX: number, gridY: number) : CellAbstract {
-        this.gridPosition.x = gridX - GRID_OFFSET;
-        this.gridPosition.y = gridY - GRID_OFFSET;
+        this.gridPosition.x = gridX - CONF.GRID_OFFSET;
+        this.gridPosition.y = gridY - CONF.GRID_OFFSET;
         this.updatePosition();
         return this;
     }

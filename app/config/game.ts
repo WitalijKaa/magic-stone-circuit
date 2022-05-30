@@ -1,3 +1,5 @@
+export const GRID_OFFSET = 2;
+
 import {TT} from "./textures";
 
 export const NANO_MS = 2;

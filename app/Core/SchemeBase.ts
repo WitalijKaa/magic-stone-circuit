@@ -1,6 +1,6 @@
+import * as CONF from "../config/game";
 import {CellScheme} from "./CellScheme";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
-import * as CONF from "../config/pixi";
 import {GridCursor} from "./Types/GridCursor";
 import {IPoss} from "./IPoss";
 
