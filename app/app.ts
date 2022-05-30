@@ -1,3 +1,4 @@
+import * as CONTROL from "./config/controls";
 import { SchemeContainer } from "./Models/Scheme/SchemeContainer";
 
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -37,6 +38,17 @@ if (pixiAppContainer)
         }
         window.addEventListener('resize', function() {
             mainContainerResize();
+        });
+
+        document.addEventListener('keypress', (event) => {
+            if (CONTROL.CONTROL_KEYS.hasOwnProperty(event.key)) {
+                schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
+                //Scene.setTempButton();
+            }
+            if (CONTROL.CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
+                //Scene.eventHandler(CONTROL.CONTROL_EVENTS_KEYS[event.key])
+            }
+            if ('m' == event.key) { schemeGrid.scheme.devCellEcho(); }
         });
     });
 }

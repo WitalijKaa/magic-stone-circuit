@@ -10,7 +10,7 @@ import {ContainerModel} from "../ContainerModel";
 import {MouseOver} from "../../Core/Behaviors/MouseOver";
 import {CellPointer} from "../Cell/CellPointer";
 import {SpriteModel} from "../SpriteModel";
-import {NANO_MS, ST_ROAD} from "../../config/pixi";
+import {NANO_MS, ST_ROAD, ST_STONE_VIOLET, STONES} from "../../config/pixi";
 import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
 import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
@@ -26,7 +26,9 @@ export class SchemeGrid {
     offsetY: number = 0;
 
     mouseLock = false;
-    pointedCellZone: CellPointer;
+    private pointedCellZone: CellPointer;
+
+    private controlPenCode: any = ST_STONE_VIOLET;
 
     constructor(public readonly name: string, public scheme: Scheme, public htmlContainer: SchemeContainer) {
         this.name = name;
@@ -69,6 +71,19 @@ export class SchemeGrid {
                     this.grid[xCell][yCell][method](...params);
                 }
             }
+        }
+    }
+
+
+    // CONTROL
+
+    public get paint() { return this.controlPenCode; }
+
+    public set controlPen(val) {
+        console.log(val)
+        if (STONES.includes(val)) {
+            this.controlPenCode = val;
+            this.pointedCellZone.hideZone();
         }
     }
 
@@ -176,7 +191,7 @@ export class SchemeGrid {
             this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);
             let zone = this.pointedCellZone.findOverZoneType(...this.lastMouseMovePositions.localCellPx);
             this.lastMouseMovePositions.zone = zone;
-            if (0) { // todo
+            if (this.controlPenCode == ST_ROAD) {
                 this.pointedCellZone.showZone(zone, ...this.lastMouseMovePositions.localGrid);
             }
             this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);

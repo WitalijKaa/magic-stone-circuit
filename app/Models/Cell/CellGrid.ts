@@ -24,7 +24,7 @@ export class CellGrid extends CellAbstract {
     public static get defaultTexture () : string { return TT.cell; }
 
     handleClick() {
-        this.scheme.putContent(ST_STONE_ORANGE, this.schemePosition);
+        this.scheme.putContent(this.grid.paint, this.schemePosition);
     }
 
     get visiblePosition() { return [this.gridX + GRID_OFFSET, this.gridY + GRID_OFFSET]; }
