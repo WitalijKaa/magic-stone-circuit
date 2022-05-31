@@ -128,7 +128,7 @@ export class Scheme extends SchemeBase {
 
         //this.cancelNeighborsColorPathForAnyRoadByPaths(CONF.ALL_PATHS_ARE, poss);
 
-        //this.changeCellRoad(null, poss);
+        this.killCell(poss);
         this.removeColoringCellCache(poss);
         this.visibleUpdate(poss);
         this.afterChange();
@@ -175,7 +175,6 @@ export class Scheme extends SchemeBase {
         this.defineRoadPath(cell, poss, CONF.ROAD_PATH_DOWN, mergedZones.includes(DOWN), updatePathsMode);
         this.defineRoadPath(cell, poss, CONF.ROAD_PATH_HEAVY, ROAD_HEAVY == preferType, updatePathsMode);
         this.visibleUpdate(poss);
-        //this._devCell = [poss];this.devCellEcho();
         return change;
     }
 
@@ -194,7 +193,10 @@ export class Scheme extends SchemeBase {
         if (!cell) { return null; }
 
         if (cell.isEmptyAround) {
-            if (!cell.road.paths[CONF.ROAD_PATH_UP] && cell.road.paths[CONF.ROAD_PATH_RIGHT] && !cell.road.paths[CONF.ROAD_PATH_DOWN] && cell.road.paths[CONF.ROAD_PATH_LEFT]) {
+            if (wasCellEmpty) {
+                return this.setPathsOnRoadByArr(false, true, [LEFT, RIGHT], ROAD_LIGHT, poss);
+            }
+            else if (!cell.road.paths[CONF.ROAD_PATH_UP] && cell.road.paths[CONF.ROAD_PATH_RIGHT] && !cell.road.paths[CONF.ROAD_PATH_DOWN] && cell.road.paths[CONF.ROAD_PATH_LEFT]) {
                 return this.setPathsOnRoadByArr(false, true, [UP, DOWN], ROAD_LIGHT, poss);
             }
             return false;

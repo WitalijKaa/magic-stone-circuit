@@ -6,10 +6,9 @@ export class MouseOver {
     static MOUSE_OVER = 'mOver';
     static MOUSE_MOVE = 'mMove';
 
-    model: SpriteModel | ContainerModel;
     events = {};
 
-    constructor(model: SpriteModel | ContainerModel, subscriber: object, config: { [key: string]: string } = {}) {
+    constructor(private model: SpriteModel | ContainerModel, subscriber: object, config: { [key: string]: string } = {}) {
         this.model = model;
         this.model.on('mouseover', (event) => { this.handleMouseOver(event) });
         this.model.on('mousemove', (event) => { this.handleMouseMove(event) });

@@ -53,6 +53,7 @@ export const ST_ENERGY = 5;
 export const ST_ROAD = 6;
 export const ST_ROAD_SLEEP = 7;
 export const ST_ROAD_AWAKE = 8;
+export const ST_EMPTY = 'q';
 
 export const CONTENT_SPRITES = {
     [ST_STONE_VIOLET]: TT.stoneV,
@@ -135,16 +136,3 @@ export const ROAD_PATH_TO_SIDE = {
 };
 export const ALL_PATHS_EMPTY = [false, false, false, false, false];
 export const ALL_PATHS_ARE = [true, true, true, true, false];
-
-export const TT_ROAD = {
-    [ROAD_PATH_UP]: TT.roadR,
-    [ROAD_PATH_RIGHT]: TT.roadR,
-    [ROAD_PATH_DOWN]: TT.roadL,
-    [ROAD_PATH_LEFT]: TT.roadL,
-    [ROAD_PATH_HEAVY]: TT.roadH,
-}
-
-export const ROTATE_ROAD = {
-    [ROAD_PATH_UP]: PIXI_ROTATE_DOWN,
-    [ROAD_PATH_DOWN]: PIXI_ROTATE_DOWN,
-}

@@ -3,14 +3,18 @@ import {CellGrid} from "./CellGrid";
 
 export class CellContent {
 
+    isStone = false;
+
     constructor(private cell: CellGrid) { }
 
-    updateVisibleStone() : void {
+    public updateVisibleStone() : void {
         if (this.cell.schemeCell?.stone) {
-            this.cell.changeTexture(CONF.CONTENT_SPRITES[this.cell.schemeCell.stone])
+            this.cell.changeTexture(CONF.CONTENT_SPRITES[this.cell.schemeCell.stone]);
+            this.isStone = true;
         }
-        else {
-            this.cell.changeTexture(CellGrid.defaultTexture)
+        else if (this.isStone) {
+            this.cell.changeTexture(CellGrid.defaultTexture);
+            this.isStone = false;
         }
     }
 

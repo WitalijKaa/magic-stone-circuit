@@ -4,8 +4,9 @@ import {DisplayModel} from "./DisplayModel";
 
 export class SpriteModel extends DisplayModel {
 
-    model: Sprite;
-    isPivotCenter: boolean = false;
+    public model: Sprite;
+
+    private isPivotCenter: boolean = false;
 
     constructor(texture: string | Sprite) {
         super();
