@@ -111,7 +111,7 @@ export abstract class SchemeBase {
         return cellScheme;
     }
 
-    get sizeRadius() : number { return 800000000; }
+    public get sizeRadius() : number { return 800000000; }
 
     cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 
@@ -176,23 +176,26 @@ export abstract class SchemeBase {
         // if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
     }
 
-    _devCell!: [number, number];
-    devCell(x, y) {
-        this._devCell = [x, y];
-    }
+    _devCell: IPoss = { x: this.sizeRadius, y: this.sizeRadius };
+    devCell(poss: IPoss) { this._devCell = poss; }
     devCellEcho() {
-        // let cell = this.findCellOrEmpty(...this._devCell);
-        //
-        // let showInConsole = '';
-        // if (cell.road) { showInConsole =
-        //     'Type ' + ROAD_DEV[cell.road.type] +
-        //     ' ## ' +
-        //     cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
-        // }
-        // console.log(
-        //     'devCellEcho',
-        //     this._devCell,
-        //     cell.road ? showInConsole : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
-        // );
+        let cell = this.findCell(this._devCell);
+
+        let showInConsole = '';
+        if (!cell) {
+            console.log('EMPTY ## ' + this._devCell.x + ' ' + this._devCell.y);
+            return;
+        }
+        else if (cell.road) {
+            showInConsole =
+                'Type ' + ROAD_DEV[cell.road.type] +
+                ' ## ' +
+                cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
+        }
+        console.log(
+            'devCellEcho',
+            this._devCell,
+            cell.road ? showInConsole : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
+        );
     }
 }

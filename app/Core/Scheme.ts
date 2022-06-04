@@ -70,6 +70,7 @@ export class Scheme extends SchemeBase {
     /** ROADs **/
 
     tapRoad(poss: IPoss) {
+        console.log('tapRoad', poss.x, poss.y);
         if (this.isRoadBuildMode) { return; }
 
         if (false === this.setPathsOnRoadByTap(poss)) {
@@ -188,6 +189,7 @@ export class Scheme extends SchemeBase {
     }
 
     setPathsOnRoadByTap(poss: IPoss) : null | false | RoadChangeHistory {
+        console.log('setPathsOnRoadByTap', poss.x, poss.y);
         let wasCellEmpty = this.isCellEmpty(poss);
         let cell = this.getCellForRoad(poss);
         if (!cell) { return null; }
@@ -212,6 +214,8 @@ export class Scheme extends SchemeBase {
             if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
             if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
             if (cell.isCellConnectedAtSide(LEFT)) { sides.push(LEFT); }
+
+            console.log(sides);
 
             if (sides.length > 1) {
                 return this.setPathsOnRoadByArr(false, true, sides, null, poss);

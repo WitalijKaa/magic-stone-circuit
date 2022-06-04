@@ -9,6 +9,8 @@ import {CellScheme} from "../../Core/CellScheme";
 import {CellContent} from "./CellContent";
 import {MouseClick} from "../../Core/Behaviors/MouseClick";
 import {CellRoad} from "./CellRoad";
+import {MouseOver} from "../../Core/Behaviors/MouseOver";
+import {ContainerModel} from "../ContainerModel";
 
 export class CellGrid extends CellAbstract {
 
@@ -23,6 +25,7 @@ export class CellGrid extends CellAbstract {
 
         this.on('click', () => { this.handleClick() });
         new MouseClick(this, this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
+        new MouseOver(this, this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
     }
 
     public static get defaultTexture () : string { return TT.cell; }
@@ -31,6 +34,7 @@ export class CellGrid extends CellAbstract {
         this.scheme.putContent(this.grid.controlPen, this.schemePosition);
     }
     handleRightClick() { this.scheme.tapRoad(this.schemePosition); }
+    handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
     get visiblePosition() { return [this.gridX + CONF.GRID_OFFSET, this.gridY + CONF.GRID_OFFSET]; }
     get schemePosition() : IPoss { return {x: this.grid.dragX + this.gridX, y: this.grid.dragY + this.gridY}; }
