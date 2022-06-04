@@ -7,6 +7,7 @@ import {CellRoad} from "./Types/CellRoad";
 import {CellStone} from "./Types/CellStone";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {CellSemiconductor} from "./Types/CellSemiconductor";
+import {HH} from "./HH";
 
 export class CellScheme implements ICellScheme {
 
@@ -23,7 +24,7 @@ export class CellScheme implements ICellScheme {
     }
 
     get stone() : CellStone | null {
-        if (this.content && CONF.STONES.includes(this.content)) {
+        if (this.content && HH.isStone(this.content)) {
             return this.content;
         }
         return null;

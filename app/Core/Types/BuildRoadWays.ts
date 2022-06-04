@@ -1,0 +1,1 @@
+export type BuildRoadWays = 1 | 2;

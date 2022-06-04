@@ -50,6 +50,8 @@ export class SchemeGrid {
         this.pointedCellZone = new CellPointer(this);
         this.pointedCellZone.setSize(this.cellSizePx);
         this.addCellToStage(this.pointedCellZone);
+
+        setTimeout(() => { this.scheme.updateTickInit(); }, CONF.START_TIMEOUT);
     }
 
     private addCellToStage(cell: SpriteModel | ContainerModel) : void {
@@ -79,9 +81,13 @@ export class SchemeGrid {
     public get controlPen() { return this.controlPenCode; }
 
     public set controlPen(val) {
-        if (CONF.STONES.includes(val)) {
-            this.controlPenCode = val;
+        this.controlPenCode = val;
+
+        if (CONF.ST_ROAD != val) {
             this.pointedCellZone.hideZone();
+        }
+        else {
+            this.handleMouseMove(...this.lastMousePxGlobalPositions);
         }
     }
 
@@ -182,8 +188,10 @@ export class SchemeGrid {
 
     // HANDLERS
 
-    lastMouseMovePositions!: MousePossOnGrid;
-    handleMouseMove(pxGlobalX, pxGlobalY) {
+    private lastMousePxGlobalPositions: Poss = [100, 100];
+    private lastMouseMovePositions!: MousePossOnGrid;
+    handleMouseMove(pxGlobalX: number, pxGlobalY: number) {
+        this.lastMousePxGlobalPositions = [pxGlobalX, pxGlobalY]
         if (!this.mouseLock) {
             this.mouseLock = true;
             this.lastMouseMovePositions = this.globalPxToLocalCellPx(pxGlobalX, pxGlobalY);

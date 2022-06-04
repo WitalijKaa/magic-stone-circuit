@@ -1,3 +1,5 @@
+import {IPoss} from "../IPoss";
+
 export type CellPath = boolean | {
 
 }
@@ -10,8 +12,13 @@ export type CellRoad = {
 export type CellRoadType = 1 | 2 | 3 | 4;
 
 export type RoadChangeHistory = {
-    prev: null | number;
-    prevPaths?: Array<boolean>;
-    curr: null | number;
-    currPaths?: Array<boolean>;
+    prev: null | CellRoadType;
+    prevPaths?: Array<CellPath>;
+    curr: null | CellRoadType;
+    currPaths?: Array<CellPath>;
+}
+
+export type RoadChangeHistoryCell = {
+    change: RoadChangeHistory;
+    position: IPoss;
 }

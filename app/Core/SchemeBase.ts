@@ -1,6 +1,7 @@
 import * as CONF from "../config/game";
 import {UP, RIGHT, DOWN, LEFT} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
+import {ROAD_PATH_UP, ROAD_PATH_RIGHT, ROAD_PATH_DOWN, ROAD_PATH_LEFT, ROAD_PATH_HEAVY} from "../config/game"
 import {CellScheme} from "./CellScheme";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 import {GridCursor} from "./Types/GridCursor";
@@ -9,17 +10,17 @@ import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {CellPath, CellRoad} from "./Types/CellRoad";
 
 const ROAD_DEV_PATH = {
-    [CONF.ROAD_PATH_UP]: 'UP',
-    [CONF.ROAD_PATH_RIGHT]: 'RIGHT',
-    [CONF.ROAD_PATH_DOWN]: 'DOWN',
-    [CONF.ROAD_PATH_LEFT]: 'LEFT',
-    [CONF.ROAD_PATH_HEAVY]: 'CENTER-heavy',
+    [ROAD_PATH_UP]: 'UP',
+    [ROAD_PATH_RIGHT]: 'RIGHT',
+    [ROAD_PATH_DOWN]: 'DOWN',
+    [ROAD_PATH_LEFT]: 'LEFT',
+    [ROAD_PATH_HEAVY]: 'CENTER-heavy',
 }
 const ROAD_DEV = {
-    [CONF.ROAD_LIGHT]: 'LIGHT',
-    [CONF.ROAD_HEAVY]: 'HEAVY',
-    [CONF.ROAD_LEFT_RIGHT]: 'LEFT_RIGHT',
-    [CONF.ROAD_UP_DOWN]: 'UP_DOWN',
+    [ROAD_LIGHT]: 'LIGHT',
+    [ROAD_HEAVY]: 'HEAVY',
+    [ROAD_LEFT_RIGHT]: 'LEFT_RIGHT',
+    [ROAD_UP_DOWN]: 'UP_DOWN',
 }
 
 export abstract class SchemeBase {
@@ -43,81 +44,110 @@ export abstract class SchemeBase {
         this.visibleGrid = grid
     }
 
-    isCellEmpty(cell: IPoss) : boolean {
-        return !this.scheme[cell.x] || !this.scheme[cell.x][cell.y]
+    public get sizeRadius() : number { return 800000000; }
+    private get coloringSpeedMs() : number { return 200; }
+
+    // ABSTRACT
+
+    abstract get isRoadBuildMode() : boolean;
+    abstract buildRoadTick() : void;
+
+    // CELL
+
+    isCellEmpty(poss: IPoss) : boolean {
+        return !this.scheme[poss.x] || !this.scheme[poss.x][poss.y]
     }
 
-    getCellForContent(cell: IPoss) : false | CellScheme {
+    getCellForContent(poss: IPoss) : false | CellScheme {
         // @ts-ignore
-        return this.getCellFor('content', cell);
+        return this.getCellFor('content', poss);
     }
-    findCellOfContent(cell: IPoss) : false | CellScheme {
+    findCellOfContent(poss: IPoss) : false | CellScheme {
         // @ts-ignore
-        return this.findCellOf('content', cell);
+        return this.findCellOf('content', poss);
     }
-    getCellForRoad(cell: IPoss) : false | ICellWithRoad {
-        let model = this.getCellFor('road', cell);
-        if (model) {
-        }
+    getCellForRoad(poss: IPoss) : false | ICellWithRoad {
+        let model = this.getCellFor('road', poss);
         if (model && !model.road) {
-            model.road = { type: CONF.ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
-        }
-        if (model) {
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
         }
         // @ts-ignore
         return model;
     }
-    findCellOfRoad(cell: IPoss) : false | ICellWithRoad {
+    getCellForRoadForced(poss: IPoss) : ICellWithRoad {
+        let model = this.getCell(poss);
+        if (model && !model.road) {
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
+        }
         // @ts-ignore
-        return this.findCellOf('road', cell);
+        return model;
+    }
+    findCellOfRoad(poss: IPoss) : false | ICellWithRoad {
+        // @ts-ignore
+        return this.findCellOf('road', poss);
     }
 
-    private getCellFor(field: CellContentField, cell: IPoss) : false | CellScheme {
-        if (!this.isCellEmpty(cell)) {
-            let schemeCell = this.getCell(cell);
+    private getCellFor(field: CellContentField, poss: IPoss) : false | CellScheme {
+        if (!this.isCellEmpty(poss)) {
+            let schemeCell = this.getCell(poss);
             if (schemeCell[field]) { return schemeCell; }
             return false;
         }
-        return this.getCell(cell)
+        return this.getCell(poss)
     }
-    private findCellOf(field: CellContentField, cell: IPoss) : false | CellScheme {
-        if (!this.isCellEmpty(cell)) {
-            let schemeCell = this.getCell(cell);
+    private findCellOf(field: CellContentField, poss: IPoss) : false | CellScheme {
+        if (!this.isCellEmpty(poss)) {
+            let schemeCell = this.getCell(poss);
             if (schemeCell[field]) { return schemeCell; }
         }
         return false;
     }
 
-    public findCell(cell: IPoss) : null | CellScheme {
-        if (this.isCellEmpty(cell)) { return null; }
-        return this.scheme[cell.x][cell.y];
+    public findCell(poss: IPoss) : null | CellScheme {
+        if (this.isCellEmpty(poss)) { return null; }
+        return this.scheme[poss.x][poss.y];
     }
 
-    public getCell(cell: IPoss) : CellScheme {
-        if (!this.scheme[cell.x] || !this.scheme[cell.x][cell.y]) {
-            return this.createCell(cell);
+    public getCell(poss: IPoss) : CellScheme {
+        if (!this.scheme[poss.x] || !this.scheme[poss.x][poss.y]) {
+            return this.createCell(poss);
         }
-        return this.scheme[cell.x][cell.y];
+        return this.scheme[poss.x][poss.y];
     }
 
-    public killCell(cell: IPoss) : void {
-        if (this.scheme[cell.x] && this.scheme[cell.x][cell.y]) {
-            delete this.scheme[cell.x][cell.y];
+    public killCell(poss: IPoss) : void {
+        if (this.scheme[poss.x] && this.scheme[poss.x][poss.y]) {
+            delete this.scheme[poss.x][poss.y];
         }
     }
 
-    private createCell(cell: IPoss) : CellScheme {
-        let cellScheme = new CellScheme(cell.x, cell.y, this);
+    private createCell(poss: IPoss) : CellScheme {
+        let cellScheme = new CellScheme(poss.x, poss.y, this);
 
-        if (!this.scheme[cell.x]) { this.scheme[cell.x] = {}; }
-        this.scheme[cell.x][cell.y] = cellScheme;
+        if (!this.scheme[poss.x]) { this.scheme[poss.x] = {}; }
+        this.scheme[poss.x][poss.y] = cellScheme;
 
         return cellScheme;
     }
 
-    public get sizeRadius() : number { return 800000000; }
-
     cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
+
+    // LIFE CYCLE
+
+    public updateTickInit() : void { this.updateTick(); }
+
+    private updateTick() : void {
+        if (this.isRoadBuildMode) {
+            this.buildRoadTick();
+        }
+        else {
+            // this.extractCacheActions().map((cache) => {
+            //     this[cache.method](...cache.params);
+            // })
+            // this.updateTickContent();
+        }
+        setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
+    }
 
     // CURSOR
 
@@ -127,9 +157,6 @@ export abstract class SchemeBase {
         this.activeCursor.zone = zone;
     }
 
-    // ROADS
-
-    protected isRoadBuildMode = false;
 
     // ZONES
 
@@ -150,10 +177,10 @@ export abstract class SchemeBase {
         let cell = this.findCellOfRoad(poss);
         let zones: Array<string> = [];
         if (cell) {
-            if (cell.road.paths[CONF.ROAD_PATH_UP]) { zones.push(CONF.UP); }
-            if (cell.road.paths[CONF.ROAD_PATH_RIGHT]) { zones.push(CONF.RIGHT); }
-            if (cell.road.paths[CONF.ROAD_PATH_DOWN]) { zones.push(CONF.DOWN); }
-            if (cell.road.paths[CONF.ROAD_PATH_LEFT]) { zones.push(CONF.LEFT); }
+            if (cell.road.paths[ROAD_PATH_UP]) { zones.push(CONF.UP); }
+            if (cell.road.paths[ROAD_PATH_RIGHT]) { zones.push(CONF.RIGHT); }
+            if (cell.road.paths[ROAD_PATH_DOWN]) { zones.push(CONF.DOWN); }
+            if (cell.road.paths[ROAD_PATH_LEFT]) { zones.push(CONF.LEFT); }
         }
         return zones;
     }
@@ -166,6 +193,21 @@ export abstract class SchemeBase {
         }
         return true;
     }
+
+    canSetRoad(poss: IPoss) : boolean {
+        if (this.isCellEmpty(poss)) { return true; }
+        return !!this.findCellOfRoad(poss);
+    }
+
+    canSetRoadAndIsPathsEmptyAtOrientation(isHorizontalOrientation: boolean, poss: IPoss) : boolean {
+        if (this.isCellEmpty(poss)) { return true; }
+        const cell = this.findCellOfRoad(poss);
+        if (!cell) { return false; }
+        if (isHorizontalOrientation) { return (!cell.road.paths[ROAD_PATH_LEFT] && !cell.road.paths[ROAD_PATH_RIGHT]); }
+        return (!cell.road.paths[ROAD_PATH_UP] && !cell.road.paths[ROAD_PATH_DOWN]);
+    }
+    isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(true, poss); }
+    isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(false, poss); }
 
     // COLORS
 

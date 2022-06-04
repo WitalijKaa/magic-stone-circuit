@@ -10,7 +10,7 @@ import {CellContent} from "./CellContent";
 import {MouseClick} from "../../Core/Behaviors/MouseClick";
 import {CellRoad} from "./CellRoad";
 import {MouseOver} from "../../Core/Behaviors/MouseOver";
-import {ContainerModel} from "../ContainerModel";
+import {HH} from "../../Core/HH";
 
 export class CellGrid extends CellAbstract {
 
@@ -31,7 +31,17 @@ export class CellGrid extends CellAbstract {
     public static get defaultTexture () : string { return TT.cell; }
 
     handleClick() {
-        this.scheme.putContent(this.grid.controlPen, this.schemePosition);
+        if (HH.isStone(this.grid.controlPen)) {
+            this.scheme.putContent(this.grid.controlPen, this.schemePosition);
+        }
+        else if (CONF.ST_ROAD == this.grid.controlPen) {
+            if (!this.scheme.isRoadBuildMode) {
+                this.scheme.startToBuildRoad(this.schemePosition);
+            }
+            else {
+                this.scheme.finishToBuildRoad();
+            }
+        }
     }
     handleRightClick() { this.scheme.tapRoad(this.schemePosition); }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }

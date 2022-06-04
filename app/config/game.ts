@@ -1,3 +1,4 @@
+export const START_TIMEOUT = 1000;
 export const GRID_OFFSET = 2;
 
 import {TT} from "./textures";
@@ -47,7 +48,6 @@ export const ST_STONE_VIOLET = 1;
 export const ST_STONE_RED = 2;
 export const ST_STONE_INDIGO = 3;
 export const ST_STONE_ORANGE = 4;
-export const STONES = [1, 2, 3, 4];
 
 export const ST_ENERGY = 5;
 export const ST_ROAD = 6;
@@ -89,6 +89,7 @@ export const ROAD_TO_LIGHT_COLOR = {
     [COLOR_ORANGE_ROAD]: COLOR_ORANGE_ROAD_LIGHT,
 }
 
+// type BuildRoadWays
 export const BUILD_ROAD_WAY_HORZ_VERT = 1;
 export const BUILD_ROAD_WAY_VERT_HORZ = 2;
 export const BUILD_ROAD_WAY_STEPS_HORZ_VERT = 3;

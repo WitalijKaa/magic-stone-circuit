@@ -4,8 +4,10 @@ import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/g
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
 import {CellStone} from "./Types/CellStone";
-import {CellRoadType, RoadChangeHistory} from "./Types/CellRoad";
+import {CellRoadType, RoadChangeHistory, RoadChangeHistoryCell} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
+import {BuildRoadWays} from "./Types/BuildRoadWays";
+import {GridZone} from "./Types/GridCursor";
 
 export class Scheme extends SchemeBase {
 
@@ -132,6 +134,322 @@ export class Scheme extends SchemeBase {
         this.removeColoringCellCache(poss);
         this.visibleUpdate(poss);
         this.afterChange();
+    }
+
+    /** ROADs BUILD **/
+
+    public get isRoadBuildMode() : boolean { return this.buildingRoad.isOn; }
+
+    private buildingRoad = {
+        isOn: false as boolean,
+        start: {} as IPoss,
+        painted: {} as IPoss,
+        path: [] as Array<RoadChangeHistoryCell>,
+        way: {} as { fixed: BuildRoadWays | null, last: BuildRoadWays | null, auto: BuildRoadWays },
+        zoneStart: 'Center' as GridZone,
+        zonePainted: 'Center' as GridZone,
+    };
+
+    changeBuildRoadWayFixed() : void {
+        if (this.isRoadBuildMode) {
+            if (!this.buildingRoad.way.fixed) {
+                this.buildingRoad.way.fixed = this.nextWayToBuildRoadOnQueue(this.buildingRoad.way.auto);
+            }
+            else {
+                this.buildingRoad.way.fixed = this.nextWayToBuildRoadOnQueue(this.buildingRoad.way.fixed);
+            }
+        }
+    }
+
+    nextWayToBuildRoadOnQueue(prevQueue) : BuildRoadWays {
+        let nextAutoWay: BuildRoadWays = CONF.BUILD_ROAD_WAY_HORZ_VERT;
+        if (nextAutoWay == prevQueue) { nextAutoWay = CONF.BUILD_ROAD_WAY_VERT_HORZ; }
+        return nextAutoWay;
+    }
+
+    get buildRoadWay() : BuildRoadWays {
+        if (this.buildingRoad.way.fixed) { return this.buildingRoad.way.fixed; }
+        return this.buildingRoad.way.auto;
+    }
+
+    startToBuildRoad(poss: IPoss) : void {
+        if (this.buildingRoad.isOn || poss.x != this.activeCursor.x || poss.y != this.activeCursor.y) { return; }
+
+        this.buildingRoad.isOn = true;
+        this.buildingRoad.start = poss;
+        this.buildingRoad.zoneStart = this.buildingRoad.zonePainted = this.activeCursor.zone;
+        this.buildingRoad.painted = poss;
+        this.buildingRoad.path = [];
+        this.buildingRoad.way = { auto: CONF.BUILD_ROAD_WAY_HORZ_VERT, fixed: null, last: null };
+    }
+
+    finishToBuildRoad() : void {
+        this.buildingRoad.isOn = false;
+        this.afterChange();
+    }
+
+    buildRoadTick() : void {
+        if (this.buildingRoad.painted.x != this.activeCursor.x ||
+            this.buildingRoad.painted.y != this.activeCursor.y ||
+            this.buildingRoad.zonePainted != this.activeCursor.zone ||
+            this.buildingRoad.way.last != this.buildRoadWay
+        ) {
+            console.log('buildRoadTick')
+            this.removePrevBuiltRoad();
+            this.findWayToBuildRoad();
+            if (this.isWayPossible(this.buildRoadWay)) {
+                this.doBuildRoad();
+            }
+
+            this.buildingRoad.way.last = this.buildRoadWay;
+            this.buildingRoad.painted.x = this.activeCursor.x;
+            this.buildingRoad.painted.y = this.activeCursor.y;
+            this.buildingRoad.zonePainted = this.activeCursor.zone;
+        }
+    }
+
+    removePrevBuiltRoad() {
+        console.log('removePrevBuiltRoad')
+        this.buildingRoad.path.map((roadCellMem: RoadChangeHistoryCell) => {
+            if (roadCellMem.change.curr) {
+                if (!roadCellMem.change.prev) {
+                    this.removeRoad(roadCellMem.position);
+                }
+                else if (roadCellMem.change.prevPaths) {
+                    let road = this.getCellForRoadForced(roadCellMem.position).road;
+                    road.type = roadCellMem.change.prev;
+                    road.paths = roadCellMem.change.prevPaths;
+                    this.visibleUpdate(roadCellMem.position);
+                    this.afterPutRoad(roadCellMem.position);
+                }
+            }
+        })
+        this.buildingRoad.path = [];
+    }
+
+    doBuildRoad() {
+        console.log('doBuildRoad')
+        if (this.buildingRoad.start.x == this.activeCursor.x && this.buildingRoad.start.y == this.activeCursor.y) {
+            return;
+        }
+
+        let cellStart : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        let xStep = this.activeCursor.x > this.buildingRoad.start.x ? 1 : -1;
+        let yStep = this.activeCursor.y > this.buildingRoad.start.y ? 1 : -1;
+
+        let isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
+
+        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay) {
+            let changeParams, zoneTo;
+            if (isFirstHorizontal) {
+                zoneTo = xStep > 0 ? RIGHT : LEFT;
+            }
+            else {
+                zoneTo = yStep > 0 ? DOWN : UP;
+            }
+
+            // first cell of road logic
+            if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
+                changeParams = isFirstHorizontal ? this.putRoadHorizontal(cellStart) : this.putRoadVertical(cellStart);
+            }
+            else {
+                changeParams = this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellStart);
+            }
+            this.buildingRoad.path.push({ change: changeParams, position: cellStart});
+
+            while (cellStart.x != this.activeCursor.x) {
+                cellStart.x += xStep;
+                if (cellStart.x == this.activeCursor.x) // last horizontal cell
+                {
+                    let zoneFrom = xStep > 0 ? LEFT : RIGHT;
+
+                    if (cellStart.y != this.activeCursor.y) { // turning cell
+                        let zoneTo = yStep > 0 ? DOWN : UP;
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                    }
+                    else { // last cell of road logic when road is horizontal line
+                        let zoneTo = this.activeCursor.zone;
+
+                        if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
+                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                        }
+                        else if (zoneFrom == zoneTo) {
+                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                        }
+                        else {
+                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        }
+                    }
+                }
+                else { // not first not last not turning
+                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                }
+            }
+            while (cellStart.y != this.activeCursor.y) {
+                cellStart.y += yStep;
+                if (cellStart.y == this.activeCursor.y) { // last vertical cell of the road-with-corner logic
+                    let zoneFrom = yStep > 0 ? UP : DOWN;
+                    let zoneTo = this.activeCursor.zone;
+
+                    if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
+                        this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                    }
+                    else if (zoneFrom == zoneTo) {
+                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                    }
+                    else {
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                    }
+                }
+                else { // not first not last not turning
+                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                }
+            }
+        }
+        else if (CONF.BUILD_ROAD_WAY_VERT_HORZ == this.buildRoadWay) {
+            let zoneTo = yStep > 0 ? DOWN : UP;
+
+            // first cell of road logic
+            if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
+                this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+            }
+            else {
+                this.buildingRoad.path.push({ change: this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellStart), position: cellStart});
+            }
+
+            while (cellStart.y != this.activeCursor.y) {
+                cellStart.y += yStep;
+                if (cellStart.y == this.activeCursor.y) // last vertical cell
+                {
+                    let zoneFrom = yStep > 0 ? UP : DOWN;
+
+                    if (cellStart.x != this.activeCursor.x) { // turning cell
+                        zoneTo = xStep > 0 ? RIGHT : LEFT;
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                    }
+                    else { // last cell of road logic when road is vertical line
+                        let zoneTo = this.activeCursor.zone;
+
+                        if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
+                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                        }
+                        else if (zoneFrom == zoneTo) {
+                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                        }
+                        else {
+                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        }
+                    }
+
+                }
+                else { // not first not last not turning
+                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                }
+            }
+            while (cellStart.x != this.activeCursor.x) {
+                cellStart.x += xStep;
+                if (cellStart.x == this.activeCursor.x) { // last horizontal cell of the road-with-corner logic
+                    let zoneFrom = xStep > 0 ? LEFT : RIGHT;
+                    let zoneTo = this.activeCursor.zone;
+
+                    if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
+                        this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                    }
+                    else if (zoneFrom == zoneTo) {
+                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                    }
+                    else {
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                    }
+                }
+                else { // not first not last not turning
+                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                }
+            }
+        }
+    }
+
+    findWayToBuildRoad() {
+        console.log('findWayToBuildRoad')
+        this.buildingRoad.way.auto = CONF.BUILD_ROAD_WAY_HORZ_VERT;
+        let cellStart : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        let xStep = this.activeCursor.x > this.buildingRoad.start.x ? 1 : -1;
+        let yStep = this.activeCursor.y > this.buildingRoad.start.y ? 1 : -1;
+        let isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
+
+        let theWay : boolean | BuildRoadWays = CONF.BUILD_ROAD_WAY_HORZ_VERT;
+        while (theWay && cellStart.x != this.activeCursor.x) {
+            cellStart.x += xStep;
+            if (!this.isRoadPathsEmptyHorizontal(cellStart)) {
+                theWay = false;
+            }
+        }
+        if (isFirstHorizontal && cellStart.y != this.activeCursor.y && !this.isRoadPathsEmptyVertical(cellStart)) {
+            theWay = false; // corner check
+        }
+        while (theWay && cellStart.y != this.activeCursor.y) {
+            cellStart.y += yStep;
+            if (!this.isRoadPathsEmptyVertical(cellStart)) {
+                theWay = false;
+            }
+        }
+
+        if (theWay) { this.buildingRoad.way.auto = theWay; return; }
+
+        cellStart = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+
+        if (this.activeCursor.x != this.buildingRoad.start.x && this.activeCursor.y != this.buildingRoad.start.y)
+        {
+            theWay = CONF.BUILD_ROAD_WAY_VERT_HORZ;
+            while (theWay && cellStart.y != this.activeCursor.y) {
+                cellStart.y += yStep;
+                if (!this.isRoadPathsEmptyVertical(cellStart)) {
+                    theWay = false;
+                }
+            }
+            if (!this.isRoadPathsEmptyHorizontal(cellStart)) {
+                theWay = false; // corner check
+            }
+            while (theWay && cellStart.x != this.activeCursor.x) {
+                cellStart.x += xStep;
+                if (!this.isRoadPathsEmptyHorizontal(cellStart)) {
+                    theWay = false;
+                }
+            }
+        }
+
+        if (theWay) { this.buildingRoad.way.auto = theWay; }
+    }
+
+    isWayPossible(theWay) {
+        console.log('isWayPossible')
+        let cellStart : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        if (!this.canSetRoad(cellStart)) { return false; }
+
+        let xStep = this.activeCursor.x > this.buildingRoad.start.x ? 1 : -1;
+        let yStep = this.activeCursor.y > this.buildingRoad.start.y ? 1 : -1;
+
+        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == theWay) {
+            while (cellStart.x != this.activeCursor.x) {
+                cellStart.x += xStep;
+                if (!this.canSetRoad(cellStart)) { return false; }
+            }
+            while (cellStart.y != this.activeCursor.y) {
+                cellStart.y += yStep;
+                if (!this.canSetRoad(cellStart)) { return false; }
+            }
+        }
+        else if (CONF.BUILD_ROAD_WAY_VERT_HORZ == theWay) {
+            while (cellStart.y != this.activeCursor.y) {
+                cellStart.y += yStep;
+                if (!this.canSetRoad(cellStart)) { return false; }
+            }
+            while (cellStart.x != this.activeCursor.x) {
+                cellStart.x += xStep;
+                if (!this.canSetRoad(cellStart)) { return false; }
+            }
+        }
+        return true;
     }
 
     /** PATHs of road **/
