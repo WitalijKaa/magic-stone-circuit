@@ -72,11 +72,13 @@ export abstract class SchemeBase {
         return model;
     }
     getCellForRoadForced(poss: IPoss) : ICellWithRoad {
-        let model = this.getCell(poss) as ICellWithRoad;
+        let model = this.getCell(poss);
+        model.content = null;
+        model.semiconductor = null;
         if (model && !model.road) {
             model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
         }
-        return model;
+        return model as ICellWithRoad;
     }
     findCellOfRoad(poss: IPoss) : false | ICellWithRoad {
         return this.findCellOf('road', poss) as false | ICellWithRoad;

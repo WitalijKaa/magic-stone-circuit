@@ -25,21 +25,21 @@ export const UP = 'Up';
 export const RIGHT = 'Right';
 export const DOWN = 'Down';
 export const LEFT = 'Left';
-export const SIDES = [UP, RIGHT, DOWN, LEFT];
-export const SIDES_LEFT_RIGHT = [RIGHT, LEFT];
-export const SIDES_UP_DOWN = [UP, DOWN];
+export const SIDES = [UP, RIGHT, DOWN, LEFT] as const;
+export const SIDES_LEFT_RIGHT = [RIGHT, LEFT] as const;
+export const SIDES_UP_DOWN = [UP, DOWN] as const;
 export const SIDES_TURN_90 = {
     [UP]: SIDES_LEFT_RIGHT,
     [DOWN]: SIDES_LEFT_RIGHT,
     [LEFT]: SIDES_UP_DOWN,
     [RIGHT]: SIDES_UP_DOWN,
-};
+} as const;
 export const OPPOSITE_SIDE = {
     [UP]: DOWN,
     [DOWN]: UP,
     [LEFT]: RIGHT,
     [RIGHT]: LEFT,
-};
+} as const;
 export const OVER_CENTER = 'Center';
 
 // SCENE
@@ -61,7 +61,7 @@ export const CONTENT_SPRITES = {
     [ST_STONE_INDIGO]: TT.stoneI,
     [ST_STONE_ORANGE]: TT.stoneO,
     //[ST_ENERGY]: TT.energy,
-}
+};
 export const SEMICONDUCTOR_SPRITES = {
     [ST_ROAD_SLEEP]: TT.roadSleep,
     [ST_ROAD_AWAKE]: TT.roadAwakening,
@@ -80,14 +80,14 @@ export const STONE_TYPE_TO_ROAD_COLOR = {
     [ST_STONE_RED]: COLOR_RED_ROAD,
     [ST_STONE_INDIGO]: COLOR_INDIGO_ROAD,
     [ST_STONE_ORANGE]: COLOR_ORANGE_ROAD,
-}
+} as const;
 
 export const ROAD_TO_LIGHT_COLOR = {
     [COLOR_VIOLET_ROAD]: COLOR_VIOLET_ROAD_LIGHT,
     [COLOR_RED_ROAD]: COLOR_RED_ROAD_LIGHT,
     [COLOR_INDIGO_ROAD]: COLOR_INDIGO_ROAD_LIGHT,
     [COLOR_ORANGE_ROAD]: COLOR_ORANGE_ROAD_LIGHT,
-}
+} as const;
 
 // type BuildRoadWays
 export const BUILD_ROAD_WAY_HORZ_VERT = 1;
@@ -108,7 +108,7 @@ export const ROAD_DEV = {
     [ROAD_HEAVY]: 'HEAVY',
     [ROAD_LEFT_RIGHT]: 'LEFT_RIGHT',
     [ROAD_UP_DOWN]: 'UP_DOWN',
-}
+} as const;
 export const ROAD_PATH_UP = 0;
 export const ROAD_PATH_RIGHT = 1;
 export const ROAD_PATH_DOWN = 2;
@@ -121,19 +121,19 @@ export const ROAD_DEV_PATH = {
     [ROAD_PATH_DOWN]: 'DOWN',
     [ROAD_PATH_LEFT]: 'LEFT',
     [ROAD_PATH_HEAVY]: 'CENTER-heavy',
-}
+} as const;
 
 export const SIDE_TO_ROAD_PATH = {
     [UP]: ROAD_PATH_UP,
     [RIGHT]: ROAD_PATH_RIGHT,
     [DOWN]: ROAD_PATH_DOWN,
     [LEFT]: ROAD_PATH_LEFT,
-};
+} as const;
 export const ROAD_PATH_TO_SIDE = {
     [ROAD_PATH_UP]: UP,
     [ROAD_PATH_RIGHT]: RIGHT,
     [ROAD_PATH_DOWN]: DOWN,
     [ROAD_PATH_LEFT]: LEFT,
-};
-export const ALL_PATHS_EMPTY = [false, false, false, false, false];
-export const ALL_PATHS_ARE = [true, true, true, true, false];
+} as const;
+export const ALL_PATHS_EMPTY = [false, false, false, false, false] as const;
+export const ALL_PATHS_ARE = [true, true, true, true, false] as const;

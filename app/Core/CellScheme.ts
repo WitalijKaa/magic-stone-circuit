@@ -1,5 +1,5 @@
 import * as CONF from "../config/game";
-import {UP, RIGHT, DOWN, LEFT} from "../config/game"
+import {UP, RIGHT, DOWN, LEFT, ROAD_PATH_LEFT, ROAD_PATH_RIGHT, ROAD_PATH_UP, ROAD_PATH_DOWN} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {Cell} from "./Cell";
 import {SchemeBase} from "./SchemeBase";
@@ -8,6 +8,7 @@ import {CellStone} from "./Types/CellStone";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {CellSemiconductor} from "./Types/CellSemiconductor";
 import {HH} from "./HH";
+import {IPoss} from "./IPoss";
 
 export class CellScheme implements ICellScheme {
 

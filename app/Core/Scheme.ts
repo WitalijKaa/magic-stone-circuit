@@ -194,7 +194,6 @@ export class Scheme extends SchemeBase {
             this.buildingRoad.zonePainted != this.activeCursor.zone ||
             this.buildingRoad.way.last != this.buildRoadWay
         ) {
-            console.log('buildRoadTick')
             this.removePrevBuiltRoad();
             this.findWayToBuildRoad();
             if (this.isWayPossible(this.buildRoadWay)) {
@@ -209,7 +208,6 @@ export class Scheme extends SchemeBase {
     }
 
     removePrevBuiltRoad() {
-        console.log('removePrevBuiltRoad')
         this.buildingRoad.path.map((roadCellMem: RoadChangeHistoryCell) => {
             if (roadCellMem.change.curr) {
                 if (!roadCellMem.change.prev) {
@@ -228,7 +226,6 @@ export class Scheme extends SchemeBase {
     }
 
     doBuildRoad() {
-        console.log('doBuildRoad')
         if (this.buildingRoad.start.x == this.activeCursor.x && this.buildingRoad.start.y == this.activeCursor.y) {
             return;
         }
@@ -370,7 +367,6 @@ export class Scheme extends SchemeBase {
     }
 
     findWayToBuildRoad() {
-        console.log('findWayToBuildRoad')
         this.buildingRoad.way.auto = CONF.BUILD_ROAD_WAY_HORZ_VERT;
         let cellStart : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
         let xStep = this.activeCursor.x > this.buildingRoad.start.x ? 1 : -1;
@@ -422,7 +418,6 @@ export class Scheme extends SchemeBase {
     }
 
     isWayPossible(theWay) {
-        console.log('isWayPossible')
         let cellStart : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
         if (!this.canSetRoad(cellStart)) { return false; }
 
