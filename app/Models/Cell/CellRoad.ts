@@ -19,7 +19,6 @@ export class CellRoad {
     constructor(private cell: CellGrid) { }
 
     public updateVisibleRoad() : void {
-        console.log(this.cell.schemeCell?.road?.paths)
         if (this.cell.schemeCell?.road) {
             this.cell.schemeCell.road.paths.map((path, ix) => {
                 if (path && !this.paths[ix]) {

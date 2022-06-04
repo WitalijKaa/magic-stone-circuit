@@ -44,7 +44,10 @@ export class CellScheme implements ICellScheme {
     }
 
     isCellConnectedAtSide(side: string) : boolean {
-        if (this.road) {
+        const sideCell : CellScheme | null = this[side.toLocaleLowerCase()];
+        if (!sideCell) { return false; }
+
+        if (sideCell.road) {
             switch (side) {
                 case UP: return this.isRoadConnectedToUp;
                 case RIGHT: return this.isRoadConnectedToRight;
@@ -53,43 +56,49 @@ export class CellScheme implements ICellScheme {
             }
             return false;
         }
-        return this.isCellConnectedButNotRoadAtSide(side);
+        return this.isCellConnectedButNotRoadAtSide(side, sideCell);
     }
 
-    isCellConnectedButNotRoadAtSide(side: string) : boolean {
-        if (this.road) { return false; }
-        if (this.semiconductor && ROAD_HEAVY != this.semiconductor.direction) {
+    isCellConnectedButNotRoadAtSide(side: string, sideCell : CellScheme | null = null) : boolean {
+        if (!sideCell) { sideCell = this[side.toLocaleLowerCase()]; }
+        if (!sideCell || sideCell.road) { return false; }
+
+        if (sideCell.semiconductor && ROAD_HEAVY != sideCell.semiconductor.direction) {
             if (LEFT == side || RIGHT == side) {
-                if (this.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
+                if (sideCell.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
             }
             else {
-                if (this.semiconductor.direction != ROAD_UP_DOWN) { return false; }
+                if (sideCell.semiconductor.direction != ROAD_UP_DOWN) { return false; }
             }
         }
         return true;
     }
 
     get isRoadConnectedToUp() : boolean {
-        if (this.road) {
-            return !!(ROAD_UP_DOWN == this.road.type || ROAD_HEAVY == this.road.type || this.road.paths[CONF.ROAD_PATH_UP]);
+        const sideCell = this.up;
+        if (sideCell && sideCell.road) {
+            return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_UP]);
         }
         return false;
     }
     get isRoadConnectedToDown() : boolean {
-        if (this.road) {
-            return !!(ROAD_UP_DOWN == this.road.type || ROAD_HEAVY == this.road.type || this.road.paths[CONF.ROAD_PATH_DOWN]);
+        const sideCell = this.down;
+        if (sideCell && sideCell.road) {
+            return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_DOWN]);
         }
         return false;
     }
     get isRoadConnectedToLeft() : boolean {
-        if (this.road) {
-            return !!(ROAD_LEFT_RIGHT == this.road.type || ROAD_HEAVY == this.road.type || this.road.paths[CONF.ROAD_PATH_LEFT]);
+        const sideCell = this.left;
+        if (sideCell && sideCell.road) {
+            return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_LEFT]);
         }
         return false;
     }
     get isRoadConnectedToRight() : boolean {
-        if (this.road) {
-            return !!(ROAD_LEFT_RIGHT == this.road.type || ROAD_HEAVY == this.road.type || this.road.paths[CONF.ROAD_PATH_RIGHT]);
+        const sideCell = this.right;
+        if (sideCell && sideCell.road) {
+            return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_RIGHT]);
         }
         return false;
     }

@@ -6,7 +6,7 @@ import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 import {GridCursor} from "./Types/GridCursor";
 import {IPoss} from "./IPoss";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
-import {CellPath} from "./Types/CellRoad";
+import {CellPath, CellRoad} from "./Types/CellRoad";
 
 const ROAD_DEV_PATH = {
     [CONF.ROAD_PATH_UP]: 'UP',
@@ -57,8 +57,12 @@ export abstract class SchemeBase {
     }
     getCellForRoad(cell: IPoss) : false | ICellWithRoad {
         let model = this.getCellFor('road', cell);
+        if (model) {
+        }
         if (model && !model.road) {
-            model.road = { type: CONF.ROAD_LIGHT, paths: CONF.ALL_PATHS_EMPTY }
+            model.road = { type: CONF.ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
+        }
+        if (model) {
         }
         // @ts-ignore
         return model;
