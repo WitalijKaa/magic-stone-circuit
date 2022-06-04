@@ -59,32 +59,27 @@ export abstract class SchemeBase {
     }
 
     getCellForContent(poss: IPoss) : false | CellScheme {
-        // @ts-ignore
         return this.getCellFor('content', poss);
     }
     findCellOfContent(poss: IPoss) : false | CellScheme {
-        // @ts-ignore
         return this.findCellOf('content', poss);
     }
     getCellForRoad(poss: IPoss) : false | ICellWithRoad {
-        let model = this.getCellFor('road', poss);
+        let model = this.getCellFor('road', poss) as false | ICellWithRoad;
         if (model && !model.road) {
             model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
         }
-        // @ts-ignore
         return model;
     }
     getCellForRoadForced(poss: IPoss) : ICellWithRoad {
-        let model = this.getCell(poss);
+        let model = this.getCell(poss) as ICellWithRoad;
         if (model && !model.road) {
             model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY] };
         }
-        // @ts-ignore
         return model;
     }
     findCellOfRoad(poss: IPoss) : false | ICellWithRoad {
-        // @ts-ignore
-        return this.findCellOf('road', poss);
+        return this.findCellOf('road', poss) as false | ICellWithRoad;
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : false | CellScheme {
