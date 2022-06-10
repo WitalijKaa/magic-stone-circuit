@@ -14,7 +14,7 @@ const ROAD_DEV_PATH = {
     [ROAD_PATH_RIGHT]: 'RIGHT',
     [ROAD_PATH_DOWN]: 'DOWN',
     [ROAD_PATH_LEFT]: 'LEFT',
-    [ROAD_PATH_HEAVY]: 'CENTER-heavy',
+    [ROAD_PATH_HEAVY]: 'CENTER',
 }
 const ROAD_DEV = {
     [ROAD_LIGHT]: 'LIGHT',

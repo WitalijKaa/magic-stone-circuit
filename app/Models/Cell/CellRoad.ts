@@ -26,13 +26,12 @@ export class CellRoad {
                     this.cell.model.addChild(model.model);
                     if (ix == CONF.ROAD_PATH_UP || ix == CONF.ROAD_PATH_DOWN) {
                         model.centeredPivot = true;
-                        model.model.angle = 90
+                        model.model.angle = 270
                     }
                     this.paths[ix] = model;
                 }
                 else if (!path && this.paths[ix]) {
-                    // @ts-ignore
-                    this.paths[ix].destroy();
+                    this.paths[ix]!.destroy();
                     this.paths[ix] = null;
                 }
             })
