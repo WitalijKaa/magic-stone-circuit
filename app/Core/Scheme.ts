@@ -176,9 +176,9 @@ export class Scheme extends SchemeBase {
         if (this.buildingRoad.isOn || poss.x != this.activeCursor.x || poss.y != this.activeCursor.y) { return; }
 
         this.buildingRoad.isOn = true;
-        this.buildingRoad.start = poss;
+        this.buildingRoad.start = this.iPossClone(poss);
         this.buildingRoad.zoneStart = this.buildingRoad.zonePainted = this.activeCursor.zone;
-        this.buildingRoad.painted = poss;
+        this.buildingRoad.painted = this.iPossClone(poss);
         this.buildingRoad.path = [];
         this.buildingRoad.way = { auto: CONF.BUILD_ROAD_WAY_HORZ_VERT, fixed: null, last: null };
     }
@@ -252,7 +252,7 @@ export class Scheme extends SchemeBase {
             else {
                 changeParams = this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellStart);
             }
-            this.buildingRoad.path.push({ change: changeParams, position: cellStart});
+            this.buildingRoad.path.push({ change: changeParams, position: this.iPossClone(cellStart)});
 
             while (cellStart.x != this.activeCursor.x) {
                 cellStart.x += xStep;
@@ -262,24 +262,24 @@ export class Scheme extends SchemeBase {
 
                     if (cellStart.y != this.activeCursor.y) { // turning cell
                         let zoneTo = yStep > 0 ? DOWN : UP;
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                     }
                     else { // last cell of road logic when road is horizontal line
                         let zoneTo = this.activeCursor.zone;
 
                         if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: this.iPossClone(cellStart)});
                         }
                         else if (zoneFrom == zoneTo) {
-                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: this.iPossClone(cellStart)});
                         }
                         else {
-                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                         }
                     }
                 }
                 else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: this.iPossClone(cellStart)});
                 }
             }
             while (cellStart.y != this.activeCursor.y) {
@@ -289,17 +289,17 @@ export class Scheme extends SchemeBase {
                     let zoneTo = this.activeCursor.zone;
 
                     if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                        this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: this.iPossClone(cellStart)});
                     }
                     else if (zoneFrom == zoneTo) {
-                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: this.iPossClone(cellStart)});
                     }
                     else {
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                     }
                 }
                 else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: this.iPossClone(cellStart)});
                 }
             }
         }
@@ -308,10 +308,10 @@ export class Scheme extends SchemeBase {
 
             // first cell of road logic
             if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
-                this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: this.iPossClone(cellStart)});
             }
             else {
-                this.buildingRoad.path.push({ change: this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellStart), position: cellStart});
+                this.buildingRoad.path.push({ change: this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellStart), position: this.iPossClone(cellStart)});
             }
 
             while (cellStart.y != this.activeCursor.y) {
@@ -322,25 +322,25 @@ export class Scheme extends SchemeBase {
 
                     if (cellStart.x != this.activeCursor.x) { // turning cell
                         zoneTo = xStep > 0 ? RIGHT : LEFT;
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                     }
                     else { // last cell of road logic when road is vertical line
                         let zoneTo = this.activeCursor.zone;
 
                         if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: this.iPossClone(cellStart)});
                         }
                         else if (zoneFrom == zoneTo) {
-                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: this.iPossClone(cellStart)});
                         }
                         else {
-                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                         }
                     }
 
                 }
                 else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: cellStart});
+                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellStart), position: this.iPossClone(cellStart)});
                 }
             }
             while (cellStart.x != this.activeCursor.x) {
@@ -350,17 +350,17 @@ export class Scheme extends SchemeBase {
                     let zoneTo = this.activeCursor.zone;
 
                     if ((this.isCellEmpty(cellStart) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                        this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: this.iPossClone(cellStart)});
                     }
                     else if (zoneFrom == zoneTo) {
-                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellStart), position: this.iPossClone(cellStart)});
                     }
                     else {
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: cellStart});
+                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellStart), position: this.iPossClone(cellStart)});
                     }
                 }
                 else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: cellStart});
+                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellStart), position: this.iPossClone(cellStart)});
                 }
             }
         }

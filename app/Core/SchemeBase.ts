@@ -129,6 +129,8 @@ export abstract class SchemeBase {
 
     cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 
+    protected iPossClone(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y } }
+
     // LIFE CYCLE
 
     public updateTickInit() : void { this.updateTick(); }
