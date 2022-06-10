@@ -1,6 +1,10 @@
 import {CellScheme} from "../CellScheme";
+import {Cell} from "../Cell";
 
 export interface ICellScheme {
+
+    cellPosition: Cell;
+
     get isEmptyAround() : boolean;
     get isSidesPathsAllExist() : boolean;
     isCellConnectedAtSide(side: string) : boolean;

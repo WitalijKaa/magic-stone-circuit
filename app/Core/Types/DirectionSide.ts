@@ -1,0 +1,1 @@
+export type DirSide = 'Up' | 'Right' | 'Down' | 'Left';
