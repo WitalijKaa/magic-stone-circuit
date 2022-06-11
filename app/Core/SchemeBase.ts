@@ -12,6 +12,7 @@ import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
+import {Cell} from "./Cell";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -62,8 +63,9 @@ export abstract class SchemeBase {
 
     // ABSTRACT
 
-    abstract get isRoadBuildMode() : boolean;
-    abstract buildRoadTick() : void;
+    public abstract get isRoadBuildMode() : boolean;
+    public abstract buildRoadTick() : void;
+    protected abstract cancelColorOnRoadCell(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
 
     // LIFE CYCLE
 
@@ -277,6 +279,38 @@ export abstract class SchemeBase {
     isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(true, poss); }
     isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(false, poss); }
 
+    // COLORS cancel
+
+    cancelNeighborsColorPathForAnyRoad(poss: IPoss) : void {
+        this.cancelNeighborsColorPathForAnyRoadByPaths([...CONF.ALL_PATHS_ARE], poss);
+    }
+
+    cancelNeighborsColorPathForAnyRoadByPaths(roadPaths: Array<CellPath>, poss: IPoss) : void {
+        SIDES.map((toDir: DirSide) => {
+            if (roadPaths[CONF.SIDE_TO_ROAD_PATH[toDir]]) {
+                this.cancelColorAnyRoadPathByDir(toDir, poss);
+            }
+        });
+    }
+
+    cancelColorAnyRoadPathByDir(toDir: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, toDir, poss); }
+
+    cancelColorPathBySideByParams(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, toSide: DirSide, poss: IPoss) : void {
+        let sideCell = this.findCellOfRoad(Cell[toSide](poss));
+        let sideCellFromDir = CONF.OPPOSITE_SIDE[toSide];
+        if (!sideCell || !sideCell.isRoadPathFromSide(sideCellFromDir)) { return; }
+
+        if (hasToFlowIn || hasToFlowOut) { hasToBeColored = true; }
+        if (hasToBeColored && hasToBeUncolored) { hasToBeColored = false; hasToBeUncolored = false; hasToFlowIn = false; hasToFlowOut = false; }
+
+        if (hasToBeColored && !sideCell.isColoredRoadPathFromSide(sideCellFromDir)) { return; }
+        if (hasToBeUncolored && !sideCell.isUncoloredRoadPathFromSide(sideCellFromDir)) { return; }
+        if (hasToFlowIn && !sideCell.isColoredRoadPathFromSideFlowToThatSide(sideCellFromDir)) { return; }
+        if (hasToFlowOut && !sideCell.isColoredRoadPathFromSideFlowFromThatSide(sideCellFromDir)) { return; }
+
+        this.cancelColorOnRoadCell(null, CONF.OPPOSITE_SIDE[toSide], sideCell);
+    }
+
     // COLORS
 
     cacheColorings: {[key: string]: Array<ColorCellCache>} = {};
@@ -311,8 +345,9 @@ export abstract class SchemeBase {
 
     _devCell: IPoss = { x: this.sizeRadius, y: this.sizeRadius };
     devCell(poss: IPoss) { this._devCell = poss; }
-    devCellEcho() {
-        let cell = this.findCell(this._devCell);
+    devCellEcho(poss?: IPoss) {
+        if (!poss) { poss = this._devCell; }
+        let cell = this.findCell(poss);
 
         let showInConsole = '';
         if (!cell) {

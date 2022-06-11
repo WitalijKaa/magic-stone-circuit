@@ -8,7 +8,7 @@ import {CellStone} from "./Types/CellStone";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {CellSemiconductor} from "./Types/CellSemiconductor";
 import {HH} from "./HH";
-import {IPoss} from "./IPoss";
+import {DirSide} from "./Types/DirectionSide";
 
 export class CellScheme implements ICellScheme {
 
@@ -45,7 +45,7 @@ export class CellScheme implements ICellScheme {
         return false;
     }
 
-    isCellConnectedAtSide(side: string) : boolean {
+    isCellConnectedAtSide(side: DirSide) : boolean {
         const sideCell : CellScheme | null = this[side.toLocaleLowerCase()];
         if (!sideCell) { return false; }
 
@@ -103,6 +103,30 @@ export class CellScheme implements ICellScheme {
             return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_RIGHT]);
         }
         return false;
+    }
+
+    public isRoadPathFromSide(side: DirSide) : boolean {
+        return !!this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
+    }
+
+    public isColoredRoadPathFromSide(side: DirSide) : boolean {
+        return this.road!.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[side]]] && true !== this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
+    }
+
+    public isUncoloredRoadPathFromSide(side: DirSide) : boolean {
+        return true === this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
+    }
+
+    public isColoredRoadPathFromSideFlowToThatSide(side: DirSide) : boolean {
+        if (!this.isColoredRoadPathFromSide(side)) { return false; }
+        let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
+        return 'boolean' != typeof path && path.from == CONF.OPPOSITE_SIDE[side];
+    }
+
+    public isColoredRoadPathFromSideFlowFromThatSide(side: DirSide) : boolean {
+        if (!this.isColoredRoadPathFromSide(side)) { return false; }
+        let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
+        return 'boolean' != typeof path && path.from == side;
     }
 
     get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
