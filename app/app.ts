@@ -43,7 +43,7 @@ if (pixiAppContainer)
         document.addEventListener('keypress', (event) => {
             if (CONTROL.CONTROL_KEYS.hasOwnProperty(event.key)) {
                 schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
-                let $el = document.querySelector('[data-tip="' + event.key + '"]');
+                let $el = document.querySelector('[data-tip="' + schemeGrid.controlPen + '"]');
                 if ($el) {
                     // @ts-ignore
                     document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";

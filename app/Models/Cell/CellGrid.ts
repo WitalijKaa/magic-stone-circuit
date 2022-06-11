@@ -42,6 +42,11 @@ export class CellGrid extends CellAbstract {
                 this.scheme.finishToBuildRoad();
             }
         }
+        else if (CONF.ST_EMPTY == this.grid.controlPen) {
+            this.scheme.removeContent(this.schemePosition);
+            this.scheme.removeRoad(this.schemePosition);
+            this.scheme.putSemiconductor(null, this.schemePosition);
+        }
     }
     handleRightClick() { this.scheme.tapRoad(this.schemePosition); }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }

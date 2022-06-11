@@ -55,6 +55,7 @@ export class Scheme extends SchemeBase {
         delete(this.contentCells[this.cellName(poss)]);
         this.killCell(poss);
 
+        this.visibleUpdate(poss);
         this.afterChange();
     }
 
@@ -548,7 +549,23 @@ export class Scheme extends SchemeBase {
 
     /** SEMICONDUCTORs **/
 
-    setColorToSemiconductorByRoad(color, fromDir, poss: IPoss) {}
+    putSemiconductor(scType, poss: IPoss) {
+        // if (!scType) {
+        //     this.changeCellSemiconductor(null, x, y);
+        //     delete(this.contentCells[this.cellName(x, y)]);
+        // }
+        // else if (ST_ROAD_SLEEP == scType) {
+        //     this.putSleepSemiconductor(x, y);
+        // }
+        // else if (ST_ROAD_AWAKE == scType) {
+        //     this.putAwakeSemiconductor(x, y);
+        // }
+        // this.visibleUpdate(x, y);
+        // this.updatePathsOnNeighborsRoads(x, y);
+        // this.afterChange();
+    }
+
+    setColorToSemiconductorByRoad(color: number | null, fromDir: DirSide, poss: IPoss) {}
 
     /** COLOR **/
 
