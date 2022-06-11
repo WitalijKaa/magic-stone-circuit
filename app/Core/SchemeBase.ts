@@ -146,7 +146,7 @@ export abstract class SchemeBase {
     getCellForRoad(poss: IPoss) : null | ICellWithRoad {
         let model = this.getCellFor('road', poss) as null | ICellWithRoad;
         if (model && !model.road) {
-            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: null };
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: 0 };
         }
         return model;
     }
@@ -155,7 +155,7 @@ export abstract class SchemeBase {
         model.content = null;
         model.semiconductor = null;
         if (model && !model.road) {
-            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: null };
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: 0 };
         }
         return model as ICellWithRoad;
     }

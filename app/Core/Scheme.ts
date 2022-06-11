@@ -560,9 +560,9 @@ export class Scheme extends SchemeBase {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
-        else if (road.checkRun && checkRun + 1 <= road.checkRun) { return; }
+        else if (checkRun + 1 == road.checkRun) { return; }
 
-        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; }
+        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; } // allow twice to cancel color on a cell
         else { road.checkRun = checkRun; }
 
         let toDir: DirSide = CONF.OPPOSITE_SIDE[fromDir];

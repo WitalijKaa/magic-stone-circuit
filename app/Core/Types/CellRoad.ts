@@ -9,7 +9,7 @@ export type CellPath = boolean | {
 export type CellRoad = {
     type: CellRoadType;
     paths: Array<CellPath>;
-    checkRun: number | null;
+    checkRun: number;
 }
 
 export type CellRoadType = 1 | 2 | 3 | 4;
