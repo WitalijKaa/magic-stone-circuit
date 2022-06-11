@@ -9,7 +9,6 @@ import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {BuildRoadWays} from "./Types/BuildRoadWays";
 import {GridZone} from "./Types/GridCursor";
 import {DirSide} from "./Types/DirectionSide";
-import {Cell} from "./Cell";
 
 export class Scheme extends SchemeBase {
 

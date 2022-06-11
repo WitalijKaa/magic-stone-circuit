@@ -1,6 +1,7 @@
 import {Sprite} from 'pixi.js';
 import {FactoryGraphics} from "../Core/FactoryGraphics";
 import {DisplayModel} from "./DisplayModel";
+import {Colorizer} from "./Colorizer";
 
 export class SpriteModel extends DisplayModel {
 
@@ -32,6 +33,8 @@ export class SpriteModel extends DisplayModel {
     }
 
     public destroy() : void { this.model.destroy(); }
+
+    // POSITIONing
 
     set centeredPivot(val: boolean) {
         this.isPivotCenter = val;
@@ -82,4 +85,18 @@ export class SpriteModel extends DisplayModel {
     }
     set w (val: number) { this.model.width = val; }
     set h (val: number) { this.model.height = val; }
+
+    // COLORing
+
+    private colorizer: Colorizer | null = null;
+
+    public setColor(color: number | null) {
+        if (color) {
+            if (!this.colorizer) { this.colorizer = new Colorizer(this.model); }
+            this.colorizer.setColor(color);
+        }
+        else if (this.colorizer) {
+            this.colorizer.removeColor();
+        }
+    }
 }
