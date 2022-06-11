@@ -47,7 +47,7 @@ export abstract class SchemeBase {
     protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
-    protected get checkRun() : number { return this._checkRun++; }
+    protected get checkRun() : number { return this._checkRun += 3; }
 
     constructor(name: string) {
         this.name = name;
@@ -363,7 +363,9 @@ export abstract class SchemeBase {
                         return path ? ROAD_DEV_PATH[ix] : '-'
                     }
                     else if (path) {
-                        return ROAD_DEV_PATH[ix] + '-' + (COLOR_DEV.hasOwnProperty(path.color) ? COLOR_DEV[path.color] : 'COLOR')
+                        return ROAD_DEV_PATH[ix] +
+                            '.' + (COLOR_DEV.hasOwnProperty(path.color) ? COLOR_DEV[path.color] : 'COLOR') +
+                            '.from[' + path.from + ']';
                     }
                     else {
                         return 'ERROR'

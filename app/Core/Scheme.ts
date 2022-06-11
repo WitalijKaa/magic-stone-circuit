@@ -560,8 +560,10 @@ export class Scheme extends SchemeBase {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
-        else if (checkRun == road.checkRun) { return; }
-        road.checkRun = checkRun;
+        else if (road.checkRun && checkRun + 1 <= road.checkRun) { return; }
+
+        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; }
+        else { road.checkRun = checkRun; }
 
         let toDir: DirSide = CONF.OPPOSITE_SIDE[fromDir];
         let fromPath = CONF.SIDE_TO_ROAD_PATH[fromDir];
