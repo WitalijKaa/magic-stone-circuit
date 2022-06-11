@@ -2,7 +2,7 @@ import {IPoss} from "../IPoss";
 import {DirSide} from "./DirectionSide";
 
 export type CellPath = boolean | {
-    color: any;
+    color: number;
     from: DirSide;
 }
 

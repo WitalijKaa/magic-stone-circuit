@@ -11,6 +11,7 @@ import {CellPath, CellRoad, CellRoadPathType, CellRoadType} from "./Types/CellRo
 import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
+import {ICellWithContent} from "./Interfaces/ICellWithContent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -24,6 +25,12 @@ const ROAD_DEV = {
     [ROAD_HEAVY]: 'HEAVY',
     [ROAD_LEFT_RIGHT]: 'LEFT_RIGHT',
     [ROAD_UP_DOWN]: 'UP_DOWN',
+}
+const COLOR_DEV = {
+    [CONF.COLOR_VIOLET_ROAD]: 'Vio',
+    [CONF.COLOR_RED_ROAD]: 'Red',
+    [CONF.COLOR_INDIGO_ROAD]: 'Ind',
+    [CONF.COLOR_ORANGE_ROAD]: 'Ora',
 }
 
 export abstract class SchemeBase {
@@ -95,7 +102,7 @@ export abstract class SchemeBase {
                     this.coloringCellCache(this.contentCells[cellName]).push({
                         type: CONF.ST_STONE_VIOLET,
                         method: 'setColorAroundByStone',
-                        params: [this.contentCells[cellName].x, this.contentCells[cellName].y],
+                        params: [this.contentCells[cellName]],
                         cacheDirections: [...CONF.SIDES],
                     });
                 }
@@ -128,14 +135,14 @@ export abstract class SchemeBase {
         return !this.scheme[poss.x] || !this.scheme[poss.x][poss.y]
     }
 
-    getCellForContent(poss: IPoss) : false | CellScheme {
+    getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
-    findCellOfContent(poss: IPoss) : false | CellScheme {
-        return this.findCellOf('content', poss);
+    findCellOfContent(poss: IPoss) : null | ICellWithContent {
+        return this.findCellOf('content', poss) as null | ICellWithContent;
     }
-    getCellForRoad(poss: IPoss) : false | ICellWithRoad {
-        let model = this.getCellFor('road', poss) as false | ICellWithRoad;
+    getCellForRoad(poss: IPoss) : null | ICellWithRoad {
+        let model = this.getCellFor('road', poss) as null | ICellWithRoad;
         if (model && !model.road) {
             model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: null };
         }
@@ -154,20 +161,20 @@ export abstract class SchemeBase {
         return this.findCellOf('road', poss) as false | ICellWithRoad;
     }
 
-    private getCellFor(field: CellContentField, poss: IPoss) : false | CellScheme {
+    private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
         if (!this.isCellEmpty(poss)) {
             let schemeCell = this.getCell(poss);
             if (schemeCell[field]) { return schemeCell; }
-            return false;
+            return null;
         }
         return this.getCell(poss)
     }
-    private findCellOf(field: CellContentField, poss: IPoss) : false | CellScheme {
+    private findCellOf(field: CellContentField, poss: IPoss) : null | CellScheme {
         if (!this.isCellEmpty(poss)) {
             let schemeCell = this.getCell(poss);
             if (schemeCell[field]) { return schemeCell; }
         }
-        return false;
+        return null;
     }
 
     public findCell(poss: IPoss) : null | CellScheme {
@@ -316,7 +323,17 @@ export abstract class SchemeBase {
             showInConsole =
                 'Type ' + ROAD_DEV[cell.road.type] +
                 ' ## ' +
-                cell.road.paths.map((path, ix) => { return path ? ROAD_DEV_PATH[ix] : '-'}).join('|');
+                cell.road.paths.map((path, ix) => {
+                    if ('boolean' == typeof path) {
+                        return path ? ROAD_DEV_PATH[ix] : '-'
+                    }
+                    else if (path) {
+                        return ROAD_DEV_PATH[ix] + '-' + (COLOR_DEV.hasOwnProperty(path.color) ? COLOR_DEV[path.color] : 'COLOR')
+                    }
+                    else {
+                        return 'ERROR'
+                    }
+                }).join('|');
         }
         console.log(
             'devCellEcho',
