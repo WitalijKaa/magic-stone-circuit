@@ -1,4 +1,4 @@
-import {Sprite} from 'pixi.js';
+import {Sprite} from '@pixi/sprite';
 import {FactoryGraphics} from "../Core/FactoryGraphics";
 import {DisplayModel} from "./DisplayModel";
 import {Colorizer} from "./Colorizer";

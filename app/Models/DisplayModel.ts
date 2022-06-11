@@ -1,4 +1,9 @@
+import {Container} from '@pixi/display';
+import {Sprite} from '@pixi/sprite';
+
 export class DisplayModel {
+
+    public model!: Container | Sprite;
 
     public on(event: string, handler: (event: any) => void) {
         switch (event) {

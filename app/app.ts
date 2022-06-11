@@ -2,7 +2,7 @@ import * as CONTROL from "./config/controls";
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
-import { Application as PixiApplication } from 'pixi.js';
+import { Application as PixiApplication } from '@pixi/app';
 const pixiAppContainer = document.getElementById('app');
 
 import {SchemeContainer} from "./Models/Scheme/SchemeContainer";

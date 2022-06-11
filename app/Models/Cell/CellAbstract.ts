@@ -2,7 +2,7 @@ import * as CONF from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
 import {Cell} from "../../Core/Cell";
 import {SchemeGrid} from "../Scheme/SchemeGrid";
-import {Sprite} from "pixi.js";
+import {Sprite} from '@pixi/sprite';
 
 export class CellAbstract extends SpriteModel {
 

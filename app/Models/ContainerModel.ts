@@ -1,11 +1,9 @@
 import {DisplayModel} from "./DisplayModel";
-import {Container} from "pixi.js";
+import {Container} from '@pixi/display';
 
 export class ContainerModel extends DisplayModel {
 
-    model: Container;
-
-    constructor(container: Container) {
+    constructor(public container: Container) {
         super();
         this.model = container;
     }

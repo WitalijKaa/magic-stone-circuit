@@ -1,14 +1,10 @@
-//import {SpriteModel} from "./SpriteModel";
-//import type { Filter } from '@pixi/core';
-//import * as PIXI from 'pixi.js';
 import {ColorMatrixFilter} from '@pixi/filter-color-matrix';
-import {Sprite} from "pixi.js";
-//import { Application as PixiApplication } from 'pixi.js';
+import {Sprite} from '@pixi/sprite';
 
 export class Colorizer {
 
     private color: number | null = null;
-    private static matrix: {[key: string]: ColorMatrixFilter} = {}
+    private static matrix: {[key: number]: ColorMatrixFilter} = {}
 
     constructor(private model: Sprite) { }
 
@@ -18,16 +14,14 @@ export class Colorizer {
     }
 
     public removeColor() : void {
-        this.model.filters = null;
+        this.model.filters = null; // todo remove only this color
         this.color = null;
     }
 
-    get isColorized() : boolean { return !!this.color; }
-
-    getColorMatrix() : Array<ColorMatrixFilter> | null {
+    private getColorMatrix() : Array<ColorMatrixFilter> | null {
         if (!this.color) { return null; }
 
-        if (!Colorizer.matrix[Colorizer.matrixName(this.color)]) {
+        if (!Colorizer.matrix[this.color]) {
             let matrix = new ColorMatrixFilter();
             const tint = this.color;
             const r = tint >> 16 & 0xFF;
@@ -36,12 +30,9 @@ export class Colorizer {
             matrix.matrix[0] = r / 255;
             matrix.matrix[6] = g / 255;
             matrix.matrix[12] = b / 255;
-            Colorizer.matrix[Colorizer.matrixName(this.color)] = matrix;
-        }
-        return [Colorizer.matrix[Colorizer.matrixName(this.color)]];
-    }
 
-    static matrixName(color: number) : string {
-        return 'm' + color;
+            Colorizer.matrix[this.color] = matrix;
+        }
+        return [Colorizer.matrix[this.color]];
     }
 }

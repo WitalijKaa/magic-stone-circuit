@@ -1,5 +1,6 @@
 import * as CONF from "../../config/game";
-import {Container, Rectangle} from 'pixi.js'
+import {Container} from '@pixi/display';
+import {Rectangle} from '@pixi/math';
 import {CellGrid} from "../Cell/CellGrid";
 import {Scheme} from "../../Core/Scheme";
 import {SchemeContainer} from "./SchemeContainer";
