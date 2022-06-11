@@ -1,3 +1,5 @@
+import {DirSide} from "../Core/Types/DirectionSide";
+
 export const START_TIMEOUT = 1000;
 export const GRID_OFFSET = 2;
 
@@ -25,9 +27,9 @@ export const UP = 'Up';
 export const RIGHT = 'Right';
 export const DOWN = 'Down';
 export const LEFT = 'Left';
-export const SIDES = [UP, RIGHT, DOWN, LEFT] as const;
-export const SIDES_LEFT_RIGHT = [RIGHT, LEFT] as const;
-export const SIDES_UP_DOWN = [UP, DOWN] as const;
+export const SIDES = [UP, RIGHT, DOWN, LEFT] as Array<DirSide>;
+export const SIDES_LEFT_RIGHT = [RIGHT, LEFT] as Array<DirSide>;
+export const SIDES_UP_DOWN = [UP, DOWN] as Array<DirSide>;
 export const SIDES_TURN_90 = {
     [UP]: SIDES_LEFT_RIGHT,
     [DOWN]: SIDES_LEFT_RIGHT,
