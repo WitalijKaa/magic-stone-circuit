@@ -13,6 +13,8 @@ import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {Cell} from "./Cell";
+import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
+import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -47,7 +49,7 @@ export abstract class SchemeBase {
     protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
-    protected get checkRun() : number { return this._checkRun += 3; }
+    public get checkRun() : number { return this._checkRun += 3; }
 
     constructor(name: string) {
         this.name = name;
@@ -133,24 +135,25 @@ export abstract class SchemeBase {
 
     // CELL
 
-    isCellEmpty(poss: IPoss) : boolean {
+    public isCellEmpty(poss: IPoss) : boolean {
         return !this.scheme[poss.x] || !this.scheme[poss.x][poss.y]
     }
 
-    getCellForContent(poss: IPoss) : null | CellScheme {
+    protected getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
-    findCellOfContent(poss: IPoss) : null | ICellWithContent {
+    public findCellOfContent(poss: IPoss) : null | ICellWithContent {
         return this.findCellOf('content', poss) as null | ICellWithContent;
     }
-    getCellForRoad(poss: IPoss) : null | ICellWithRoad {
+
+    protected getCellForRoad(poss: IPoss) : null | ICellWithRoad {
         let model = this.getCellFor('road', poss) as null | ICellWithRoad;
         if (model && !model.road) {
             model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: 0 };
         }
         return model;
     }
-    getCellForRoadForced(poss: IPoss) : ICellWithRoad {
+    protected getCellForRoadForced(poss: IPoss) : ICellWithRoad {
         let model = this.getCell(poss);
         model.content = null;
         model.semiconductor = null;
@@ -159,8 +162,21 @@ export abstract class SchemeBase {
         }
         return model as ICellWithRoad;
     }
-    findCellOfRoad(poss: IPoss) : false | ICellWithRoad {
-        return this.findCellOf('road', poss) as false | ICellWithRoad;
+    public findCellOfRoad(poss: IPoss) : null | ICellWithRoad {
+        return this.findCellOf('road', poss) as null | ICellWithRoad;
+    }
+
+    protected getCellForSemiconductorForced(poss: IPoss, dir: CellSemiconductorDirection, type: CellSemiconductorType) : ICellWithSemiconductor {
+        let model = this.getCell(poss);
+        model.content = null;
+        model.road = null;
+        if (model) {
+            model.semiconductor = { direction: dir, type: type, colorAwake: null, colorFlow: null, colorCharge: null, from: null, checkRun: 0 };
+        }
+        return model as ICellWithSemiconductor;
+    }
+    public findCellOfSemiconductor(poss: IPoss) : null | ICellWithSemiconductor {
+        return this.findCellOf('semiconductor', poss) as null | ICellWithSemiconductor;
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
@@ -171,6 +187,7 @@ export abstract class SchemeBase {
         }
         return this.getCell(poss)
     }
+
     private findCellOf(field: CellContentField, poss: IPoss) : null | CellScheme {
         if (!this.isCellEmpty(poss)) {
             let schemeCell = this.getCell(poss);
@@ -206,7 +223,11 @@ export abstract class SchemeBase {
         return cellScheme;
     }
 
-    cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
+    protected antiCell(poss: IPoss) : CellScheme {
+        return new CellScheme(poss.x, poss.y, this);
+    }
+
+    protected cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 
     protected iPossClone(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y } }
 
@@ -279,6 +300,28 @@ export abstract class SchemeBase {
     isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(true, poss); }
     isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(false, poss); }
 
+    // SEMICONDUCTORs
+
+    protected turnSleepSemiconductorHere(side, poss: IPoss) : boolean {
+        let cell = this.findCellOfSemiconductor(HH[side](poss));
+        if (!cell || !cell.semiconductor || CONF.ST_ROAD_SLEEP != cell.semiconductor.type) { return false; }
+        let semi = cell.semiconductor;
+
+        if (LEFT == side || RIGHT == side) {
+            if (semi.direction != ROAD_LEFT_RIGHT) {
+                semi.direction = ROAD_LEFT_RIGHT;
+                return true;
+            }
+        }
+        else {
+            if (semi.direction != ROAD_UP_DOWN) {
+                semi.direction = ROAD_UP_DOWN;
+                return true;
+            }
+        }
+        return  false;
+    }
+
     // COLORS cancel
 
     cancelNeighborsColorPathForAnyRoad(poss: IPoss) : void {
@@ -294,6 +337,7 @@ export abstract class SchemeBase {
     }
 
     cancelColorAnyRoadPathByDir(toDir: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, toDir, poss); }
+    cancelColorFlowsOutRoadPathByDir(toDir: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, true, true, false, toDir, poss); }
 
     cancelColorPathBySideByParams(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, toSide: DirSide, poss: IPoss) : void {
         let sideCell = this.findCellOfRoad(Cell[toSide](poss));
@@ -305,8 +349,8 @@ export abstract class SchemeBase {
 
         if (hasToBeColored && !sideCell.isColoredRoadPathFromSide(sideCellFromDir)) { return; }
         if (hasToBeUncolored && !sideCell.isUncoloredRoadPathFromSide(sideCellFromDir)) { return; }
-        if (hasToFlowIn && !sideCell.isColoredRoadPathFromSideFlowToThatSide(sideCellFromDir)) { return; }
-        if (hasToFlowOut && !sideCell.isColoredRoadPathFromSideFlowFromThatSide(sideCellFromDir)) { return; }
+        if (hasToFlowIn && !sideCell.isColoredRoadPathAtSideFlowToThatSide(sideCellFromDir)) { return; }
+        if (hasToFlowOut && !sideCell.isColoredRoadPathAtSideFlowFromThatSide(sideCellFromDir)) { return; }
 
         this.cancelColorOnRoadCell(null, CONF.OPPOSITE_SIDE[toSide], sideCell);
     }

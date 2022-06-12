@@ -1,14 +1,18 @@
 import * as CONF from "../config/game";
-import {UP, RIGHT, DOWN, LEFT, ROAD_PATH_LEFT, ROAD_PATH_RIGHT, ROAD_PATH_UP, ROAD_PATH_DOWN} from "../config/game"
+import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
+import {ROAD_PATH_UP, ROAD_PATH_RIGHT, ROAD_PATH_DOWN, ROAD_PATH_LEFT, ROAD_PATH_HEAVY} from "../config/game"
 import {Cell} from "./Cell";
 import {SchemeBase} from "./SchemeBase";
 import {CellRoad} from "./Types/CellRoad";
 import {CellStone} from "./Types/CellStone";
 import {ICellScheme} from "./Interfaces/ICellScheme";
-import {CellSemiconductor} from "./Types/CellSemiconductor";
+import {CellSemiconductor, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {HH} from "./HH";
 import {DirSide} from "./Types/DirectionSide";
+import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
+import {IPoss} from "./IPoss";
+import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 
 export class CellScheme implements ICellScheme {
 
@@ -24,6 +28,8 @@ export class CellScheme implements ICellScheme {
         this.scheme = scheme;
     }
 
+    public get poss() : IPoss { return { x: this.x, y: this.y }; }
+
     get stone() : CellStone | null {
         if (this.content && HH.isStone(this.content)) {
             return this.content;
@@ -36,6 +42,25 @@ export class CellScheme implements ICellScheme {
 
     get isEmptyAround() : boolean {
         return !this.up && !this.right && !this.down && !this.left;
+    }
+
+    get isAwakeSemiconductor() : boolean {
+        return !!(this.semiconductor && CONF.ST_ROAD_AWAKE == this.semiconductor.type);
+    }
+    get isSleepSemiconductor() : boolean {
+        return !!(this.semiconductor && CONF.ST_ROAD_SLEEP == this.semiconductor.type);
+    }
+
+    get isAnyRoadAround() : boolean { return this.isAnyRoadAtSides(); }
+    get isAnyRoadLeftOrRight() : boolean { return this.isAnyRoadAtSides([LEFT, RIGHT]); }
+
+    public isAnyRoadAtSides(sides: Array<DirSide> = SIDES) : boolean {
+        for (let side of sides) {
+            let sideRoadCell = this.scheme.findCellOfRoad(this.cellPosition[side]);
+            if (!sideRoadCell) { continue; }
+            if (this.isRoadSideCellConnected(sideRoadCell, side)) { return true; }
+        }
+        return false;
     }
     
     get isSidesPathsAllExist() : boolean {
@@ -50,59 +75,45 @@ export class CellScheme implements ICellScheme {
         if (!sideCell) { return false; }
 
         if (sideCell.road) {
-            switch (side) {
-                case UP: return this.isRoadConnectedToUp;
-                case RIGHT: return this.isRoadConnectedToRight;
-                case DOWN: return this.isRoadConnectedToDown;
-                case LEFT: return this.isRoadConnectedToLeft;
-            }
-            return false;
+            return this.isRoadSideCellConnected(sideCell as ICellWithRoad, side);
         }
-        return this.isCellConnectedButNotRoadAtSide(side, sideCell);
-    }
-
-    isCellConnectedButNotRoadAtSide(side: string, sideCell : CellScheme | null = null) : boolean {
-        if (!sideCell) { sideCell = this[side.toLocaleLowerCase()]; }
-        if (!sideCell || sideCell.road) { return false; }
-
-        if (sideCell.semiconductor && ROAD_HEAVY != sideCell.semiconductor.direction) {
-            if (LEFT == side || RIGHT == side) {
-                if (sideCell.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
-            }
-            else {
-                if (sideCell.semiconductor.direction != ROAD_UP_DOWN) { return false; }
-            }
+        if (sideCell.semiconductor) {
+            return HH.isSemiconductorCanBeConnectedToSide(sideCell as ICellWithSemiconductor, side);
         }
         return true;
     }
 
-    get isRoadConnectedToUp() : boolean {
-        const sideCell = this.up;
-        if (sideCell && sideCell.road) {
-            return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_UP]);
+    isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean {
+        switch (sideOfSideCell) {
+            case UP: return this.isRoadConnectedToUp(sideCell as ICellWithRoad);
+            case RIGHT: return this.isRoadConnectedToRight(sideCell as ICellWithRoad);
+            case DOWN: return this.isRoadConnectedToDown(sideCell as ICellWithRoad);
+            case LEFT: return this.isRoadConnectedToLeft(sideCell as ICellWithRoad);
         }
         return false;
     }
-    get isRoadConnectedToDown() : boolean {
-        const sideCell = this.down;
-        if (sideCell && sideCell.road) {
-            return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_DOWN]);
+
+    isCellConnectedButNotRoadAtSide(side: DirSide, sideCell : CellScheme | null = null) : boolean {
+        if (!sideCell) { sideCell = this[side.toLocaleLowerCase()]; }
+        if (!sideCell || sideCell.road) { return false; }
+
+        if (sideCell.semiconductor) {
+            return HH.isSemiconductorCanBeConnectedToSide(sideCell as ICellWithSemiconductor, side);
         }
-        return false;
+        return true;
     }
-    get isRoadConnectedToLeft() : boolean {
-        const sideCell = this.left;
-        if (sideCell && sideCell.road) {
-            return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_LEFT]);
-        }
-        return false;
+
+    private isRoadConnectedToUp(sideCell: ICellWithRoad) : boolean {
+        return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_DOWN]);
     }
-    get isRoadConnectedToRight() : boolean {
-        const sideCell = this.right;
-        if (sideCell && sideCell.road) {
-            return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_RIGHT]);
-        }
-        return false;
+    private isRoadConnectedToDown(sideCell: ICellWithRoad) : boolean {
+        return !!(ROAD_UP_DOWN == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_UP]);
+    }
+    private isRoadConnectedToLeft(sideCell: ICellWithRoad) : boolean {
+        return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_RIGHT]);
+    }
+    private isRoadConnectedToRight(sideCell: ICellWithRoad) : boolean {
+        return !!(ROAD_LEFT_RIGHT == sideCell.road.type || ROAD_HEAVY == sideCell.road.type || sideCell.road.paths[CONF.ROAD_PATH_LEFT]);
     }
 
     public isRoadPathFromSide(side: DirSide) : boolean {
@@ -117,20 +128,106 @@ export class CellScheme implements ICellScheme {
         return true === this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
     }
 
-    public isColoredRoadPathFromSideFlowToThatSide(side: DirSide) : boolean {
+    public isColoredRoadPathAtSideFlowToThatSide(side: DirSide) : boolean {
         if (!this.isColoredRoadPathFromSide(side)) { return false; }
-        let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
-        return 'boolean' != typeof path && path.from == CONF.OPPOSITE_SIDE[side];
+        return !!this.getColorOfPath(this.road!, side, CONF.OPPOSITE_SIDE[side]);
+        // let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
+        // return 'boolean' != typeof path && path.from == CONF.OPPOSITE_SIDE[side];
     }
 
-    public isColoredRoadPathFromSideFlowFromThatSide(side: DirSide) : boolean {
+    public isColoredRoadPathAtSideFlowFromThatSide(side: DirSide) : boolean {
         if (!this.isColoredRoadPathFromSide(side)) { return false; }
-        let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
-        return 'boolean' != typeof path && path.from == side;
+        return !!this.getColorOfPath(this.road!, side, side);
+        // let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
+        // return 'boolean' != typeof path && path.from == side;
+    }
+
+    public getColorOfPath(road: CellRoad, sideOfPath: DirSide, flowFromDir: DirSide) : number | null {
+        let path = road.paths[CONF.SIDE_TO_ROAD_PATH[sideOfPath]]
+        if ('boolean' != typeof path && path.from == flowFromDir) {
+            return path.color;
+        }
+        return null;
+    }
+    
+    public colorOfConnectedColoredRoadAtSideThatFlowsHere(side: DirSide) : number | null {
+        let sideCell = this.scheme.findCellOfRoad(this.cellPosition[side]);
+        if (!sideCell) { return null; }
+        return this.getColorOfPath(sideCell.road, CONF.OPPOSITE_SIDE[side], side);
+    }
+    public colorOfConnectedColoredRoadAtSideThatFlowsOutHere(side: DirSide) : number | null {
+        let sideCell = this.scheme.findCellOfRoad(this.cellPosition[side]);
+        if (!sideCell) { return null; }
+        return this.getColorOfPath(sideCell.road, CONF.OPPOSITE_SIDE[side], CONF.OPPOSITE_SIDE[side]);
+    }
+
+    public get isSemiconductorChargedAround() : boolean {
+        for (let side of SIDES) {
+            let cell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
+            if (cell && cell.semiconductor.colorCharge) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public get isSemiconductorSleepAround() : boolean { return this.isSemiconductorTypeAround(CONF.ST_ROAD_SLEEP); }
+    public get isSemiconductorAwakeAround() : boolean { return this.isSemiconductorTypeAround(CONF.ST_ROAD_AWAKE); }
+
+    private isSemiconductorTypeAround(scType: CellSemiconductorType, sides: Array<DirSide> = SIDES) : boolean {
+        for (let side of sides) {
+            let cell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
+            if (cell && cell.semiconductor.type == scType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public get isSemiconductorAwakeAtLeftOrAtRight() : boolean {
+        return this.isSemiconductorTypeAround(CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
+    }
+
+    public countAwakeClusterAtSide(checkRun: number | null, side: DirSide) : number {
+        let sideCell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
+        if (!sideCell) { return 0; }
+        let semi = sideCell.semiconductor;
+        if (!semi || CONF.ST_ROAD_AWAKE != semi.type) { return 0; }
+
+        if (!checkRun) { checkRun = this.scheme.checkRun; }
+        if (semi.checkRun == checkRun) { return 0; }
+        semi.checkRun = checkRun;
+
+        let count = 1;
+        SIDES.map((toDir: DirSide) => {
+            if (toDir == CONF.OPPOSITE_SIDE[side]) { return; }
+            count += sideCell!.countAwakeClusterAtSide(checkRun, toDir)
+        })
+        return count;
+    }
+
+    public get sidesOfSemiconductor() : Array<DirSide> {
+        if (!this.semiconductor) { return []; }
+        if (CONF.ST_ROAD_SLEEP == this.semiconductor.type) {
+            return this.semiconductor.direction == ROAD_LEFT_RIGHT ? [LEFT, RIGHT] : [UP, DOWN];
+        }
+        return SIDES;
+    }
+
+    public isAwakeSemiconductorConnectedToAnyOtherSemiconductorAtSide(side: DirSide) : boolean {
+        if (!this.isAwakeSemiconductor) { return false; }
+        let sideCell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
+        if (!sideCell) { return false; }
+        return HH.isSemiconductorCanBeConnectedToSide(sideCell, side);
     }
 
     get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
     get right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.right); }
     get down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.down); }
     get left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.left); }
+
+    get Up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
+    get Right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.right); }
+    get Down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.down); }
+    get Left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.left); }
 }

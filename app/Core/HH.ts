@@ -1,4 +1,8 @@
 import * as CONF from "../config/game";
+import {IPoss} from "./IPoss";
+import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
+import {DirSide} from "./Types/DirectionSide";
+import {LEFT, RIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game";
 
 export class HH {
 
@@ -8,5 +12,22 @@ export class HH {
 
     public static rnd(min, max) {
         return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    public static Up(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y - 1 }; }
+    public static Right(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y }; }
+    public static Down(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y + 1 }; }
+    public static Left(poss: IPoss) : IPoss { return { x: poss.x - 1, y: poss.y }; }
+
+    public static isSemiconductorCanBeConnectedToSide(semiCell: ICellWithSemiconductor, side: DirSide) : boolean {
+        if (ROAD_HEAVY != semiCell.semiconductor.direction) {
+            if (LEFT == side || RIGHT == side) {
+                if (semiCell.semiconductor.direction != ROAD_LEFT_RIGHT) { return false; }
+            }
+            else {
+                if (semiCell.semiconductor.direction != ROAD_UP_DOWN) { return false; }
+            }
+        }
+        return true;
     }
 }
