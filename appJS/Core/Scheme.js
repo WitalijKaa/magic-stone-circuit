@@ -176,7 +176,6 @@ class Scheme extends AbstractScheme {
         this.defineRoadPath(x, y, ROAD_PATH_DOWN, mergedZones.includes(DOWN), updatePathsMode);
         this.defineRoadPath(x, y, ROAD_PATH_HEAVY, ROAD_HEAVY == preferType, updatePathsMode);
         this.visibleUpdate(x, y);
-        //this._devCell = [x, y];this.devCellEcho();
         return change;
     }
 

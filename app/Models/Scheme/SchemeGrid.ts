@@ -76,7 +76,6 @@ export class SchemeGrid {
         }
     }
 
-
     // CONTROL
 
     public get controlPen() { return this.controlPenCode; }
@@ -176,9 +175,6 @@ export class SchemeGrid {
         }
         this.dragGrid(...cellsOffset);
         this.execForCells('updatePosition');
-        if (cellsOffset[0] || cellsOffset[1]) {
-            this.execForCells('refreshVisibleAll');
-        }
     }
 
     dragGrid(x: number, y: number) {
@@ -186,6 +182,8 @@ export class SchemeGrid {
 
         this.dragX += x; // todo out of diameter
         this.dragY += y;
+
+        this.execForCells('refreshVisibleAll');
     }
 
     // HANDLERS

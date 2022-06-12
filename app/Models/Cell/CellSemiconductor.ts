@@ -39,9 +39,7 @@ export class CellSemiconductor {
                 let model: SpriteModel = this[spriteType];
 
                 this.cell.model.addChild(model.model);
-                if (semi.type == CONF.ST_ROAD_SLEEP) {
-                    model.model.angle = CONF.ROAD_COMMON_ROTATE[semi.direction];
-                }
+                model.model.angle = CONF.ROAD_COMMON_ROTATE[semi.direction];
                 model.setColor(semi['color' + HH.ucfirst(spriteType)] as SemiColor)
             }
 
@@ -61,9 +59,7 @@ export class CellSemiconductor {
     private initSprite(spriteType: SpriteType, schemeSemi: SchemeSemi) : void {
         if (!this[spriteType]) {
             this[spriteType] = new SpriteModel(SEMICONDUCTOR_SPRITES[spriteType][schemeSemi.type]);
-            if (schemeSemi.type == CONF.ST_ROAD_SLEEP) {
-                this[spriteType].centeredPivot = true;
-            }
+            this[spriteType].centeredPivot = true;
             this.cell.model.addChild(this[spriteType].model);
         }
         else if (this.semiconductorDrawn != schemeSemi.type) {
