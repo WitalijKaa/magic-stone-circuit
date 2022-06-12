@@ -37,7 +37,7 @@ export class CellSemiconductor {
             for (let spriteType in SEMICONDUCTOR_SPRITES) {
                 this.initSprite(spriteType as SpriteType, semi);
                 let model: SpriteModel = this[spriteType];
-                
+
                 this.cell.model.addChild(model.model);
                 if (semi.type == CONF.ST_ROAD_SLEEP) {
                     model.model.angle = CONF.ROAD_COMMON_ROTATE[semi.direction];

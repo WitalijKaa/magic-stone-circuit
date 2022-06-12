@@ -114,7 +114,7 @@ export abstract class SchemeBase {
                     this.coloringCellCache(this.contentCells[cellName]).push({
                         type: CONF.ST_ROAD_SLEEP,
                         method: 'setColorAroundBySleep',
-                        params: [false, this.contentCells[cellName].x, this.contentCells[cellName].y],
+                        params: [false, this.contentCells[cellName]],
                         cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
                     });
                 }

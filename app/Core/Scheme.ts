@@ -672,11 +672,10 @@ export class Scheme extends SchemeBase {
 
     refreshSemiconductorByColoredRoadsFlowsIn(cell: ICellWithSemiconductor) {
         cell.sidesOfSemiconductor.map((side: DirSide) => { // todo norm queue
-            let colorFlowsHere = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side);
-            if (colorFlowsHere) {
+            if (cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side)) {
                 if (cell.isAwakeSemiconductor) {
                     setTimeout(() => {
-                        this.setColorToSemiconductorByRoad(colorFlowsHere, side, cell.poss);
+                        this.setColorToSemiconductorByRoad(cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side), side, cell.poss);
                     }, CONF.NANO_MS);
                 }
                 else if (cell.isSleepSemiconductor) {
@@ -684,7 +683,7 @@ export class Scheme extends SchemeBase {
                         this.coloringCellCache(cell.poss).push({
                             type: CONF.ST_ROAD_SLEEP,
                             method: 'setColorToSemiconductorByRoad',
-                            params: [colorFlowsHere, side, cell.poss],
+                            params: [cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side), side, cell.poss],
                             cacheDirections: [side],
                         });
                     }, CONF.NANO_MS * 10);
@@ -811,7 +810,7 @@ export class Scheme extends SchemeBase {
                 this.coloringCellCache(poss).push({
                     type: CONF.ST_ROAD_SLEEP,
                     method: 'setColorAroundBySleep',
-                    params: [true, poss],
+                    params: [true, cell.poss],
                     cacheDirections: [toDir],
                 });
             }
@@ -826,8 +825,6 @@ export class Scheme extends SchemeBase {
     setColorAroundBySleep(forced: boolean, poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || !cell.isSleepSemiconductor || (!forced && !cell.semiconductor.colorFlow) || !cell.semiconductor.from) { return; }
-
-        let toDir = CONF.OPPOSITE_SIDE[cell.semiconductor.from];
 
         let sideRoadCell = cell[CONF.OPPOSITE_SIDE[cell.semiconductor.from]];
         if (!sideRoadCell || !sideRoadCell.road) { return; }
