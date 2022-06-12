@@ -64,18 +64,6 @@ export const CONTENT_SPRITES = {
     [ST_STONE_ORANGE]: TT.stoneO,
     //[ST_ENERGY]: TT.energy,
 };
-export const SEMICONDUCTOR_SPRITES = {
-    [ST_ROAD_SLEEP]: TT.roadSleep,
-    [ST_ROAD_AWAKE]: TT.roadAwakening,
-}
-export const SEMICONDUCTOR_SPRITES_CHARGE = {
-    [ST_ROAD_SLEEP]: TT.roadSleepCharge,
-    [ST_ROAD_AWAKE]: TT.roadAwakeningCharge,
-}
-export const SEMICONDUCTOR_SPRITES_FLOW = {
-    [ST_ROAD_SLEEP]: TT.roadSleepFlow,
-    [ST_ROAD_AWAKE]: TT.roadAwakeningFlow,
-}
 
 export const STONE_TYPE_TO_ROAD_COLOR = {
     [ST_STONE_VIOLET]: COLOR_VIOLET_ROAD,
@@ -103,7 +91,7 @@ export const ROAD_LIGHT = 1;
 export const ROAD_HEAVY = 2;
 export const ROAD_LEFT_RIGHT = 3;
 export const ROAD_UP_DOWN = 4;
-export const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: null, [ROAD_UP_DOWN]: PIXI_ROTATE_RIGHT, [ROAD_HEAVY]: null, [ROAD_LIGHT]: null };
+export const ROAD_COMMON_ROTATE = { [ROAD_LEFT_RIGHT]: 0, [ROAD_UP_DOWN]: PIXI_ROTATE_RIGHT, [ROAD_HEAVY]: 0, [ROAD_LIGHT]: 0 } as const;
 
 export const ROAD_DEV = {
     [ROAD_LIGHT]: 'LIGHT',

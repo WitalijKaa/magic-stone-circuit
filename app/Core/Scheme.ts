@@ -13,7 +13,7 @@ import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {HH} from "./HH";
 import {CellScheme} from "./CellScheme";
-import {SemiColor} from "./Types/CellSemiconductor";
+import {CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 
 export class Scheme extends SchemeBase {
 
@@ -555,7 +555,7 @@ export class Scheme extends SchemeBase {
 
     private allowedAmountOfAwakesCluster: number = 2;
 
-    putSemiconductor(scType, poss: IPoss) {
+    putSemiconductor(scType: CellSemiconductorType | null, poss: IPoss) {
         if (!scType) {
             this.killCell(poss); // todo
             delete(this.contentCells[this.cellName(poss)]);

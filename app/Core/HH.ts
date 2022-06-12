@@ -9,9 +9,19 @@ export class HH {
     public static isStone(val: number) : boolean {
         return [CONF.ST_STONE_VIOLET, CONF.ST_STONE_RED, CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE].includes(val);
     }
+    public static isRoad(val: number) : boolean {
+        return CONF.ST_ROAD == val;
+    }
+    public static isSemiconductor(val: number) : boolean {
+        return [CONF.ST_ROAD_SLEEP, CONF.ST_ROAD_AWAKE].includes(val);
+    }
 
     public static rnd(min, max) {
         return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    public static ucfirst(str: string) : string {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     public static Up(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y - 1 }; }

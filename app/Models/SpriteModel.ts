@@ -37,6 +37,7 @@ export class SpriteModel extends DisplayModel {
     // POSITIONing
 
     set centeredPivot(val: boolean) {
+        if (this.isPivotCenter == val) { return; }
         this.isPivotCenter = val;
         if (val) {
             this.model.anchor.set(0.5, 0.5);

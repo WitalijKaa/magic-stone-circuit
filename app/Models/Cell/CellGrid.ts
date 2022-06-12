@@ -11,17 +11,20 @@ import {MouseClick} from "../../Core/Behaviors/MouseClick";
 import {CellRoad} from "./CellRoad";
 import {MouseOver} from "../../Core/Behaviors/MouseOver";
 import {HH} from "../../Core/HH";
+import {CellSemiconductor} from "./CellSemiconductor";
 
 export class CellGrid extends CellAbstract {
 
-    private cellContent;
-    private cellRoad;
+    private cellContent: CellContent;
+    private cellRoad: CellRoad;
+    private cellSemiconductor: CellSemiconductor;
 
     constructor(position: Cell, grid: SchemeGrid) {
         super(position, grid, SpriteModel.from(TT.cell));
 
         this.cellContent = new CellContent(this);
         this.cellRoad = new CellRoad(this);
+        this.cellSemiconductor = new CellSemiconductor(this);
 
         this.on('click', () => { this.handleClick() });
         new MouseClick(this, this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
@@ -34,13 +37,16 @@ export class CellGrid extends CellAbstract {
         if (HH.isStone(this.grid.controlPen)) {
             this.scheme.putContent(this.grid.controlPen, this.schemePosition);
         }
-        else if (CONF.ST_ROAD == this.grid.controlPen) {
+        else if (HH.isRoad(this.grid.controlPen)) {
             if (!this.scheme.isRoadBuildMode) {
                 this.scheme.startToBuildRoad(this.schemePosition);
             }
             else {
                 this.scheme.finishToBuildRoad();
             }
+        }
+        if (HH.isSemiconductor(this.grid.controlPen)) {
+            this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
         }
         else if (CONF.ST_EMPTY == this.grid.controlPen) {
             this.scheme.removeContent(this.schemePosition);
@@ -60,5 +66,6 @@ export class CellGrid extends CellAbstract {
     refreshVisibleAll() {
         this.cellContent.updateVisibleStone();
         this.cellRoad.updateVisibleRoad();
+        this.cellSemiconductor.updateVisibleSemiconductor();
     }
 }

@@ -11,7 +11,7 @@ const TT_ROAD = {
     [ROAD_PATH_DOWN]: TT.roadL,
     [ROAD_PATH_LEFT]: TT.roadL,
     [ROAD_PATH_HEAVY]: TT.roadH,
-}
+} as const;
 
 export class CellRoad {
 
