@@ -13,7 +13,7 @@ import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {HH} from "./HH";
 import {CellScheme} from "./CellScheme";
-import {CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
+import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 
 export class Scheme extends SchemeBase {
 
@@ -577,16 +577,16 @@ export class Scheme extends SchemeBase {
 
         if (cellModel.isSemiconductorChargedAround || cellModel.isSemiconductorSleepAround) { return; }
 
-        let direction;
+        let direction: CellSemiconductorDirection = ROAD_LEFT_RIGHT;
         if (cellModel.isSemiconductorAwakeAround) {
             if (cellModel.isSemiconductorAwakeAtLeftOrAtRight) { direction = ROAD_LEFT_RIGHT; }
             else { direction = ROAD_UP_DOWN; }
         }
         else if (cellSemi) {
-            if (CONF.ST_ROAD_SLEEP == cellSemi.semiconductor.type) {
+            if (cellSemi.isSleepSemiconductor) {
                 direction = (ROAD_LEFT_RIGHT == cellSemi.semiconductor.direction ? ROAD_UP_DOWN : ROAD_LEFT_RIGHT);
             }
-            else { // awake
+            else if (cellSemi.isAwakeSemiconductor) {
                 if (!cellSemi.isAnyRoadAround || cellSemi.isAnyRoadLeftOrRight) {
                     direction = ROAD_LEFT_RIGHT;
                 }

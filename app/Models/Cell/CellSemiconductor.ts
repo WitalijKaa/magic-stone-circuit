@@ -1,6 +1,6 @@
 import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
-import {CellSemiconductor as SchemeSemi, SemiColor} from "../../Core/Types/CellSemiconductor";
+import {CellSemiconductor as SchemeSemi, CellSemiconductorType, SemiColor} from "../../Core/Types/CellSemiconductor";
 import {TT} from "../../config/textures";
 import {PIXI_ROTATE_LEFT, ROAD_PATH_DOWN, ROAD_PATH_UP, ST_ROAD_AWAKE, ST_ROAD_SLEEP} from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
@@ -24,7 +24,7 @@ const SEMICONDUCTOR_SPRITES = {
 
 export class CellSemiconductor {
 
-    private isSemiconductorDrawn: boolean = false;
+    private semiconductorDrawn: CellSemiconductorType | null = null;
     private awake!: SpriteModel;
     private flow!: SpriteModel;
     private charge!: SpriteModel;
@@ -45,16 +45,16 @@ export class CellSemiconductor {
                 model.setColor(semi['color' + HH.ucfirst(spriteType)] as SemiColor)
             }
 
-            this.isSemiconductorDrawn = true;
+            this.semiconductorDrawn = semi.type;
         }
-        else if (this.isSemiconductorDrawn) {
+        else if (this.semiconductorDrawn) {
             for (let spriteType in SEMICONDUCTOR_SPRITES) {
                 if (this[spriteType]) {
                     this[spriteType].destroy();
                 }
                 this[spriteType] = null;
             }
-            this.isSemiconductorDrawn = false;
+            this.semiconductorDrawn = null;
         }
     }
 
@@ -65,6 +65,9 @@ export class CellSemiconductor {
                 this[spriteType].centeredPivot = true;
             }
             this.cell.model.addChild(this[spriteType].model);
+        }
+        else if (this.semiconductorDrawn != schemeSemi.type) {
+            this[spriteType].changeTexture(SEMICONDUCTOR_SPRITES[spriteType][schemeSemi.type]);
         }
     }
 }
