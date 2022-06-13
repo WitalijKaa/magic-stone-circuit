@@ -26,10 +26,12 @@ if (pixiAppContainer)
 
         const schemeStorage = new SchemeStorage();
         const scheme = schemeStorage.getNamedScheme(mainSchemeName);
+        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, mainSchemeName));
 
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
+        scheme.loadScheme(schemeStorage.load(mainSchemeName));
 
         function mainContainerResize() {
             if (!pixiAppContainer || !schemeGrid) { return; }

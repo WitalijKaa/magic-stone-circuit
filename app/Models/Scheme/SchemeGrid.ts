@@ -14,8 +14,9 @@ import {SpriteModel} from "../SpriteModel";
 import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
 import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
+import {IVisibleGrid} from "../../Core/Interfaces/IVisibleGrid";
 
-export class SchemeGrid {
+export class SchemeGrid implements IVisibleGrid {
 
     container: Container;
     grid!: Array<Array<CellGrid>>
@@ -183,7 +184,7 @@ export class SchemeGrid {
         this.dragX += x; // todo out of diameter
         this.dragY += y;
 
-        this.execForCells('refreshVisibleAll');
+        this.refreshAllCells();
     }
 
     // HANDLERS
@@ -222,11 +223,14 @@ export class SchemeGrid {
 
     // VISIBLE GRID
 
-    refreshVisibleCell(poss: IPoss) {
+    refreshCell(poss: IPoss) : void {
         let cell = this.getVisibleCell(this.schemeToVisiblePosition(poss));
         if (cell) {
             cell.refreshVisibleAll();
         }
+    }
+    refreshAllCells() : void {
+        this.execForCells('refreshVisibleAll');
     }
 
     getVisibleCell(poss: IPoss) : CellGrid | null {

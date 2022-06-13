@@ -17,11 +17,6 @@ import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Ty
 
 export class Scheme extends SchemeBase {
 
-    visibleUpdate(poss: IPoss) {
-        this.visibleGrid.refreshVisibleCell(poss);
-    }
-    afterChange() {}
-
     /** STONEs **/
 
     putContent(type: CellStone, poss: IPoss) : void {
@@ -31,7 +26,7 @@ export class Scheme extends SchemeBase {
         if (cell.content != type) { this.cancelNeighborsColorPathForAnyRoad(poss); }
         cell.content = type;
         this.contentCells[this.cellName(poss)] = poss;
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
 
         SIDES.map((side: DirSide) => {
             this.setAwakeColorSemiconductorByStone(CONF.STONE_TYPE_TO_ROAD_COLOR[type], HH[side](poss))
@@ -59,7 +54,7 @@ export class Scheme extends SchemeBase {
         delete(this.contentCells[this.cellName(poss)]);
         this.killCell(poss);
 
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         this.afterChange();
     }
 
@@ -135,7 +130,7 @@ export class Scheme extends SchemeBase {
 
         this.killCell(poss);
         this.removeColoringCellCache(poss);
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         this.afterChange();
     }
 
@@ -220,7 +215,7 @@ export class Scheme extends SchemeBase {
                     let cell = this.getCellForRoadForced(roadCellMem.position);
                     cell.road.type = roadCellMem.change.prev;
                     cell.road.paths = roadCellMem.change.prevPaths;
-                    this.visibleUpdate(roadCellMem.position);
+                    this.refreshVisibleCell(roadCellMem.position);
                     this.afterPutRoad(cell);
                 }
             }
@@ -490,7 +485,7 @@ export class Scheme extends SchemeBase {
         this.defineRoadPath(cell, poss, CONF.ROAD_PATH_UP, mergedZones.includes(UP), updatePathsMode);
         this.defineRoadPath(cell, poss, CONF.ROAD_PATH_DOWN, mergedZones.includes(DOWN), updatePathsMode);
         this.defineRoadPath(cell, poss, CONF.ROAD_PATH_HEAVY, ROAD_HEAVY == preferType, updatePathsMode);
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         return change;
     }
 
@@ -566,7 +561,7 @@ export class Scheme extends SchemeBase {
         else if (CONF.ST_ROAD_AWAKE == scType) {
             this.putAwakeSemiconductor(poss);
         }
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         this.afterChange();
     }
 
@@ -620,7 +615,7 @@ export class Scheme extends SchemeBase {
             this.setColorToNewSemiconductor(cellSemi);
             SIDES.map((side) => {
                 if (this.turnSleepSemiconductorHere(side, poss)) {
-                    this.visibleUpdate(HH[side](poss));
+                    this.refreshVisibleCell(HH[side](poss));
                     this.cancelNeighborsColorPathForAnyRoad(HH[side](poss));
                 }
             })
@@ -658,7 +653,7 @@ export class Scheme extends SchemeBase {
             semi.colorFlow = null;
         }
         this.refreshSemiconductorByColoredRoadsFlowsIn(cell);
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         this.removeColoringCellCache(poss);
 
         if (cell.isAwakeSemiconductor) {
@@ -707,7 +702,7 @@ export class Scheme extends SchemeBase {
             semi.colorFlow = null;
         }
         this.refreshSemiconductorByColoredRoadsFlowsIn(cell);
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
         this.removeColoringCellCache(poss);
 
         if (cell.isAwakeSemiconductor) {
@@ -780,7 +775,7 @@ export class Scheme extends SchemeBase {
 
         semi.colorFlow = color;
         semi.from = fromDir;
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
 
         if (!color) {
             this.removeColoringCellCache(poss);
@@ -903,7 +898,7 @@ export class Scheme extends SchemeBase {
             })
         }
 
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
     }
 
     private cancelColorOnDefineRoadPath(poss: IPoss, pathType: CellRoadPathType) : void {
@@ -938,7 +933,7 @@ export class Scheme extends SchemeBase {
             }
         }
 
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
     }
 
     disabledDirsToMoveColor(road: CellRoad, fromDir: DirSide) : Array<DirSide> {
@@ -989,7 +984,7 @@ export class Scheme extends SchemeBase {
                 nextSides.push(toDir);
             }
         });
-        this.visibleUpdate(poss);
+        this.refreshVisibleCell(poss);
 
         this.coloringCellCache(poss).push({
             type: CONF.ST_ROAD,
@@ -1009,7 +1004,7 @@ export class Scheme extends SchemeBase {
     moveColorToHeavy(road, color, poss: IPoss) {
         if (this.canPathSetColor(road, CONF.ROAD_PATH_HEAVY)) {
             road.paths[CONF.ROAD_PATH_HEAVY] = { color: color };
-            this.visibleUpdate(poss);
+            this.refreshVisibleCell(poss);
         }
     }
 

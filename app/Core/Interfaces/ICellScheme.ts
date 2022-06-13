@@ -4,7 +4,6 @@ import {DirSide} from "../Types/DirectionSide";
 import {IPoss} from "../IPoss";
 import {SchemeBase} from "../SchemeBase";
 import {CellRoad} from "../Types/CellRoad";
-import {SIDES} from "../../config/game";
 
 export interface ICellScheme extends IPoss {
 

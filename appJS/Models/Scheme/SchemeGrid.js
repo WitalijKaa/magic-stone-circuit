@@ -24,7 +24,7 @@ class SchemeGrid extends Sprite {
         this.sprite.hitArea = new PIXI.Rectangle(0, 0, 100000, 100000);
 
         this.scheme = Scheme.getNamedScheme(this.name);
-        this.scheme.injectVisibleUpdate((x, y) => { this.refreshVisibleCell(x, y)});
+        this.scheme.injectVisibleUpdate((x, y) => { this.refreshCell(x, y)});
         this.createVisibleGrid();
 
         setTimeout(() => { this.scheme.updateTick(); }, this.constructor.START_TIMEOUT);
@@ -75,7 +75,7 @@ class SchemeGrid extends Sprite {
         return null;
     }
 
-    refreshVisibleCell(xScheme, yScheme) {
+    refreshCell(xScheme, yScheme) {
         let cell = this.getVisibleCell(...this.schemeToVisiblePosition(xScheme, yScheme));
         if (cell) {
             cell.refreshVisibleAll();

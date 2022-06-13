@@ -15,6 +15,9 @@ import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
+import {CellStone} from "./Types/CellStone";
+import {SchemeCopy} from "./Types/SchemeCopy";
+import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -40,8 +43,8 @@ export abstract class SchemeBase {
 
     name: string;
 
-    scheme: object;
-    visibleGrid!: SchemeGrid;
+    scheme: { [keyX: number]: { [keyY: number]: null | CellScheme } } = {};
+    visibleGrid!: IVisibleGrid;
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
 
@@ -53,11 +56,42 @@ export abstract class SchemeBase {
 
     constructor(name: string) {
         this.name = name;
-        this.scheme = {};
     }
 
     init(grid: SchemeGrid) : void {
         this.visibleGrid = grid
+    }
+
+    protected refreshVisibleCell(poss: IPoss) {
+        this.visibleGrid.refreshCell(poss);
+    }
+
+    private _saveToStorageCallback: () => void = () => {};
+    public setSaveToStorageMethod(saveToStorage: () => void) : void { this._saveToStorageCallback = saveToStorage; }
+
+    protected afterChange() : void {
+        this._saveToStorageCallback();
+    }
+
+    public loadScheme(source: SchemeCopy) {
+        for (let row in source) {
+            for (let column in source[row]) {
+                let schemeCell = source[row][column];
+                if (!schemeCell) { continue; }
+                let poss = { x: +row, y: +column };
+
+                if ('road' in schemeCell) {
+                    this.getCellForRoadForced(poss, schemeCell.road.type, schemeCell.road.paths);
+                }
+                else if ('semiconductor' in schemeCell) {
+                    this.getCellForSemiconductorForced(poss, schemeCell.semiconductor.direction, schemeCell.semiconductor.type);
+                }
+                else if ('content' in schemeCell) {
+                    this.getCellForStoneForced(poss, schemeCell.content);
+                }
+            }
+        }
+        this.visibleGrid.refreshAllCells();
     }
 
     public get sizeRadius() : number { return 800000000; }
@@ -142,6 +176,13 @@ export abstract class SchemeBase {
     protected getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
+    protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
+        let model = this.getCell(poss);
+        model.road = null;
+        model.semiconductor = null;
+        model.content = stone;
+        return model as ICellWithContent;
+    }
     public findCellOfContent(poss: IPoss) : null | ICellWithContent {
         return this.findCellOf('content', poss) as null | ICellWithContent;
     }
@@ -153,12 +194,12 @@ export abstract class SchemeBase {
         }
         return model;
     }
-    protected getCellForRoadForced(poss: IPoss) : ICellWithRoad {
+    protected getCellForRoadForced(poss: IPoss, type: CellRoadType = ROAD_LIGHT, paths: Array<CellPath> = [...CONF.ALL_PATHS_EMPTY]) : ICellWithRoad {
         let model = this.getCell(poss);
         model.content = null;
         model.semiconductor = null;
         if (model && !model.road) {
-            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: 0 };
+            model.road = { type: type, paths: paths, checkRun: 0 };
         }
         return model as ICellWithRoad;
     }
@@ -205,7 +246,7 @@ export abstract class SchemeBase {
         if (!this.scheme[poss.x] || !this.scheme[poss.x][poss.y]) {
             return this.createCell(poss);
         }
-        return this.scheme[poss.x][poss.y];
+        return this.scheme[poss.x][poss.y]!;
     }
 
     public killCell(poss: IPoss) : void {
