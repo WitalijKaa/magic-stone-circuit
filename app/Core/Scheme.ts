@@ -27,10 +27,7 @@ export class Scheme extends SchemeBase {
         cell.content = type;
         this.contentCells[this.cellName(poss)] = poss;
         this.refreshVisibleCell(poss);
-
-        SIDES.map((side: DirSide) => {
-            this.setAwakeColorSemiconductorByStone(CONF.STONE_TYPE_TO_ROAD_COLOR[type], HH[side](poss))
-        });
+        this.setAwakeColorAround(poss, type);
 
         // if (this.coloringAwaitTick) {
         //     this.coloringCellCache(poss).push({
@@ -48,9 +45,7 @@ export class Scheme extends SchemeBase {
         let cell = this.findCellOfContent(poss);
         if (!cell) { return; }
         this.cancelNeighborsColorPathForAnyRoad(poss);
-        SIDES.map((side: DirSide) => {
-            this.setAwakeColorSemiconductorByStone(null, HH[side](poss))
-        });
+        this.setAwakeColorAround(poss, null);
         delete(this.contentCells[this.cellName(poss)]);
         this.killCell(poss);
 
@@ -64,6 +59,12 @@ export class Scheme extends SchemeBase {
 
         SIDES.map((sideTo: DirSide) => {
             this.setColorToRoad(CONF.STONE_TYPE_TO_ROAD_COLOR[cell!.content], CONF.OPPOSITE_SIDE[sideTo], cell!.cellPosition[sideTo])
+        });
+    }
+
+    public setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void {
+        SIDES.map((side: DirSide) => {
+            this.setAwakeColorSemiconductorByStone(stoneColor ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneColor] : null, HH[side](poss))
         });
     }
 

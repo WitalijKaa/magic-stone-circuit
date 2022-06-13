@@ -74,6 +74,7 @@ export abstract class SchemeBase {
     }
 
     public loadScheme(source: SchemeCopy) {
+        let toAwake: Array<[IPoss, CellStone]> = [];
         for (let row in source) {
             for (let column in source[row]) {
                 let schemeCell = source[row][column];
@@ -85,23 +86,30 @@ export abstract class SchemeBase {
                 }
                 else if ('semiconductor' in schemeCell) {
                     this.getCellForSemiconductorForced(poss, schemeCell.semiconductor.direction, schemeCell.semiconductor.type);
+                    if (CONF.ST_ROAD_SLEEP == schemeCell.semiconductor.type) {
+                        this.contentCells[this.cellName(poss)] = poss;
+                    }
                 }
                 else if ('content' in schemeCell) {
                     this.getCellForStoneForced(poss, schemeCell.content);
+                    this.contentCells[this.cellName(poss)] = poss;
+                    toAwake.push([poss, schemeCell.content])
                 }
             }
         }
+        toAwake.map((params) => { this.setAwakeColorAround(...params); });
         this.visibleGrid.refreshAllCells();
     }
 
     public get sizeRadius() : number { return 800000000; }
-    private get coloringSpeedMs() : number { return 200; }
+    private get coloringSpeedMs() : number { return 50; }
 
     // ABSTRACT
 
     public abstract get isRoadBuildMode() : boolean;
     public abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadCell(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
+    public abstract setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void;
 
     // LIFE CYCLE
 

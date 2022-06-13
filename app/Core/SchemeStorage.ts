@@ -38,7 +38,6 @@ export class SchemeStorage {
         }
 
         this.saveToDisk('__schema11__' + name, schemeCopy)
-        console.log(name, schemeCopy);
     }
 
     public load(name: string) : SchemeCopy {
