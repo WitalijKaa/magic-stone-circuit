@@ -5,6 +5,13 @@ html, body {
     overflow: hidden;
 }
 
+.el--texted {
+    color: #cfd8dc;
+    font-size: 14px;
+    font-family: Consolas;
+    user-select: none;
+}
+
 .main-container {
     position: relative;
     width: 100%;
@@ -56,15 +63,17 @@ html, body {
 
 .img-btn__tip {
     position: absolute;
-    color: #cfd8dc;
-    font-size: 14px;
-    font-family: Consolas;
     left: 0;
     top: 0;
-    user-select: none;
 }
 
 .img-btn__tip--right {
     left: initial;
     right: 0;
+}
+
+.scheme-name {
+    position: fixed;
+    right: 0;
+    bottom: 0;
 }

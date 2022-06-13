@@ -55,7 +55,7 @@ export function viewControlPen(pen: string) : void {
 export function loadScheme(eventKey: string, scheme: Scheme, schemeStorage: SchemeStorage) {
     if (SWITCH_TO_OTHER_SCHEME.includes(eventKey)) {
         let name = prompt('name of Scheme...');
-        if (!name) { name = DEFAULT_SCHEME_NAME; }
+        if (!name) { return; }
 
         let freshScheme = scheme.resetScheme();
 
@@ -64,10 +64,14 @@ export function loadScheme(eventKey: string, scheme: Scheme, schemeStorage: Sche
             schemeStorage.resetScheme();
             schemeStorage.save();
             scheme.loadScheme(schemeStorage.load(freshScheme));
+            name = DEFAULT_SCHEME_NAME;
         }
         else {
             scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
             scheme.loadScheme(schemeStorage.load(freshScheme, name));
         }
+
+        let $name = document.getElementById('scheme-name');
+        if ($name) { $name.innerText = name; }
     }
 }

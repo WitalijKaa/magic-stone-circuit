@@ -12,6 +12,7 @@ import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
 import {findButtonCode, loadScheme, viewControlPen} from "./config/controls";
 import {Scheme} from "./Core/Scheme";
+import {DEFAULT_SCHEME_NAME} from "./config/game";
 
 if (pixiAppContainer)
 {
@@ -33,6 +34,9 @@ if (pixiAppContainer)
 
         scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
         scheme.loadScheme(schemeStorage.load(scheme.scheme));
+
+        let $name = document.getElementById('scheme-name');
+        if ($name) { $name.innerText = DEFAULT_SCHEME_NAME; }
 
         function mainContainerResize() {
             if (!pixiAppContainer || !schemeGrid) { return; }
