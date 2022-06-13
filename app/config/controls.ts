@@ -18,13 +18,23 @@ export const CONTROL_EVENTS_KEYS = {
     'R': 'changeBuildRoadWayFixed',
 }
 
-export function findButtonCode($imgBtnElem) {
+export function findButtonCode($imgBtnElem: HTMLElement) : string {
     let code;
     for (let ix = 0; ix < $imgBtnElem.childNodes.length; ix++) {
+        // @ts-ignore
         if ($imgBtnElem.childNodes[ix].dataset && $imgBtnElem.childNodes[ix].dataset.tip) {
+            // @ts-ignore
             code = $imgBtnElem.childNodes[ix].dataset.tip;
             break;
         }
     }
     return code;
+}
+
+export function viewControlPen(pen: string) : void {
+    let $el = document.querySelector('[data-tip="' + pen + '"]') as HTMLMediaElement;
+    let $btn = document.getElementById('current-btn');
+    if ($el && $btn) {
+        $btn.style.backgroundImage = "url('" + $el.currentSrc + "')";
+    }
 }

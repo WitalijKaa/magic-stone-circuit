@@ -10,6 +10,7 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
+import {findButtonCode, viewControlPen} from "./config/controls";
 
 if (pixiAppContainer)
 {
@@ -45,21 +46,24 @@ if (pixiAppContainer)
         document.addEventListener('keypress', (event) => {
             if (CONTROL.CONTROL_KEYS.hasOwnProperty(event.key)) {
                 schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
-                let $el = document.querySelector('[data-tip="' + schemeGrid.controlPen + '"]');
-                if ($el) {
-                    // @ts-ignore
-                    document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
-                }
+                viewControlPen(schemeGrid.controlPen);
             }
             if (CONTROL.CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
                 //Scene.eventHandler(CONTROL.CONTROL_EVENTS_KEYS[event.key])
             }
             if ('m' == event.key) { schemeGrid.scheme.devCellEcho(); }
         });
-        let $el = document.querySelector('[data-tip="' + schemeGrid.controlPen + '"]');
-        if ($el) {
-            // @ts-ignore
-            document.getElementById('current-btn').style.backgroundImage = "url('" + $el.currentSrc + "')";
+
+        viewControlPen(schemeGrid.controlPen);
+
+        let $buttons = document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>;
+        for (let $btn of $buttons) {
+            let $subscriber = $btn;
+            $btn.addEventListener('click', () => {
+                let code = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
+                schemeGrid.controlPen = code;
+                viewControlPen(schemeGrid.controlPen);
+            })
         }
     });
 }

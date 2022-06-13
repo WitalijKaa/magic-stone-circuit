@@ -51,6 +51,7 @@ html, body {
 
 .img-btn__image {
     width: 100%;
+    user-select: none;
 }
 
 .img-btn__tip {
@@ -60,6 +61,7 @@ html, body {
     font-family: Consolas;
     left: 0;
     top: 0;
+    user-select: none;
 }
 
 .img-btn__tip--right {
