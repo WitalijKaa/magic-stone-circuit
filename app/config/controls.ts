@@ -27,6 +27,10 @@ export const CONTROL_EVENTS_KEYS = {
     'D': 'resetScheme',
     'в': 'resetScheme',
     'В': 'resetScheme',
+    '=': 'speedUp',
+    '+': 'speedUp',
+    '-': 'speedDown',
+    '_': 'speedDown',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];

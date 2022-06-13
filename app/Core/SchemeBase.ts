@@ -106,7 +106,20 @@ export abstract class SchemeBase {
     }
 
     public get sizeRadius() : number { return 800000000; }
-    private get coloringSpeedMs() : number { return 50; }
+
+    // SPEED
+
+    private _coloringSpeedMs: number = 100;
+    private get coloringSpeedMs() : number { return this._coloringSpeedMs; }
+
+    public speedUp() {
+        this._coloringSpeedMs -= 20;
+        if (this._coloringSpeedMs < 40) { this._coloringSpeedMs = 30; }
+    }
+    public speedDown() {
+        this._coloringSpeedMs += 30;
+        if (this._coloringSpeedMs > 200) { this._coloringSpeedMs = 200; }
+    }
 
     // ABSTRACT
 
