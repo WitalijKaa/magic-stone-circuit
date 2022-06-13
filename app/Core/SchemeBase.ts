@@ -16,7 +16,7 @@ import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {CellStone} from "./Types/CellStone";
-import {SchemeCopy} from "./Types/SchemeCopy";
+import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 
 const ROAD_DEV_PATH = {
@@ -41,22 +41,19 @@ const COLOR_DEV = {
 
 export abstract class SchemeBase {
 
-    name: string;
-
-    scheme: { [keyX: number]: { [keyY: number]: null | CellScheme } } = {};
+    scheme: SchemeStructure = {};
     visibleGrid!: IVisibleGrid;
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
 
     protected contentCells: { [key: string]: IPoss } = {};
+    protected cacheColorings: { [key: string]: Array<ColorCellCache> } = {};
     protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
     public get checkRun() : number { return this._checkRun += 3; }
 
-    constructor(name: string) {
-        this.name = name;
-    }
+    constructor(public name: string) { }
 
     init(grid: SchemeGrid) : void {
         this.visibleGrid = grid
@@ -71,6 +68,15 @@ export abstract class SchemeBase {
 
     protected afterChange() : void {
         this._saveToStorageCallback();
+    }
+
+    public resetScheme() : SchemeStructure {
+        this.scheme = {};
+        this.contentCells = {};
+        this.cacheColorings = {};
+        this.coloringAwaitTick = false;
+        this.visibleGrid.refreshAllCells();
+        return this.scheme;
     }
 
     public loadScheme(source: SchemeCopy) {
@@ -405,8 +411,6 @@ export abstract class SchemeBase {
     }
 
     // COLORS
-
-    cacheColorings: {[key: string]: Array<ColorCellCache>} = {};
 
     coloringCellCache(poss: IPoss) : Array<ColorCellCache> {
         let name = this.cellName(poss);

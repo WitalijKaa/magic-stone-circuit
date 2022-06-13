@@ -10,7 +10,8 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
-import {findButtonCode, viewControlPen} from "./config/controls";
+import {findButtonCode, loadScheme, viewControlPen} from "./config/controls";
+import {Scheme} from "./Core/Scheme";
 
 if (pixiAppContainer)
 {
@@ -26,13 +27,14 @@ if (pixiAppContainer)
         const mainSchemeName = 'mainGrid';
 
         const schemeStorage = new SchemeStorage();
-        const scheme = schemeStorage.getNamedScheme(mainSchemeName);
-        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, mainSchemeName));
+        const scheme = new Scheme(mainSchemeName);
 
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
-        scheme.loadScheme(schemeStorage.load(mainSchemeName));
+
+        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, mainSchemeName));
+        scheme.loadScheme(schemeStorage.load(scheme.scheme, mainSchemeName));
 
         function mainContainerResize() {
             if (!pixiAppContainer || !schemeGrid) { return; }
@@ -49,6 +51,7 @@ if (pixiAppContainer)
                 viewControlPen(schemeGrid.controlPen);
             }
             schemeGrid.controlEvent = event.key;
+            loadScheme(event.key, mainSchemeName, scheme, schemeStorage);
         });
 
         viewControlPen(schemeGrid.controlPen);
@@ -57,8 +60,13 @@ if (pixiAppContainer)
         for (let $btn of $buttons) {
             let $subscriber = $btn;
             $btn.addEventListener('click', () => {
-                schemeGrid.controlPen = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
-                viewControlPen(schemeGrid.controlPen);
+                let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
+                if (CONTROL.CONTROL_KEYS.hasOwnProperty(pen)) {
+                    schemeGrid.controlPen = pen;
+                    viewControlPen(pen);
+                }
+                schemeGrid.controlEvent = pen;
+                loadScheme(pen, mainSchemeName, scheme, schemeStorage);
             })
         }
     });

@@ -42,4 +42,4 @@ https://www.instagram.com/witalij.kaa/
 - Task 26: delete LIGHT HEAVY road types; implement directions types. --D
 - Task 27: variations on road-cell switch 2.
 - Task 28: right click road build feature improve.
-- Task 29: TypeScript.
+- Task 29: TypeScript. --D

@@ -2,21 +2,23 @@ import {Scheme} from './Scheme'
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
-import {SchemeCopy} from "./Types/SchemeCopy";
+import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 
 export class SchemeStorage {
 
-    private schemes: {[key: string]: Scheme} = {};
+    private schemes: { [key: string]: SchemeStructure } = {};
 
-    public getNamedScheme(name: string) : Scheme {
+    public getNamedScheme(name: string) : SchemeStructure {
         if (!this.schemes[name]) {
-            this.schemes[name] = new Scheme(name);
+            this.schemes[name] = {};
         }
         return this.schemes[name];
     }
 
+    public resetScheme(name: string) { this.schemes[name] = {}; }
+
     public save(name: string) : void {
-        let scheme = this.getNamedScheme(name).scheme as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor } };
+        let scheme = this.getNamedScheme(name) as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor } };
         let schemeCopy: SchemeCopy = {};
 
         for (let row in scheme) {
@@ -37,11 +39,12 @@ export class SchemeStorage {
             }
         }
 
-        this.saveToDisk('__schema11__' + name, schemeCopy)
+        this.saveToDisk('__schema__' + name, schemeCopy)
     }
 
-    public load(name: string) : SchemeCopy {
-        return this.getFromDisk('__schema11__' + name);
+    public load(scheme: SchemeStructure, name: string) : SchemeCopy {
+        this.schemes[name] = scheme;
+        return this.getFromDisk('__schema__' + name);
     }
 
     private saveToDisk(key: string, value: SchemeCopy) : void {
