@@ -16,6 +16,7 @@ export const CONTROL_KEYS = {
 export const CONTROL_EVENTS_KEYS = {
     'r': 'changeBuildRoadWayFixed',
     'R': 'changeBuildRoadWayFixed',
+    'm': 'devCellEcho',
 }
 
 export function findButtonCode($imgBtnElem: HTMLElement) : string {

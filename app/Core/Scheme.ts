@@ -149,7 +149,7 @@ export class Scheme extends SchemeBase {
         zonePainted: 'Center' as GridZone,
     };
 
-    changeBuildRoadWayFixed() : void {
+    public changeBuildRoadWayFixed() : void {
         if (this.isRoadBuildMode) {
             if (!this.buildingRoad.way.fixed) {
                 this.buildingRoad.way.fixed = this.nextWayToBuildRoadOnQueue(this.buildingRoad.way.auto);

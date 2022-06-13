@@ -15,6 +15,7 @@ import {MousePossOnGrid} from "../../Core/Types/MousePossOnGrid";
 import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
 import {IVisibleGrid} from "../../Core/Interfaces/IVisibleGrid";
+import {CONTROL_EVENTS_KEYS} from "../../config/controls";
 
 export class SchemeGrid implements IVisibleGrid {
 
@@ -89,6 +90,12 @@ export class SchemeGrid implements IVisibleGrid {
         }
         else {
             this.handleMouseMove(...this.lastMousePxGlobalPositions);
+        }
+    }
+
+    public set controlEvent(val) {
+        if (val in CONTROL_EVENTS_KEYS) {
+            this.scheme[CONTROL_EVENTS_KEYS[val]]();
         }
     }
 

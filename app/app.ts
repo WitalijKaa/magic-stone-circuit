@@ -48,10 +48,7 @@ if (pixiAppContainer)
                 schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
                 viewControlPen(schemeGrid.controlPen);
             }
-            if (CONTROL.CONTROL_EVENTS_KEYS.hasOwnProperty(event.key)) {
-                //Scene.eventHandler(CONTROL.CONTROL_EVENTS_KEYS[event.key])
-            }
-            if ('m' == event.key) { schemeGrid.scheme.devCellEcho(); }
+            schemeGrid.controlEvent = event.key;
         });
 
         viewControlPen(schemeGrid.controlPen);
@@ -60,8 +57,7 @@ if (pixiAppContainer)
         for (let $btn of $buttons) {
             let $subscriber = $btn;
             $btn.addEventListener('click', () => {
-                let code = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
-                schemeGrid.controlPen = code;
+                schemeGrid.controlPen = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
                 viewControlPen(schemeGrid.controlPen);
             })
         }
