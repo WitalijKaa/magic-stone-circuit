@@ -53,8 +53,6 @@ export abstract class SchemeBase {
     private _checkRun: number = 1;
     public get checkRun() : number { return this._checkRun += 3; }
 
-    constructor(public name: string) { }
-
     init(grid: SchemeGrid) : void {
         this.visibleGrid = grid
     }

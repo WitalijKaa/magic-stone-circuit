@@ -24,17 +24,15 @@ if (pixiAppContainer)
     const loader = new FactoryGraphics();
     SpriteModel.implementGraphics(loader);
     loader.loadTextures(() => {
-        const mainSchemeName = 'mainGrid';
-
         const schemeStorage = new SchemeStorage();
-        const scheme = new Scheme(mainSchemeName);
+        const scheme = new Scheme();
 
         const schemeContainer = new SchemeContainer(pixiAppContainer);
-        const schemeGrid = new SchemeGrid(mainSchemeName, scheme, schemeContainer);
+        const schemeGrid = new SchemeGrid(scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
 
-        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, mainSchemeName));
-        scheme.loadScheme(schemeStorage.load(scheme.scheme, mainSchemeName));
+        scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
+        scheme.loadScheme(schemeStorage.load(scheme.scheme));
 
         function mainContainerResize() {
             if (!pixiAppContainer || !schemeGrid) { return; }
@@ -51,7 +49,7 @@ if (pixiAppContainer)
                 viewControlPen(schemeGrid.controlPen);
             }
             schemeGrid.controlEvent = event.key;
-            loadScheme(event.key, mainSchemeName, scheme, schemeStorage);
+            loadScheme(event.key, scheme, schemeStorage);
         });
 
         viewControlPen(schemeGrid.controlPen);
@@ -66,7 +64,7 @@ if (pixiAppContainer)
                     viewControlPen(pen);
                 }
                 schemeGrid.controlEvent = pen;
-                loadScheme(pen, mainSchemeName, scheme, schemeStorage);
+                loadScheme(pen, scheme, schemeStorage);
             })
         }
     });

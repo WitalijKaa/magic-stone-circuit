@@ -1,5 +1,8 @@
 import {DirSide} from "../Core/Types/DirectionSide";
 
+export const DEFAULT_SCHEME_NAME = 'mainGrid';
+export const RESET_SCHEME_NAME = 'reset';
+
 export const START_TIMEOUT = 1000;
 export const GRID_OFFSET = 2;
 

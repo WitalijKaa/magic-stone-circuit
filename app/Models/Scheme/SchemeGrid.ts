@@ -32,8 +32,7 @@ export class SchemeGrid implements IVisibleGrid {
 
     private controlPenCode: any = CONF.ST_STONE_VIOLET;
 
-    constructor(public readonly name: string, public scheme: Scheme, public htmlContainer: SchemeContainer) {
-        this.name = name;
+    constructor(public scheme: Scheme, public htmlContainer: SchemeContainer) {
         this.htmlContainer = htmlContainer;
         this.scheme = scheme;
         scheme.init(this);

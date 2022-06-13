@@ -1,8 +1,8 @@
-import {Scheme} from './Scheme'
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
+import {DEFAULT_SCHEME_NAME} from "../config/game";
 
 export class SchemeStorage {
 
@@ -15,9 +15,9 @@ export class SchemeStorage {
         return this.schemes[name];
     }
 
-    public resetScheme(name: string) { this.schemes[name] = {}; }
+    public resetScheme(name: string = DEFAULT_SCHEME_NAME) { this.schemes[name] = {}; }
 
-    public save(name: string) : void {
+    public save(name: string = DEFAULT_SCHEME_NAME) : void {
         let scheme = this.getNamedScheme(name) as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor } };
         let schemeCopy: SchemeCopy = {};
 
@@ -42,7 +42,11 @@ export class SchemeStorage {
         this.saveToDisk('__schema__' + name, schemeCopy)
     }
 
-    public load(scheme: SchemeStructure, name: string) : SchemeCopy {
+    public saveCallback(name: string = DEFAULT_SCHEME_NAME) : () => void {
+        return this.save.bind(this, name);
+    }
+
+    public load(scheme: SchemeStructure, name: string = DEFAULT_SCHEME_NAME) : SchemeCopy {
         this.schemes[name] = scheme;
         return this.getFromDisk('__schema__' + name);
     }

@@ -1,6 +1,7 @@
 import * as CONF from "./game";
 import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
+import {DEFAULT_SCHEME_NAME, RESET_SCHEME_NAME} from "./game";
 
 export const CONTROL_KEYS = {
     '1': CONF.ST_STONE_VIOLET,
@@ -51,19 +52,18 @@ export function viewControlPen(pen: string) : void {
     }
 }
 
-export function loadScheme(eventKey: string, mainSchemeName: string, scheme: Scheme, schemeStorage: SchemeStorage) {
+export function loadScheme(eventKey: string, scheme: Scheme, schemeStorage: SchemeStorage) {
     if (SWITCH_TO_OTHER_SCHEME.includes(eventKey)) {
         let name = prompt('name of Scheme...');
-        if (!name) { name = mainSchemeName; }
+        if (!name) { name = DEFAULT_SCHEME_NAME; }
 
-        scheme.name = name;
         let freshScheme = scheme.resetScheme();
-        if ('reset' == name) {
-            scheme.name = mainSchemeName;
-            scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, mainSchemeName));
-            schemeStorage.resetScheme(mainSchemeName);
-            schemeStorage.save(mainSchemeName);
-            scheme.loadScheme(schemeStorage.load(freshScheme, name));
+
+        if (RESET_SCHEME_NAME == name) {
+            scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
+            schemeStorage.resetScheme();
+            schemeStorage.save();
+            scheme.loadScheme(schemeStorage.load(freshScheme));
         }
         else {
             scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
