@@ -337,9 +337,9 @@ export abstract class SchemeBase {
     isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return false; }
-        let path = CONF.SIDE_TO_ROAD_PATH[toDir];
-        // @ts-ignore
-        return !!(cell.road && cell.road.paths[path] && true !== cell.road.paths[path] && cell.road.paths[path].from == CONF.OPPOSITE_SIDE[toDir]);
+        let pathType = CONF.SIDE_TO_ROAD_PATH[toDir];
+        let path = cell.road.paths[pathType];
+        return path && true !== path && path.from == CONF.OPPOSITE_SIDE[toDir];
     }
 
     // PATHS
@@ -390,6 +390,10 @@ export abstract class SchemeBase {
 
     // COLORs cancel
 
+    protected eraseColorOnRoadPath(road: CellRoad, pathType: CellRoadPathType) {
+        if (road.paths[pathType]) { road.paths[pathType] = true; }
+    }
+
     protected cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             this.cancelRoadColorPathBySide(side, poss);
@@ -421,6 +425,18 @@ export abstract class SchemeBase {
         if (hasToFlowOut && !sideCell.isColoredRoadPathAtSideFlowFromThatSide(sideFrom)) { return; }
 
         this.cancelColorOnRoadFromSide(null, CONF.OPPOSITE_SIDE[side], sideCell);
+    }
+
+    protected handleCheckRunForRoadCancelColorOk(road: CellRoad, checkRun: number | null) : number | false {
+        if (!checkRun) {
+            checkRun = this.checkRun;
+        }
+        else if (checkRun + 1 == road.checkRun) { return false; }
+
+        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; } // allow twice to cancel color on a cell
+        else { road.checkRun = checkRun; }
+
+        return checkRun;
     }
 
     // COLORS

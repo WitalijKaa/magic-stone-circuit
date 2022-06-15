@@ -5,6 +5,7 @@ import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
 import {CellStone} from "./Types/CellStone";
 import {
+    CellPath,
     CellRoad,
     CellRoadPathType,
     CellRoadType,
@@ -853,64 +854,49 @@ export class Scheme extends SchemeBase {
     protected cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss) : void {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return; }
+
         let road = cell.road;
+        let fromPath: CellRoadPathType = CONF.SIDE_TO_ROAD_PATH[fromDir];
+        if (!road.paths[fromPath]) { return; }
 
-        if (!checkRun) {
-            checkRun = this.checkRun;
-        }
-        else if (checkRun + 1 == road.checkRun) { return; }
+        let nextCheckRun = this.handleCheckRunForRoadCancelColorOk(road, checkRun);
+        if (false === nextCheckRun) { return; }
 
-        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; } // allow twice to cancel color on a cell
-        else { road.checkRun = checkRun; }
+        let oppositeDir: DirSide = CONF.OPPOSITE_SIDE[fromDir];
+        let oppositePath: CellRoadPathType = CONF.SIDE_TO_ROAD_PATH[oppositeDir];
 
-        let toDir: DirSide = CONF.OPPOSITE_SIDE[fromDir];
-        let fromPath = CONF.SIDE_TO_ROAD_PATH[fromDir];
-        let oppositePath = CONF.SIDE_TO_ROAD_PATH[toDir];
+        this.eraseColorOnRoadPath(road, fromPath); // from path
+        this.removeColoringCellCacheToDir(oppositeDir, poss);
+        this.removeColoringCellCacheToDir(fromDir, poss);
 
-        if (road.paths[fromPath]) {
-            if (this.canPathCancelColor(road, fromPath)) {
-                road.paths[fromPath] = true;
-            }
-            this.removeColoringCellCacheToDir(toDir, poss);
-            this.removeColoringCellCacheToDir(fromDir, poss);
-        }
+        this.eraseColorOnSecondRoadPath(poss, road, oppositeDir, nextCheckRun);
 
-        if (road.paths[oppositePath]) {
-            if (this.canPathCancelColor(road, oppositePath)) {
-                if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
-                    this.setColorToSemiconductorByRoad(null, fromDir, cell.cellPosition[toDir]);
-                }
-                road.paths[oppositePath] = true;
-            }
-            this.removeColoringCellCacheToDir(toDir, poss);
-            this.removeColoringCellCacheToDir(fromDir, poss);
-            this.cancelColorOnRoadFromSide(checkRun, fromDir, cell.cellPosition[toDir]);
-        }
+        this.eraseColorOnRoadPath(road, CONF.ROAD_PATH_HEAVY);
 
-        if (this.canPathCancelColor(road, CONF.ROAD_PATH_HEAVY)) {
-            road.paths[CONF.ROAD_PATH_HEAVY] = true;
-        }
-
-        let cellPosition = cell.cellPosition; // weird typeScript :(
-        if (cell && road.paths[fromPath] && (!road.paths[oppositePath] || road.paths[CONF.ROAD_PATH_HEAVY]))
-        {
-            CONF.SIDES_TURN_90[fromDir].map((turnSide: DirSide) => {
-                let turnPath = CONF.SIDE_TO_ROAD_PATH[turnSide];
-                if (this.canPathCancelColor(road, turnPath)) {
-                    if (this.isColoredRoadFlowsOutToDirection(turnSide, poss)) {
-                        this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[turnSide], cellPosition[turnSide]);
-                    }
-                    road.paths[turnPath] = true;
-                }
-                if (road.paths[turnPath]) {
-                    this.removeColoringCellCacheToDir(turnPath, poss);
-                    this.removeColoringCellCacheToDir(CONF.OPPOSITE_SIDE[turnSide], poss);
-                    this.cancelColorOnRoadFromSide(checkRun, CONF.OPPOSITE_SIDE[turnSide], cellPosition[turnSide])
-                }
+        if (!road.paths[oppositePath] || road.paths[CONF.ROAD_PATH_HEAVY]) {
+            CONF.SIDES_TURN_90[fromDir].map((turnDir: DirSide) => {
+                this.eraseColorOnSecondRoadPath(poss, road, turnDir, nextCheckRun as number);
             })
         }
 
         this.refreshVisibleCell(poss);
+    }
+
+    private eraseColorOnSecondRoadPath(poss: IPoss, road: CellRoad, toDir: DirSide, nextCheckRun: number) : void {
+        let pathType = CONF.SIDE_TO_ROAD_PATH[toDir];
+        if (!road.paths[pathType]) { return; }
+
+        let fromDir: DirSide = CONF.OPPOSITE_SIDE[toDir];
+        let nextCellPoss: IPoss = HH[toDir](poss);
+
+        if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
+            this.setColorToSemiconductorByRoad(null, fromDir, nextCellPoss);
+        }
+        this.eraseColorOnRoadPath(road, pathType);
+        this.cancelColorOnRoadFromSide(nextCheckRun, fromDir, nextCellPoss);
+
+        this.removeColoringCellCacheToDir(toDir, poss);
+        this.removeColoringCellCacheToDir(fromDir, poss);
     }
 
     private cancelColorOnDefineRoadPath(poss: IPoss, pathType: CellRoadPathType) : void {
