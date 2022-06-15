@@ -62,7 +62,7 @@ export class Scheme extends SchemeBase {
         this.afterChange();
     }
 
-    protected setColorForRoadsAroundByStone(poss: IPoss) : void {
+    protected setColorForRoadsAroundByStone(poss: IPoss) : void { // for update tick
         let cell = this.findCellOfContent(poss);
         if (!cell) { return; }
 
@@ -79,7 +79,7 @@ export class Scheme extends SchemeBase {
 
     /** ROADs **/
 
-    tapRoad(poss: IPoss) {
+    public tapRoad(poss: IPoss) {
         if (this.isRoadBuildMode) { return; }
 
         if (false === this.setPathsOnRoadByTap(poss)) {
@@ -128,16 +128,12 @@ export class Scheme extends SchemeBase {
         return this.setPathsOnRoad(false, UP, DOWN, preferType, poss);
     }
 
-    afterPutRoad(cell: ICellWithRoad) {
-        this.removeColoringCellCache(cell);
-        this.cancelColorPathsRoadsAroundByPaths(cell.road.paths, cell);
-    }
-
     removeRoad(poss: IPoss) {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return; }
 
         this.cancelColorPathsRoadsAroundByPaths(cell.road.paths, poss);
+        this.cancelAwakeColorByRoadPaths(cell.road.paths, poss);
 
         this.killCell(poss);
         this.removeColoringCellCache(poss);
@@ -227,7 +223,8 @@ export class Scheme extends SchemeBase {
                     cell.road.type = roadCellMem.change.prev;
                     cell.road.paths = roadCellMem.change.prevPaths;
                     this.refreshVisibleCell(roadCellMem.position);
-                    this.afterPutRoad(cell);
+                    this.removeColoringCellCache(cell);
+                    this.cancelColorPathsRoadsAroundByPaths(cell.road.paths, cell);
                 }
             }
         })

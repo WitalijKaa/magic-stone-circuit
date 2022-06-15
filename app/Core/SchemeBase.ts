@@ -406,7 +406,14 @@ export abstract class SchemeBase {
         SIDES.map((side: DirSide) => {
             if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
                 this.cancelRoadColorPathBySide(side, poss);
-                //this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
+            }
+        });
+    }
+
+    protected cancelAwakeColorByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
+        SIDES.map((side: DirSide) => {
+            if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
+                this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
             }
         });
     }
