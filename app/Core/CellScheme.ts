@@ -121,7 +121,7 @@ export class CellScheme implements ICellScheme {
     }
 
     public isColoredRoadPathFromSide(side: DirSide) : boolean {
-        return this.road!.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[side]]] && true !== this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
+        return this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]] && true !== this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]];
     }
 
     public isUncoloredRoadPathFromSide(side: DirSide) : boolean {
@@ -131,15 +131,11 @@ export class CellScheme implements ICellScheme {
     public isColoredRoadPathAtSideFlowToThatSide(side: DirSide) : boolean {
         if (!this.isColoredRoadPathFromSide(side)) { return false; }
         return !!this.getColorOfPath(this.road!, side, CONF.OPPOSITE_SIDE[side]);
-        // let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
-        // return 'boolean' != typeof path && path.from == CONF.OPPOSITE_SIDE[side];
     }
 
     public isColoredRoadPathAtSideFlowFromThatSide(side: DirSide) : boolean {
         if (!this.isColoredRoadPathFromSide(side)) { return false; }
         return !!this.getColorOfPath(this.road!, side, side);
-        // let path = this.road!.paths[CONF.SIDE_TO_ROAD_PATH[side]]
-        // return 'boolean' != typeof path && path.from == side;
     }
 
     public getColorOfPath(road: CellRoad, sideOfPath: DirSide, flowFromDir: DirSide) : number | null {

@@ -71,7 +71,7 @@ export class Scheme extends SchemeBase {
         });
     }
 
-    protected setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStone | null) : void {
+    protected setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: SemiColor) : void {
         SIDES.map((side: DirSide) => {
             this.setAwakeColorToSemiconductor(stoneColor ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneColor] : null, HH[side](poss), true);
         });
