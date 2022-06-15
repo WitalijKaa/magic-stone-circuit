@@ -14,7 +14,7 @@ import {DirSide} from "./Types/DirectionSide";
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
-import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
+import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 import {CellStone} from "./Types/CellStone";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
@@ -126,7 +126,8 @@ export abstract class SchemeBase {
     public abstract get isRoadBuildMode() : boolean;
     public abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
-    public abstract setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void;
+    protected abstract setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void;
+    protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
 
     // LIFE CYCLE
 
@@ -164,7 +165,7 @@ export abstract class SchemeBase {
                 if (cell.content) {
                     this.coloringCellCache(this.contentCells[cellName]).push({
                         type: CONF.ST_STONE_VIOLET,
-                        method: 'setColorAroundByStone',
+                        method: 'setColorForRoadsAroundByStone',
                         params: [this.contentCells[cellName]],
                         cacheDirections: [...CONF.SIDES],
                     });
@@ -397,6 +398,7 @@ export abstract class SchemeBase {
     protected cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             this.cancelRoadColorPathBySide(side, poss);
+            //this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
         });
     }
 
@@ -404,6 +406,7 @@ export abstract class SchemeBase {
         SIDES.map((side: DirSide) => {
             if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
                 this.cancelRoadColorPathBySide(side, poss);
+                //this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
             }
         });
     }
@@ -427,7 +430,7 @@ export abstract class SchemeBase {
         this.cancelColorOnRoadFromSide(null, CONF.OPPOSITE_SIDE[side], sideCell);
     }
 
-    protected handleCheckRunForRoadCancelColorOk(road: CellRoad, checkRun: number | null) : number | false {
+    protected verifyThatCheckRunForRoadCancelColorIsOk(road: CellRoad, checkRun: number | null) : number | false {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
