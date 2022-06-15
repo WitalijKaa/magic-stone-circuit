@@ -314,21 +314,21 @@ export abstract class SchemeBase {
         return paths;
     }
 
-    mergeZones(zones: Array<string>, poss: IPoss) {
+    protected zonesMergedWithRoadPathsAsDirSide(zones: Array<DirSide>, poss: IPoss) : Array<DirSide> {
         let resultZones = [...zones];
         let zonesOfPaths = this.roadPathsToZones(poss);
-        zonesOfPaths.map((pZone) => { if (!resultZones.includes(pZone)) { resultZones.push(pZone); } });
+        zonesOfPaths.map((pZone: DirSide) => { if (!resultZones.includes(pZone)) { resultZones.push(pZone); } });
         return resultZones;
     }
 
-    roadPathsToZones(poss: IPoss) : Array<string> {
+    private roadPathsToZones(poss: IPoss) : Array<string> {
         let cell = this.findCellOfRoad(poss);
         let zones: Array<string> = [];
         if (cell) {
-            if (cell.road.paths[ROAD_PATH_UP]) { zones.push(CONF.UP); }
-            if (cell.road.paths[ROAD_PATH_RIGHT]) { zones.push(CONF.RIGHT); }
-            if (cell.road.paths[ROAD_PATH_DOWN]) { zones.push(CONF.DOWN); }
-            if (cell.road.paths[ROAD_PATH_LEFT]) { zones.push(CONF.LEFT); }
+            if (cell.road.paths[ROAD_PATH_UP]) { zones.push(UP); }
+            if (cell.road.paths[ROAD_PATH_RIGHT]) { zones.push(RIGHT); }
+            if (cell.road.paths[ROAD_PATH_DOWN]) { zones.push(DOWN); }
+            if (cell.road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
         }
         return zones;
     }

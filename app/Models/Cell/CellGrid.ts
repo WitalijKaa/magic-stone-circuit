@@ -54,7 +54,7 @@ export class CellGrid extends CellAbstract {
             this.scheme.putSemiconductor(null, this.schemePosition);
         }
     }
-    handleRightClick() { this.scheme.tapRoad(this.schemePosition); }
+    handleRightClick() { this.scheme.putRoadSmart(this.schemePosition); }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
     get visiblePosition() { return [this.gridX + CONF.GRID_OFFSET, this.gridY + CONF.GRID_OFFSET]; }

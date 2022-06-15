@@ -4,15 +4,7 @@ import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/g
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
 import {CellStone} from "./Types/CellStone";
-import {
-    CellPath,
-    CellRoad,
-    CellRoadPathType,
-    CellRoadType,
-    RoadChangeHistory,
-    RoadChangeHistoryCell,
-    RoadPathsArray, RoadSavePathsArray
-} from "./Types/CellRoad";
+import {CellRoad, CellRoadPathType, CellRoadType, RoadChangeHistory, RoadChangeHistoryCell, RoadSavePathsArray} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {BuildRoadWays} from "./Types/BuildRoadWays";
 import {GridZone} from "./Types/GridCursor";
@@ -79,7 +71,7 @@ export class Scheme extends SchemeBase {
 
     /** ROADs **/
 
-    public tapRoad(poss: IPoss) {
+    public putRoadSmart(poss: IPoss) {
         if (this.isRoadBuildMode) { return; }
 
         if (false === this.setPathsOnRoadByTap(poss)) {
@@ -89,46 +81,7 @@ export class Scheme extends SchemeBase {
         this.afterChange();
     }
 
-    putRoadHorizontal(poss: IPoss) {
-        let preferType = ROAD_LEFT_RIGHT;
-        let cell = this.findCellOfRoad(poss);
-        if (cell) {
-            let mergedZones = this.mergeZones([LEFT, RIGHT], poss);
-            if (ROAD_HEAVY == cell.road.type || mergedZones.length == 3) {
-                preferType = ROAD_HEAVY;
-            }
-        }
-
-        return this.setPathsOnRoad(false, LEFT, RIGHT, preferType, poss);
-    }
-
-    putRoadZonal(zoneFrom, zoneTo, poss: IPoss) {
-        let preferType = ROAD_LIGHT;
-        let cell = this.findCellOfRoad(poss);
-        if (cell) {
-            let mergedZones = this.mergeZones([zoneFrom, zoneTo], poss);
-            if (ROAD_HEAVY == cell.road.type || mergedZones.length > 2) {
-                preferType = ROAD_HEAVY;
-            }
-        }
-
-        return this.setPathsOnRoad(false, zoneFrom, zoneTo, preferType, poss);
-    }
-
-    putRoadVertical(poss: IPoss) {
-        let preferType = ROAD_UP_DOWN;
-        let cell = this.findCellOfRoad(poss);
-        if (cell) {
-            let mergedZones = this.mergeZones([UP, DOWN], poss);
-            if (ROAD_HEAVY == cell.road.type || mergedZones.length == 3) {
-                preferType = ROAD_HEAVY;
-            }
-        }
-
-        return this.setPathsOnRoad(false, UP, DOWN, preferType, poss);
-    }
-
-    removeRoad(poss: IPoss) {
+    public removeRoad(poss: IPoss) {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return; }
 
@@ -139,6 +92,28 @@ export class Scheme extends SchemeBase {
         this.removeColoringCellCache(poss);
         this.refreshVisibleCell(poss);
         this.afterChange();
+    }
+
+    private putRoadHorizontal(poss: IPoss) {
+        return this.putRoadZonal(LEFT, RIGHT, poss, ROAD_LEFT_RIGHT);
+    }
+
+    private putRoadVertical(poss: IPoss) {
+        return this.putRoadZonal(UP, DOWN, poss, ROAD_UP_DOWN);
+    }
+    
+    private putRoadZonal(zoneFrom: DirSide, zoneTo: DirSide, poss: IPoss, preferType: CellRoadType = ROAD_LIGHT) {
+        let cell = this.findCellOfRoad(poss);
+        if (cell) {
+            let mergedZones = this.zonesMergedWithRoadPathsAsDirSide([zoneFrom, zoneTo], poss);
+            if (ROAD_HEAVY == cell.road.type ||
+                (preferType == ROAD_LIGHT && mergedZones.length > 2) ||
+                (preferType != ROAD_LIGHT && mergedZones.length == 3))
+            {
+                preferType = ROAD_HEAVY;
+            }
+        }
+        return this.setPathsOnRoad(false, zoneFrom, zoneTo, preferType, poss);
     }
 
     /** ROADs BUILD **/
@@ -264,14 +239,14 @@ export class Scheme extends SchemeBase {
                 cellMover.x += xStep;
                 if (cellMover.x == this.activeCursor.x) // last horizontal cell
                 {
-                    let zoneFrom = xStep > 0 ? LEFT : RIGHT;
+                    let zoneFrom: DirSide = xStep > 0 ? LEFT : RIGHT;
 
                     if (cellMover.y != this.activeCursor.y) { // turning cell
-                        let zoneTo = yStep > 0 ? DOWN : UP;
+                        let zoneTo: DirSide = yStep > 0 ? DOWN : UP;
                         this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
                     }
                     else { // last cell of road logic when road is horizontal line
-                        let zoneTo = this.activeCursor.zone;
+                        let zoneTo: GridZone = this.activeCursor.zone;
 
                         if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
                             this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
@@ -291,8 +266,8 @@ export class Scheme extends SchemeBase {
             while (cellMover.y != this.activeCursor.y) {
                 cellMover.y += yStep;
                 if (cellMover.y == this.activeCursor.y) { // last vertical cell of the road-with-corner logic
-                    let zoneFrom = yStep > 0 ? UP : DOWN;
-                    let zoneTo = this.activeCursor.zone;
+                    let zoneFrom: DirSide = yStep > 0 ? UP : DOWN;
+                    let zoneTo: GridZone = this.activeCursor.zone;
 
                     if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
                         this.buildingRoad.path.push({ change: this.putRoadVertical(cellMover), position: this.iPossClone(cellMover)});
@@ -310,7 +285,7 @@ export class Scheme extends SchemeBase {
             }
         }
         else if (CONF.BUILD_ROAD_WAY_VERT_HORZ == this.buildRoadWay) {
-            let zoneTo = yStep > 0 ? DOWN : UP;
+            let zoneTo: DirSide = yStep > 0 ? DOWN : UP;
 
             // first cell of road logic
             if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
@@ -324,14 +299,14 @@ export class Scheme extends SchemeBase {
                 cellMover.y += yStep;
                 if (cellMover.y == this.activeCursor.y) // last vertical cell
                 {
-                    let zoneFrom = yStep > 0 ? UP : DOWN;
+                    let zoneFrom: DirSide = yStep > 0 ? UP : DOWN;
 
                     if (cellMover.x != this.activeCursor.x) { // turning cell
                         zoneTo = xStep > 0 ? RIGHT : LEFT;
                         this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
                     }
                     else { // last cell of road logic when road is vertical line
-                        let zoneTo = this.activeCursor.zone;
+                        let zoneTo: GridZone = this.activeCursor.zone;
 
                         if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
                             this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
@@ -352,8 +327,8 @@ export class Scheme extends SchemeBase {
             while (cellMover.x != this.activeCursor.x) {
                 cellMover.x += xStep;
                 if (cellMover.x == this.activeCursor.x) { // last horizontal cell of the road-with-corner logic
-                    let zoneFrom = xStep > 0 ? LEFT : RIGHT;
-                    let zoneTo = this.activeCursor.zone;
+                    let zoneFrom: DirSide = xStep > 0 ? LEFT : RIGHT;
+                    let zoneTo: GridZone = this.activeCursor.zone;
 
                     if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
                         this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
@@ -455,7 +430,7 @@ export class Scheme extends SchemeBase {
 
     /** PATHs of road **/
 
-    setPathsOnRoadByArr(updatePathsMode: boolean, replaceZonesMode: boolean, zones: Array<string>, preferType: CellRoadType | null, poss: IPoss) : RoadChangeHistory {
+    setPathsOnRoadByArr(updatePathsMode: boolean, replaceZonesMode: boolean, zones: Array<DirSide>, preferType: CellRoadType | null, poss: IPoss) : RoadChangeHistory {
         let change: RoadChangeHistory = { prev: null, curr: null };
         if (zones.length < 2 && replaceZonesMode) { return change; }
 
@@ -463,7 +438,7 @@ export class Scheme extends SchemeBase {
         let cell = this.getCellForRoad(poss);
         if (!cell) { return change; }
 
-        let mergedZones = (replaceZonesMode || wasCellEmpty) ? [...zones] : this.mergeZones(zones, poss);
+        let mergedZones = (replaceZonesMode || wasCellEmpty) ? [...zones] : this.zonesMergedWithRoadPathsAsDirSide(zones, poss);
 
         if (!preferType ||
             (ROAD_LEFT_RIGHT == preferType && (!zones.includes(LEFT) || !zones.includes(RIGHT))) ||
@@ -501,7 +476,7 @@ export class Scheme extends SchemeBase {
         return change;
     }
 
-    setPathsOnRoad(updateMode, zoneFrom, zoneTo, preferType, poss: IPoss) {
+    private setPathsOnRoad(updateMode: boolean, zoneFrom: GridZone, zoneTo: GridZone, preferType: CellRoadType | null, poss: IPoss) : RoadChangeHistory {
         if (zoneFrom == CONF.OVER_CENTER || zoneTo == CONF.OVER_CENTER) { return { prev: null, curr: null }; }
         return this.setPathsOnRoadByArr(updateMode, false, [zoneFrom, zoneTo], preferType, poss);
     }
@@ -530,7 +505,7 @@ export class Scheme extends SchemeBase {
         }
 
         if (wasCellEmpty) {
-            let sides: Array<string> = [];
+            let sides: Array<DirSide> = [];
             if (cell.isCellConnectedAtSide(UP)) { sides.push(UP); } // todo use road func
             if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
             if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
