@@ -3,6 +3,7 @@ import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {DEFAULT_SCHEME_NAME} from "../config/game";
+import {RoadSavePathsArray} from "./Types/CellRoad";
 
 export class SchemeStorage {
 
@@ -28,7 +29,12 @@ export class SchemeStorage {
                 if (!schemeCopy[row]) { schemeCopy[row] = {}; }
 
                 if ('road' in schemeCell && schemeCell.road) {
-                    schemeCopy[row][column] = { road: { type: schemeCell.road.type, paths: schemeCell.road.paths.map((path) => { return !!path; }) }}
+                    schemeCopy[row][column] = { road:
+                            {
+                                type: schemeCell.road.type,
+                                paths: schemeCell.road.paths.map((path) => { return !!path; }) as RoadSavePathsArray,
+                            }
+                    };
                 }
                 else if ('semiconductor' in schemeCell && schemeCell.semiconductor) {
                     schemeCopy[row][column] = { semiconductor: { type: schemeCell.semiconductor.type, direction: schemeCell.semiconductor.direction }}

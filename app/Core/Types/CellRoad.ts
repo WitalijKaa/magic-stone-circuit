@@ -1,6 +1,9 @@
 import {IPoss} from "../IPoss";
 import {DirSide} from "./DirectionSide";
 
+export type RoadPathsArray = [CellPath, CellPath, CellPath, CellPath, CellPath];
+export type RoadSavePathsArray = [boolean, boolean, boolean, boolean, boolean];
+
 export type CellPath = boolean | {
     color: number;
     from: DirSide;
@@ -8,7 +11,7 @@ export type CellPath = boolean | {
 
 export type CellRoad = {
     type: CellRoadType;
-    paths: Array<CellPath>;
+    paths: RoadPathsArray;
     checkRun: number;
 }
 
@@ -17,9 +20,9 @@ export type CellRoadPathType = 0 | 1 | 2 | 3 | 4;
 
 export type RoadChangeHistory = {
     prev: null | CellRoadType;
-    prevPaths?: Array<CellPath>;
+    prevPaths?: RoadSavePathsArray;
     curr: null | CellRoadType;
-    currPaths?: Array<CellPath>;
+    currPaths?: RoadSavePathsArray;
 }
 
 export type RoadChangeHistoryCell = {
