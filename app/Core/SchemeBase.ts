@@ -101,7 +101,7 @@ export abstract class SchemeBase {
                 }
             }
         }
-        toAwake.map((params) => { this.setAwakeColorAround(...params); });
+        toAwake.map((params) => { this.setAwakeColorAroundForAwakeSemi(...params); });
         this.visibleGrid.refreshAllCells();
     }
 
@@ -126,7 +126,7 @@ export abstract class SchemeBase {
     public abstract get isRoadBuildMode() : boolean;
     public abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
-    protected abstract setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void;
+    protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStone | null) : void;
     protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
 
     // LIFE CYCLE
@@ -410,7 +410,7 @@ export abstract class SchemeBase {
         });
     }
 
-    protected cancelAwakeColorByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
+    protected cancelSemiColorByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
                 this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));

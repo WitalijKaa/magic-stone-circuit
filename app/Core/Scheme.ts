@@ -34,7 +34,7 @@ export class Scheme extends SchemeBase {
         this.cancelColorPathsForAnyRoadAround(poss);
         cell.content = type;
         this.contentCells[this.cellName(poss)] = poss;
-        this.setAwakeColorAround(poss, type);
+        this.setAwakeColorAroundForAwakeSemi(poss, type);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
@@ -54,7 +54,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         this.cancelColorPathsForAnyRoadAround(poss);
-        this.setAwakeColorAround(poss, null);
+        this.setAwakeColorAroundForAwakeSemi(poss, null);
         delete(this.contentCells[this.cellName(poss)]);
         this.killCell(poss);
 
@@ -71,9 +71,9 @@ export class Scheme extends SchemeBase {
         });
     }
 
-    protected setAwakeColorAround(poss: IPoss, stoneColor: CellStone | null) : void {
+    protected setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStone | null) : void {
         SIDES.map((side: DirSide) => {
-            this.setAwakeColorSemiconductorByStone(stoneColor ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneColor] : null, HH[side](poss))
+            this.setAwakeColorToSemiconductor(stoneColor ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneColor] : null, HH[side](poss), true);
         });
     }
 
@@ -133,7 +133,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         this.cancelColorPathsRoadsAroundByPaths(cell.road.paths, poss);
-        this.cancelAwakeColorByRoadPaths(cell.road.paths, poss);
+        this.cancelSemiColorByRoadPaths(cell.road.paths, poss);
 
         this.killCell(poss);
         this.removeColoringCellCache(poss);
@@ -640,7 +640,7 @@ export class Scheme extends SchemeBase {
             if (!cellSide) { return; }
 
             if (cellSide.content) {
-                setTimeout(() => {this.setAwakeColorSemiconductorByStone(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!], cellSide!.poss)}, CONF.NANO_MS);
+                setTimeout(() => { this.setAwakeColorToSemiconductor(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!], cellSide!.poss, true); }, CONF.NANO_MS);
             }
 
             if (cellSide.semiconductor && !cell.semiconductor.colorAwake && CONF.ST_ROAD_AWAKE == cellSide.semiconductor.type) {
@@ -649,9 +649,9 @@ export class Scheme extends SchemeBase {
         })
     }
 
-    setAwakeColorSemiconductorByStone(color: SemiColor, poss: IPoss) {
+    private setAwakeColorToSemiconductor(color: SemiColor, poss: IPoss, onlyForAwakeType: boolean = false) {
         let cell = this.findCellOfSemiconductor(poss);
-        if (!cell || !cell.isAwakeSemiconductor || cell.semiconductor.colorAwake == color) { return; }
+        if (!cell || (!cell.isAwakeSemiconductor && onlyForAwakeType) || cell.semiconductor.colorAwake == color) { return; }
         let semi = cell.semiconductor;
 
         semi.colorAwake = color;
@@ -671,7 +671,7 @@ export class Scheme extends SchemeBase {
         if (cell.isAwakeSemiconductor) {
             SIDES.map((side: DirSide) => {
                 if (cell!.isAwakeSemiconductorConnectedToAnyOtherSemiconductorAtSide(side)) {
-                    this.setAwakeColorSemiconductorByStone(semi.colorAwake, HH[side](poss));
+                    this.setAwakeColorToSemiconductor(semi.colorAwake, HH[side](poss));
                 }
             });
         }
