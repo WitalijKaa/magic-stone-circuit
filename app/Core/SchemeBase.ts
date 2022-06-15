@@ -124,7 +124,7 @@ export abstract class SchemeBase {
     // ABSTRACT
 
     public abstract get isRoadBuildMode() : boolean;
-    public abstract buildRoadTick() : void;
+    protected abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStone | null) : void;
     protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
@@ -352,7 +352,7 @@ export abstract class SchemeBase {
         return true;
     }
 
-    canSetRoad(poss: IPoss) : boolean {
+    protected isCellEmptyOrRoad(poss: IPoss) : boolean {
         if (this.isCellEmpty(poss)) { return true; }
         return !!this.findCellOfRoad(poss);
     }
