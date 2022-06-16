@@ -296,8 +296,6 @@ export abstract class SchemeBase {
 
     protected cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 
-    protected iPossClone(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y } }
-
     // CURSOR
 
     setActiveCursorPosition(zone, x, y) : void {
@@ -487,7 +485,7 @@ export abstract class SchemeBase {
 
         let showInConsole = '';
         if (!cell) {
-            console.log('EMPTY ## ' + this._devCell.x + ' ' + this._devCell.y);
+            console.log('EMPTY ## ' + poss.x + ' ' + poss.y);
             return;
         }
         else if (cell.road) {
@@ -510,7 +508,7 @@ export abstract class SchemeBase {
         }
         console.log(
             'devCellEcho',
-            this._devCell,
+            poss.x + ' ' + poss.y,
             cell.road ? showInConsole : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
         );
     }

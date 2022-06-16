@@ -6,7 +6,7 @@ import {IPoss} from "./IPoss";
 import {CellStone} from "./Types/CellStone";
 import {CellRoad, CellRoadPathType, CellRoadType, RoadChangeHistory, RoadChangeHistoryCell, RoadSavePathsArray} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
-import {BuildRoadWays} from "./Types/BuildRoadWays";
+import {Axis, BuildRoadWays} from "./Types/BuildRoadWays";
 import {GridZone} from "./Types/GridCursor";
 import {DirSide} from "./Types/DirectionSide";
 import {Cell} from "./Cell";
@@ -150,9 +150,9 @@ export class Scheme extends SchemeBase {
         if (this.buildingRoad.isOn || poss.x != this.activeCursor.x || poss.y != this.activeCursor.y) { return; }
 
         this.buildingRoad.isOn = true;
-        this.buildingRoad.start = this.iPossClone(poss);
+        this.buildingRoad.start = HH.clonePoss(poss);
         this.buildingRoad.zoneStart = this.buildingRoad.zonePainted = this.activeCursor.zone;
-        this.buildingRoad.painted = this.iPossClone(poss);
+        this.buildingRoad.painted = HH.clonePoss(poss);
         this.buildingRoad.path = [];
         this.buildingRoad.way = { auto: CONF.BUILD_ROAD_WAY_HORZ_VERT, fixed: null, last: null };
     }
@@ -204,138 +204,139 @@ export class Scheme extends SchemeBase {
             return;
         }
 
-        let cellMover : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
-        const { xStep, yStep } = this.findStepXY;
-
-        let isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
-
-        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay) {
-            let changeParams, zoneTo;
-            if (isFirstHorizontal) {
-                zoneTo = xStep > 0 ? RIGHT : LEFT;
-            }
-            else {
-                zoneTo = yStep > 0 ? DOWN : UP;
-            }
-
-            // first cell of road logic
-            if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
-                changeParams = isFirstHorizontal ? this.putRoadHorizontal(cellMover) : this.putRoadVertical(cellMover);
-            }
-            else {
-                changeParams = this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellMover);
-            }
-            this.buildingRoad.path.push({ change: changeParams, position: this.iPossClone(cellMover)});
-
-            while (cellMover.x != this.activeCursor.x) {
-                cellMover.x += xStep;
-                if (cellMover.x == this.activeCursor.x) // last horizontal cell
-                {
-                    let zoneFrom: DirSide = xStep > 0 ? LEFT : RIGHT;
-
-                    if (cellMover.y != this.activeCursor.y) { // turning cell
-                        let zoneTo: DirSide = yStep > 0 ? DOWN : UP;
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else { // last cell of road logic when road is horizontal line
-                        let zoneTo: GridZone = this.activeCursor.zone;
-
-                        if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
-                        }
-                        else if (zoneFrom == zoneTo) {
-                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellMover), position: this.iPossClone(cellMover)});
-                        }
-                        else {
-                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                        }
-                    }
-                }
-                else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
-                }
-            }
-            while (cellMover.y != this.activeCursor.y) {
-                cellMover.y += yStep;
-                if (cellMover.y == this.activeCursor.y) { // last vertical cell of the road-with-corner logic
-                    let zoneFrom: DirSide = yStep > 0 ? UP : DOWN;
-                    let zoneTo: GridZone = this.activeCursor.zone;
-
-                    if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                        this.buildingRoad.path.push({ change: this.putRoadVertical(cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else if (zoneFrom == zoneTo) {
-                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else {
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                }
-                else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellMover), position: this.iPossClone(cellMover)});
-                }
-            }
+        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay || this.buildingRoad.start.y == this.activeCursor.y) {
+            this.doBuildRoadHorzVert();
         }
         else if (CONF.BUILD_ROAD_WAY_VERT_HORZ == this.buildRoadWay) {
-            let zoneTo: DirSide = yStep > 0 ? DOWN : UP;
+            this.doBuildRoadVertHorz();
+        }
+    }
 
-            // first cell of road logic
-            if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
-                this.buildingRoad.path.push({ change: this.putRoadVertical(cellMover), position: this.iPossClone(cellMover)});
+    private putBuildRoadFirstCell(zoneTo: DirSide, isFirstHorizontal: boolean) : void {
+        let poss: IPoss = this.buildingRoad.start;
+        if (this.buildingRoad.zoneStart == CONF.OVER_CENTER || this.buildingRoad.zoneStart == zoneTo || this.buildingRoad.zoneStart == CONF.OPPOSITE_SIDE[zoneTo]) {
+            this.buildingRoad.path.push({ change: (isFirstHorizontal ? this.putRoadHorizontal(poss) : this.putRoadVertical(poss)), position: HH.clonePoss(poss)});
+        }
+        else {
+            this.buildingRoad.path.push({ change: this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, poss), position: HH.clonePoss(poss)});
+        }
+    }
+
+    private putBuildRoadLine(axis: Axis, firstCell: IPoss, lastCell: IPoss) : void {
+        let putPaths = (pathsPoss: IPoss) => {
+            this.buildingRoad.path.push({
+                change: ('x' == axis ? this.putRoadHorizontal(pathsPoss) : this.putRoadVertical(pathsPoss)),
+                position: HH.clonePoss(pathsPoss)
+            });
+        }
+
+        if (firstCell[axis] == lastCell[axis]) {
+            putPaths(firstCell);
+            return;
+        }
+        const step = this.findStepXY;
+        if (firstCell[axis] + step[axis + 'Step'] * -1 == lastCell[axis]) {
+            return;
+        }
+        const theCell: IPoss = HH.clonePoss(firstCell);
+        while (theCell[axis] != lastCell[axis]) {
+            putPaths(theCell);
+            theCell[axis] += step[axis + 'Step'];
+            if (theCell[axis] == lastCell[axis]) {
+                putPaths(theCell);
             }
-            else {
-                this.buildingRoad.path.push({ change: this.putRoadZonal(this.buildingRoad.zoneStart, zoneTo, cellMover), position: this.iPossClone(cellMover)});
+        }
+    }
+
+    private putBuildRoadLastCell(axis: Axis, zoneFrom: DirSide) : void {
+        let poss: IPoss = this.activeCursor;
+        let zoneTo: GridZone = this.activeCursor.zone;
+        if ((this.isCellEmpty(poss) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
+            this.buildingRoad.path.push({
+                change: ('x' == axis ? this.putRoadHorizontal(poss) : this.putRoadVertical(poss)),
+                position: HH.clonePoss(poss)
+            });
+        }
+        else if (zoneFrom == zoneTo) {
+            this.buildingRoad.path.push({ change: this.setPathOnRoad(zoneFrom, poss), position: HH.clonePoss(poss)});
+        }
+        else {
+            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, poss), position: HH.clonePoss(poss)});
+        }
+    }
+    
+    private doBuildRoadHorzVert() : void {
+        const { xStep, yStep } = this.findStepXY;
+        const isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
+
+        let firstCellZoneTo : DirSide;
+        if (isFirstHorizontal) { // even if road is only vertical we use this method (default method)
+            firstCellZoneTo = xStep > 0 ? RIGHT : LEFT;
+        }
+        else {
+            firstCellZoneTo = yStep > 0 ? DOWN : UP;
+        }
+        let turnOrEndPoss: Cell = Cell.Create(this.activeCursor.x, this.buildingRoad.start.y);
+        let endPoss: Cell = Cell.Create(this.activeCursor.x, this.activeCursor.y);
+
+        this.putBuildRoadFirstCell(firstCellZoneTo, isFirstHorizontal);
+
+        if (this.buildingRoad.start.x != this.activeCursor.x) {
+            if (RIGHT == firstCellZoneTo) {
+                this.putBuildRoadLine('x', Cell.Right(this.buildingRoad.start), turnOrEndPoss.Left);
             }
-
-            while (cellMover.y != this.activeCursor.y) {
-                cellMover.y += yStep;
-                if (cellMover.y == this.activeCursor.y) // last vertical cell
-                {
-                    let zoneFrom: DirSide = yStep > 0 ? UP : DOWN;
-
-                    if (cellMover.x != this.activeCursor.x) { // turning cell
-                        zoneTo = xStep > 0 ? RIGHT : LEFT;
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else { // last cell of road logic when road is vertical line
-                        let zoneTo: GridZone = this.activeCursor.zone;
-
-                        if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                            this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
-                        }
-                        else if (zoneFrom == zoneTo) {
-                            this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellMover), position: this.iPossClone(cellMover)});
-                        }
-                        else {
-                            this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                        }
-                    }
-
-                }
-                else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadVertical(cellMover), position: this.iPossClone(cellMover)});
-                }
+            else if (LEFT == firstCellZoneTo) {
+                this.putBuildRoadLine('x', Cell.Left(this.buildingRoad.start), turnOrEndPoss.Right);
             }
-            while (cellMover.x != this.activeCursor.x) {
-                cellMover.x += xStep;
-                if (cellMover.x == this.activeCursor.x) { // last horizontal cell of the road-with-corner logic
-                    let zoneFrom: DirSide = xStep > 0 ? LEFT : RIGHT;
-                    let zoneTo: GridZone = this.activeCursor.zone;
-
-                    if ((this.isCellEmpty(cellMover) && zoneFrom == zoneTo) || zoneTo == CONF.OVER_CENTER || zoneFrom == CONF.OPPOSITE_SIDE[zoneTo]) {
-                        this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else if (zoneFrom == zoneTo) {
-                        this.buildingRoad.path.push({ change: this.setPathOnRoad(false, zoneFrom, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                    else {
-                        this.buildingRoad.path.push({ change: this.putRoadZonal(zoneFrom, zoneTo, cellMover), position: this.iPossClone(cellMover)});
-                    }
-                }
-                else { // not first not last not turning
-                    this.buildingRoad.path.push({ change: this.putRoadHorizontal(cellMover), position: this.iPossClone(cellMover)});
-                }
+        }
+        let nextXCellZoneFrom: DirSide = xStep > 0 ? LEFT : RIGHT;
+        if (this.buildingRoad.start.y != this.activeCursor.y) { // turning cell
+            let nextYCellZoneTo: DirSide = yStep > 0 ? DOWN : UP;
+            if (this.buildingRoad.start.x != this.activeCursor.x) {
+                this.buildingRoad.path.push({ change: this.putRoadZonal(nextXCellZoneFrom, nextYCellZoneTo, turnOrEndPoss), position: HH.clonePoss(turnOrEndPoss)});
             }
+            if (DOWN == nextYCellZoneTo) {
+                this.putBuildRoadLine('y', turnOrEndPoss.Down, endPoss.Up);
+            }
+            else if (UP == nextYCellZoneTo) {
+                this.putBuildRoadLine('y', turnOrEndPoss.Up, endPoss.Down);
+            }
+            this.putBuildRoadLastCell('y', CONF.OPPOSITE_SIDE[nextYCellZoneTo])
+        }
+        else {
+            this.putBuildRoadLastCell('x', nextXCellZoneFrom)
+        }
+    }
+
+    private doBuildRoadVertHorz() : void {
+        const { xStep, yStep } = this.findStepXY;
+        let firstCellZoneTo: DirSide = yStep > 0 ? DOWN : UP;
+
+        let turnOrEndPoss: Cell = Cell.Create(this.buildingRoad.start.x, this.activeCursor.y);
+        let endPoss: Cell = Cell.Create(this.activeCursor.x, this.activeCursor.y);
+
+        this.putBuildRoadFirstCell(firstCellZoneTo, false);
+
+        if (DOWN == firstCellZoneTo) {
+            this.putBuildRoadLine('y', Cell.Down(this.buildingRoad.start), turnOrEndPoss.Up);
+        }
+        else if (UP == firstCellZoneTo) {
+            this.putBuildRoadLine('y', Cell.Up(this.buildingRoad.start), turnOrEndPoss.Down);
+        }
+
+        if (this.buildingRoad.start.x != this.activeCursor.x) { // turning cell
+            let nextXCellZoneTo: DirSide = xStep > 0 ? RIGHT : LEFT;
+            this.buildingRoad.path.push({ change: this.putRoadZonal(CONF.OPPOSITE_SIDE[firstCellZoneTo], nextXCellZoneTo, turnOrEndPoss), position: HH.clonePoss(turnOrEndPoss)});
+            if (LEFT == nextXCellZoneTo) {
+                this.putBuildRoadLine('x', turnOrEndPoss.Left, endPoss.Right);
+            }
+            else if (RIGHT == nextXCellZoneTo) {
+                this.putBuildRoadLine('x', turnOrEndPoss.Right, endPoss.Left);
+            }
+            this.putBuildRoadLastCell('x', CONF.OPPOSITE_SIDE[nextXCellZoneTo])
+        }
+        else {
+            this.putBuildRoadLastCell('y', CONF.OPPOSITE_SIDE[firstCellZoneTo])
         }
     }
 
@@ -346,7 +347,7 @@ export class Scheme extends SchemeBase {
     }
 
     private isBuildRoadPreferredWayHorzVert() : boolean {
-        let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
         const { xStep, yStep } = this.findStepXY;
 
         while (theCell.x != this.activeCursor.x) {
@@ -370,7 +371,7 @@ export class Scheme extends SchemeBase {
     private isBuildRoadPreferredWayVertHorz() : boolean {
         if (this.activeCursor.x != this.buildingRoad.start.x && this.activeCursor.y != this.buildingRoad.start.y)
         {
-            let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+            const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
             const { xStep, yStep } = this.findStepXY;
 
             while (theCell.y != this.activeCursor.y) {
@@ -394,7 +395,7 @@ export class Scheme extends SchemeBase {
     }
 
     private isWayPossible(theWay) : boolean {
-        let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
         if (!this.isCellEmptyOrRoad(theCell)) { return false; }
 
         const step = this.findStepXY;
@@ -474,9 +475,9 @@ export class Scheme extends SchemeBase {
         if (zoneFrom == CONF.OVER_CENTER || zoneTo == CONF.OVER_CENTER) { return { prev: null, curr: null }; }
         return this.setPathsOnRoadByArr(updateMode, false, [zoneFrom, zoneTo], preferType, poss);
     }
-    setPathOnRoad(updateMode, zone, poss: IPoss) {
+    private setPathOnRoad(zone: GridZone, poss: IPoss) {
         if (zone == CONF.OVER_CENTER) { return { prev: null, curr: null }; }
-        return this.setPathsOnRoadByArr(updateMode, false, [zone], ROAD_LIGHT, poss);
+        return this.setPathsOnRoadByArr(false, false, [zone], ROAD_LIGHT, poss);
     }
 
     setPathsOnRoadByTap(poss: IPoss) : null | false | RoadChangeHistory {

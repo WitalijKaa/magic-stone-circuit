@@ -29,6 +29,10 @@ export class HH {
     public static Down(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y + 1 }; }
     public static Left(poss: IPoss) : IPoss { return { x: poss.x - 1, y: poss.y }; }
 
+    public static clonePoss(poss: IPoss) : IPoss {
+        return { x: poss.x, y: poss.y };
+    }
+
     public static isSemiconductorCanBeConnectedToSide(semiCell: ICellWithSemiconductor, side: DirSide) : boolean {
         if (ROAD_HEAVY != semiCell.semiconductor.direction) {
             if (LEFT == side || RIGHT == side) {
