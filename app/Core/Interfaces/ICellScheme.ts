@@ -4,6 +4,7 @@ import {DirSide} from "../Types/DirectionSide";
 import {IPoss} from "../IPoss";
 import {SchemeBase} from "../SchemeBase";
 import {CellRoad} from "../Types/CellRoad";
+import {ICellWithRoad} from "./ICellWithRoad";
 
 export interface ICellScheme extends IPoss {
 
@@ -14,8 +15,8 @@ export interface ICellScheme extends IPoss {
     get poss() : IPoss;
     get isSidesPathsAllExist() : boolean;
 
-    isAnyRoadAtSides(sides?: Array<DirSide>) : boolean
     isCellConnectedAtSide(side: DirSide) : boolean;
+    isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean
 
     get isAwakeSemiconductor() : boolean;
     get isSleepSemiconductor() : boolean;

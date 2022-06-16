@@ -51,18 +51,6 @@ export class CellScheme implements ICellScheme {
         return !!(this.semiconductor && CONF.ST_ROAD_SLEEP == this.semiconductor.type);
     }
 
-    get isAnyRoadAround() : boolean { return this.isAnyRoadAtSides(); }
-    get isAnyRoadLeftOrRight() : boolean { return this.isAnyRoadAtSides([LEFT, RIGHT]); }
-
-    public isAnyRoadAtSides(sides: Array<DirSide> = SIDES) : boolean {
-        for (let side of sides) {
-            let sideRoadCell = this.scheme.findCellOfRoad(this.cellPosition[side]);
-            if (!sideRoadCell) { continue; }
-            if (this.isRoadSideCellConnected(sideRoadCell, side)) { return true; }
-        }
-        return false;
-    }
-    
     get isSidesPathsAllExist() : boolean {
         if (this.road) {
             return !!(this.road.paths[0] && this.road.paths[1] && this.road.paths[2] && this.road.paths[3]);
@@ -83,7 +71,7 @@ export class CellScheme implements ICellScheme {
         return true;
     }
 
-    isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean {
+    public isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean {
         switch (sideOfSideCell) {
             case UP: return this.isRoadConnectedToUp(sideCell as ICellWithRoad);
             case RIGHT: return this.isRoadConnectedToRight(sideCell as ICellWithRoad);
@@ -155,51 +143,6 @@ export class CellScheme implements ICellScheme {
         let sideCell = this.scheme.findCellOfRoad(this.cellPosition[side]);
         if (!sideCell) { return null; }
         return this.getColorOfPath(sideCell.road, CONF.OPPOSITE_SIDE[side], CONF.OPPOSITE_SIDE[side]);
-    }
-
-    public get isSemiconductorChargedAround() : boolean {
-        for (let side of SIDES) {
-            let cell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
-            if (cell && cell.semiconductor.colorCharge) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public get isSemiconductorSleepAround() : boolean { return this.isSemiconductorTypeAround(CONF.ST_ROAD_SLEEP); }
-    public get isSemiconductorAwakeAround() : boolean { return this.isSemiconductorTypeAround(CONF.ST_ROAD_AWAKE); }
-
-    private isSemiconductorTypeAround(scType: CellSemiconductorType, sides: Array<DirSide> = SIDES) : boolean {
-        for (let side of sides) {
-            let cell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
-            if (cell && cell.semiconductor.type == scType) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public get isSemiconductorAwakeAtLeftOrAtRight() : boolean {
-        return this.isSemiconductorTypeAround(CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
-    }
-
-    public countAwakeClusterAtSide(checkRun: number | null, side: DirSide) : number {
-        let sideCell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
-        if (!sideCell) { return 0; }
-        let semi = sideCell.semiconductor;
-        if (!semi || CONF.ST_ROAD_AWAKE != semi.type) { return 0; }
-
-        if (!checkRun) { checkRun = this.scheme.checkRun; }
-        if (semi.checkRun == checkRun) { return 0; }
-        semi.checkRun = checkRun;
-
-        let count = 1;
-        SIDES.map((toDir: DirSide) => {
-            if (toDir == CONF.OPPOSITE_SIDE[side]) { return; }
-            count += sideCell!.countAwakeClusterAtSide(checkRun, toDir)
-        })
-        return count;
     }
 
     public get sidesOfSemiconductor() : Array<DirSide> {

@@ -170,7 +170,7 @@ export class Scheme extends SchemeBase {
         ) {
             this.removePrevBuiltRoad();
             if (!this.buildingRoad.way.fixed) { this.redefineBuildRoadAutoWay(); }
-            if (this.isWayPossible(this.buildRoadWay)) {
+            if (this.isBuildRoadWayPossible(this.buildRoadWay)) {
                 this.doBuildRoad();
             }
 
@@ -204,7 +204,7 @@ export class Scheme extends SchemeBase {
             return;
         }
 
-        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay || this.buildingRoad.start.y == this.activeCursor.y) {
+        if (CONF.BUILD_ROAD_WAY_HORZ_VERT == this.buildRoadWay) {
             this.doBuildRoadHorzVert();
         }
         else if (CONF.BUILD_ROAD_WAY_VERT_HORZ == this.buildRoadWay) {
@@ -234,7 +234,7 @@ export class Scheme extends SchemeBase {
             putPaths(firstCell);
             return;
         }
-        const step = this.findStepXY;
+        const step = this.findBuildRoadStepXY;
         if (firstCell[axis] + step[axis + 'Step'] * -1 == lastCell[axis]) {
             return;
         }
@@ -266,7 +266,7 @@ export class Scheme extends SchemeBase {
     }
     
     private doBuildRoadHorzVert() : void {
-        const { xStep, yStep } = this.findStepXY;
+        const { xStep, yStep } = this.findBuildRoadStepXY;
         const isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
 
         let firstCellZoneTo : DirSide;
@@ -309,7 +309,12 @@ export class Scheme extends SchemeBase {
     }
 
     private doBuildRoadVertHorz() : void {
-        const { xStep, yStep } = this.findStepXY;
+        if (this.buildingRoad.start.y == this.activeCursor.y) {
+            this.doBuildRoadHorzVert();
+            return;
+        }
+
+        const { xStep, yStep } = this.findBuildRoadStepXY;
         let firstCellZoneTo: DirSide = yStep > 0 ? DOWN : UP;
 
         let turnOrEndPoss: Cell = Cell.Create(this.buildingRoad.start.x, this.activeCursor.y);
@@ -348,7 +353,7 @@ export class Scheme extends SchemeBase {
 
     private isBuildRoadPreferredWayHorzVert() : boolean {
         const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
-        const { xStep, yStep } = this.findStepXY;
+        const { xStep, yStep } = this.findBuildRoadStepXY;
 
         while (theCell.x != this.activeCursor.x) {
             theCell.x += xStep;
@@ -372,7 +377,7 @@ export class Scheme extends SchemeBase {
         if (this.activeCursor.x != this.buildingRoad.start.x && this.activeCursor.y != this.buildingRoad.start.y)
         {
             const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
-            const { xStep, yStep } = this.findStepXY;
+            const { xStep, yStep } = this.findBuildRoadStepXY;
 
             while (theCell.y != this.activeCursor.y) {
                 theCell.y += yStep;
@@ -394,11 +399,11 @@ export class Scheme extends SchemeBase {
         return false;
     }
 
-    private isWayPossible(theWay) : boolean {
+    private isBuildRoadWayPossible(theWay) : boolean {
         const theCell : IPoss = HH.clonePoss(this.buildingRoad.start);
         if (!this.isCellEmptyOrRoad(theCell)) { return false; }
 
-        const step = this.findStepXY;
+        const step = this.findBuildRoadStepXY;
         let aAxis = 'x'; let bAxis = 'y';
         if (CONF.BUILD_ROAD_WAY_VERT_HORZ == theWay) {
             aAxis = 'y'; bAxis = 'x';
@@ -416,7 +421,7 @@ export class Scheme extends SchemeBase {
         return true;
     }
 
-    private get findStepXY() : { xStep: number, yStep: number } {
+    private get findBuildRoadStepXY() : { xStep: number, yStep: number } {
         return {
             xStep: this.activeCursor.x > this.buildingRoad.start.x ? 1 : -1,
             yStep: this.activeCursor.y > this.buildingRoad.start.y ? 1 : -1
@@ -425,7 +430,7 @@ export class Scheme extends SchemeBase {
 
     /** PATHs of road **/
 
-    setPathsOnRoadByArr(updatePathsMode: boolean, replaceZonesMode: boolean, zones: Array<DirSide>, preferType: CellRoadType | null, poss: IPoss) : RoadChangeHistory {
+    private setPathsOnRoadByArr(updatePathsMode: boolean, replaceZonesMode: boolean, zones: Array<DirSide>, preferType: CellRoadType | null, poss: IPoss) : RoadChangeHistory {
         let change: RoadChangeHistory = { prev: null, curr: null };
         if (zones.length < 2 && replaceZonesMode) { return change; }
 
@@ -480,7 +485,7 @@ export class Scheme extends SchemeBase {
         return this.setPathsOnRoadByArr(false, false, [zone], ROAD_LIGHT, poss);
     }
 
-    setPathsOnRoadByTap(poss: IPoss) : null | false | RoadChangeHistory {
+    private setPathsOnRoadByTap(poss: IPoss) : null | false | RoadChangeHistory {
         let wasCellEmpty = this.isCellEmpty(poss);
         let cell = this.getCellForRoad(poss);
         if (!cell) { return null; }
@@ -517,7 +522,7 @@ export class Scheme extends SchemeBase {
         return false;
     }
 
-    defineRoadPath(cell: ICellWithRoad, poss: IPoss, pathType: CellRoadPathType, pathContent: boolean, updateMode: boolean = false) {
+    private defineRoadPath(cell: ICellWithRoad, poss: IPoss, pathType: CellRoadPathType, pathContent: boolean, updateMode: boolean = false): void {
         if (!updateMode || !pathContent) {
             cell.road.paths[pathType] = pathContent;
             this.cancelColorOnDefineRoadPath(poss, pathType);
@@ -532,7 +537,7 @@ export class Scheme extends SchemeBase {
 
     private allowedAmountOfAwakesCluster: number = 2;
 
-    putSemiconductor(scType: CellSemiconductorType | null, poss: IPoss) {
+    public putSemiconductor(scType: CellSemiconductorType | null, poss: IPoss) {
         if (!scType) {
             this.killCell(poss); // todo
             delete(this.contentCells[this.cellName(poss)]);
@@ -547,31 +552,22 @@ export class Scheme extends SchemeBase {
         this.afterChange();
     }
 
-    putSleepSemiconductor(poss: IPoss) : void {
-        let cellModel = this.antiCell(poss);
+    private putSleepSemiconductor(poss: IPoss) : void {
         let cellSemi = this.findCellOfSemiconductor(poss);
         if (!cellSemi && !this.isCellEmpty(poss)) { return; }
-
-        if (cellModel.isSemiconductorChargedAround || cellModel.isSemiconductorSleepAround) { return; }
+        if (this.isSemiconductorChargedAround(poss) || this.isSemiconductorSleepAround(poss)) { return; }
 
         let direction: CellSemiconductorDirection = ROAD_LEFT_RIGHT;
-        if (cellModel.isSemiconductorAwakeAround) {
-            if (cellModel.isSemiconductorAwakeAtLeftOrAtRight) { direction = ROAD_LEFT_RIGHT; }
-            else { direction = ROAD_UP_DOWN; }
+        if (this.isSemiconductorAwakeAround(poss)) {
+            if (!this.isSemiconductorAwakeAtLeftOrAtRight(poss)) { direction = ROAD_UP_DOWN; }
         }
         else if (cellSemi) {
             if (cellSemi.isSleepSemiconductor) {
                 direction = (ROAD_LEFT_RIGHT == cellSemi.semiconductor.direction ? ROAD_UP_DOWN : ROAD_LEFT_RIGHT);
             }
-            else if (cellSemi.isAwakeSemiconductor) {
-                if (!cellSemi.isAnyRoadAround || cellSemi.isAnyRoadLeftOrRight) {
-                    direction = ROAD_LEFT_RIGHT;
-                }
-                else { direction = ROAD_UP_DOWN; }
-            }
         }
-        if (cellSemi) {
-            cellSemi.semiconductor.direction = direction;
+        else if (!this.isAnyRoadLeftOrRight(poss)) {
+            direction = ROAD_UP_DOWN;
         }
 
         cellSemi = this.getCellForSemiconductorForced(poss, direction, CONF.ST_ROAD_SLEEP);
@@ -579,18 +575,17 @@ export class Scheme extends SchemeBase {
         this.setColorToNewSemiconductor(cellSemi);
     }
 
-    putAwakeSemiconductor(poss: IPoss) {
-        if (!this.findCellOfSemiconductor(poss) && !this.isCellEmpty(poss)) { return; }
+    private putAwakeSemiconductor(poss: IPoss) {
+        let cell = this.findCellOfSemiconductor(poss);
+        if (!cell && !this.isCellEmpty(poss)) { return; }
 
-        let cellModel = this.antiCell(poss);
-
-        if (cellModel.isSemiconductorChargedAround) {
+        if (this.isSemiconductorChargedAround(poss)) {
             return;
         }
 
         let clusterFree = this.allowedAmountOfAwakesCluster - 1;
         SIDES.map((side) => {
-            clusterFree -= cellModel.countAwakeClusterAtSide(null, side);
+            clusterFree -= this.countAwakeClusterAtSide(poss, null, side);
         })
         if (clusterFree >= 0) {
             let cellSemi = this.getCellForSemiconductorForced(poss, ROAD_HEAVY, CONF.ST_ROAD_AWAKE);
@@ -647,7 +642,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    refreshSemiconductorByColoredRoadsFlowsIn(cell: ICellWithSemiconductor) {
+    private refreshSemiconductorByColoredRoadsFlowsIn(cell: ICellWithSemiconductor) {
         cell.sidesOfSemiconductor.map((side: DirSide) => { // todo norm queue
             if (cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side)) {
                 if (cell.isAwakeSemiconductor) {
@@ -669,7 +664,7 @@ export class Scheme extends SchemeBase {
         });
     }
 
-    setChargeColorToSemiconductorByAwake(color: SemiColor, poss: IPoss) {
+    private setChargeColorToSemiconductorByAwake(color: SemiColor, poss: IPoss) {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || cell.semiconductor.colorCharge == color || (color && cell.semiconductor.colorAwake != color)) { return; }
         let semi = cell.semiconductor;
@@ -714,7 +709,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    hasTransistorTheSources(cell: ICellWithSemiconductor, checkRun: number | null = null) {
+    private hasTransistorTheSources(cell: ICellWithSemiconductor, checkRun: number | null = null) {
         if (!cell.isAwakeSemiconductor || !cell.semiconductor.colorCharge) { return false; }
 
         let exceptThisOne = false;
@@ -746,7 +741,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    setColorToSemiconductorBySleep(color: SemiColor, fromDir: DirSide, poss: IPoss): void {
+    private setColorToSemiconductorBySleep(color: SemiColor, fromDir: DirSide, poss: IPoss): void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
         let semi = cell.semiconductor;
@@ -792,14 +787,14 @@ export class Scheme extends SchemeBase {
                 });
             }
             else {
-                if (cell.isAnyRoadAtSides([toDir])) {
+                if (this.isAnyRoadAtSides(cell, [toDir])) {
                     this.cancelColorOnRoadFromSide(null, semi.from, cell.cellPosition[toDir]);
                 }
             }
         }
     }
 
-    setColorAroundBySleep(forced: boolean, poss: IPoss) : void {
+    private setColorAroundBySleep(forced: boolean, poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || !cell.isSleepSemiconductor || (!forced && !cell.semiconductor.colorFlow) || !cell.semiconductor.from) { return; }
 

@@ -290,10 +290,6 @@ export abstract class SchemeBase {
         return cellScheme;
     }
 
-    protected antiCell(poss: IPoss) : CellScheme {
-        return new CellScheme(poss.x, poss.y, this);
-    }
-
     protected cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 
     // CURSOR
@@ -341,6 +337,18 @@ export abstract class SchemeBase {
         return path && true !== path && path.from == CONF.OPPOSITE_SIDE[toDir];
     }
 
+    protected isAnyRoadAround(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss); }
+    protected isAnyRoadLeftOrRight(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss, [LEFT, RIGHT]); }
+
+    protected isAnyRoadAtSides(poss: IPoss, sides: Array<DirSide> = SIDES) : boolean {
+        for (let side of sides) {
+            let sideRoadCell = this.findCellOfRoad(HH[side](poss));
+            if (!sideRoadCell) { continue; }
+            if (sideRoadCell.isRoadSideCellConnected(sideRoadCell, side)) { return true; }
+        }
+        return false;
+    }
+
     // PATHS
 
     arePathsTheSame(pathsA: Array<CellPath>, pathsB: Array<CellPath>) {
@@ -385,6 +393,50 @@ export abstract class SchemeBase {
             }
         }
         return  false;
+    }
+
+    protected isSemiconductorChargedAround(poss: IPoss) : boolean {
+        for (let side of SIDES) {
+            let cell = this.findCellOfSemiconductor(HH[side](poss));
+            if (cell && cell.semiconductor.colorCharge) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected isSemiconductorSleepAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_SLEEP); }
+    protected isSemiconductorAwakeAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE); }
+    protected isSemiconductorAwakeAtLeftOrAtRight(poss: IPoss) : boolean {
+        return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
+    }
+
+    private isSemiconductorTypeAround(poss: IPoss, scType: CellSemiconductorType, sides: Array<DirSide> = SIDES) : boolean {
+        for (let side of sides) {
+            let cell = this.findCellOfSemiconductor(HH[side](poss));
+            if (cell && cell.semiconductor.type == scType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected countAwakeClusterAtSide(poss: IPoss, checkRun: number | null, side: DirSide) : number {
+        let sideCell = this.findCellOfSemiconductor(HH[side](poss));
+        if (!sideCell) { return 0; }
+        let semi = sideCell.semiconductor;
+        if (!semi || CONF.ST_ROAD_AWAKE != semi.type) { return 0; }
+
+        if (!checkRun) { checkRun = this.checkRun; }
+        if (semi.checkRun == checkRun) { return 0; }
+        semi.checkRun = checkRun;
+
+        let count = 1;
+        SIDES.map((toDir: DirSide) => {
+            if (toDir == CONF.OPPOSITE_SIDE[side]) { return; }
+            count += this.countAwakeClusterAtSide(HH[side](poss), checkRun, toDir)
+        })
+        return count;
     }
 
     // COLORs cancel
