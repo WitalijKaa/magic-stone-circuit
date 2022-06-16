@@ -357,15 +357,15 @@ export abstract class SchemeBase {
         return !!this.findCellOfRoad(poss);
     }
 
-    canSetRoadAndIsPathsEmptyAtOrientation(isHorizontalOrientation: boolean, poss: IPoss) : boolean {
+    private isRoadPathsEmptyByOrientation(isHorizontalOrientation: boolean, poss: IPoss) : boolean {
         if (this.isCellEmpty(poss)) { return true; }
         const cell = this.findCellOfRoad(poss);
         if (!cell) { return false; }
         if (isHorizontalOrientation) { return (!cell.road.paths[ROAD_PATH_LEFT] && !cell.road.paths[ROAD_PATH_RIGHT]); }
         return (!cell.road.paths[ROAD_PATH_UP] && !cell.road.paths[ROAD_PATH_DOWN]);
     }
-    isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(true, poss); }
-    isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.canSetRoadAndIsPathsEmptyAtOrientation(false, poss); }
+    isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.isRoadPathsEmptyByOrientation(true, poss); }
+    isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.isRoadPathsEmptyByOrientation(false, poss); }
 
     // SEMICONDUCTORs
 

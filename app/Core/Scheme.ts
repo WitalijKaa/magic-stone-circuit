@@ -169,7 +169,7 @@ export class Scheme extends SchemeBase {
             this.buildingRoad.way.last != this.buildRoadWay
         ) {
             this.removePrevBuiltRoad();
-            this.findWayToBuildRoad();
+            if (!this.buildingRoad.way.fixed) { this.redefineBuildRoadAutoWay(); }
             if (this.isWayPossible(this.buildRoadWay)) {
                 this.doBuildRoad();
             }
@@ -181,7 +181,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    private removePrevBuiltRoad() {
+    private removePrevBuiltRoad() : void {
         this.buildingRoad.path.map((roadCellMem: RoadChangeHistoryCell) => {
             if (roadCellMem.change.curr) {
                 if (!roadCellMem.change.prev) {
@@ -199,7 +199,7 @@ export class Scheme extends SchemeBase {
         this.buildingRoad.path = [];
     }
 
-    private doBuildRoad() {
+    private doBuildRoad() : void {
         if (this.buildingRoad.start.x == this.activeCursor.x && this.buildingRoad.start.y == this.activeCursor.y) {
             return;
         }
@@ -339,57 +339,61 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    private findWayToBuildRoad() {
-        this.buildingRoad.way.auto = CONF.BUILD_ROAD_WAY_HORZ_VERT;
-        let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
-        const { xStep, yStep } = this.findStepXY;
-        let isFirstHorizontal = this.activeCursor.x != this.buildingRoad.start.x;
-
-        let theWay : boolean | BuildRoadWays = CONF.BUILD_ROAD_WAY_HORZ_VERT;
-        while (theWay && theCell.x != this.activeCursor.x) {
-            theCell.x += xStep;
-            if (!this.isRoadPathsEmptyHorizontal(theCell)) {
-                theWay = false;
-            }
-        }
-        if (isFirstHorizontal && theCell.y != this.activeCursor.y && !this.isRoadPathsEmptyVertical(theCell)) {
-            theWay = false; // corner check
-        }
-        while (theWay && theCell.y != this.activeCursor.y) {
-            theCell.y += yStep;
-            if (!this.isRoadPathsEmptyVertical(theCell)) {
-                theWay = false;
-            }
-        }
-
-        if (theWay) { this.buildingRoad.way.auto = theWay; return; }
-
-        theCell = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
-
-        if (this.activeCursor.x != this.buildingRoad.start.x && this.activeCursor.y != this.buildingRoad.start.y)
-        {
-            theWay = CONF.BUILD_ROAD_WAY_VERT_HORZ;
-            while (theWay && theCell.y != this.activeCursor.y) {
-                theCell.y += yStep;
-                if (!this.isRoadPathsEmptyVertical(theCell)) {
-                    theWay = false;
-                }
-            }
-            if (!this.isRoadPathsEmptyHorizontal(theCell)) {
-                theWay = false; // corner check
-            }
-            while (theWay && theCell.x != this.activeCursor.x) {
-                theCell.x += xStep;
-                if (!this.isRoadPathsEmptyHorizontal(theCell)) {
-                    theWay = false;
-                }
-            }
-        }
-
-        if (theWay) { this.buildingRoad.way.auto = theWay; }
+    private redefineBuildRoadAutoWay() : void {
+        this.buildingRoad.way.auto = (!this.isBuildRoadPreferredWayHorzVert() && this.isBuildRoadPreferredWayVertHorz()) ?
+            CONF.BUILD_ROAD_WAY_VERT_HORZ :
+            CONF.BUILD_ROAD_WAY_HORZ_VERT;
     }
 
-    private isWayPossible(theWay) {
+    private isBuildRoadPreferredWayHorzVert() : boolean {
+        let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+        const { xStep, yStep } = this.findStepXY;
+
+        while (theCell.x != this.activeCursor.x) {
+            theCell.x += xStep;
+            if (!this.isRoadPathsEmptyHorizontal(theCell)) {
+                return false;
+            }
+        }
+        if (theCell.y != this.activeCursor.y && !this.isRoadPathsEmptyVertical(theCell)) {
+            return false; // corner check
+        }
+        while (theCell.y != this.activeCursor.y) {
+            theCell.y += yStep;
+            if (!this.isRoadPathsEmptyVertical(theCell)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private isBuildRoadPreferredWayVertHorz() : boolean {
+        if (this.activeCursor.x != this.buildingRoad.start.x && this.activeCursor.y != this.buildingRoad.start.y)
+        {
+            let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
+            const { xStep, yStep } = this.findStepXY;
+
+            while (theCell.y != this.activeCursor.y) {
+                theCell.y += yStep;
+                if (!this.isRoadPathsEmptyVertical(theCell)) {
+                    return false;
+                }
+            }
+            if (!this.isRoadPathsEmptyHorizontal(theCell)) {
+                return false; // corner check
+            }
+            while (theCell.x != this.activeCursor.x) {
+                theCell.x += xStep;
+                if (!this.isRoadPathsEmptyHorizontal(theCell)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private isWayPossible(theWay) : boolean {
         let theCell : IPoss = { x: this.buildingRoad.start.x, y: this.buildingRoad.start.y };
         if (!this.isCellEmptyOrRoad(theCell)) { return false; }
 
