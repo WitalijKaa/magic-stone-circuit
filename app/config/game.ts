@@ -31,6 +31,7 @@ export const RIGHT = 'Right';
 export const DOWN = 'Down';
 export const LEFT = 'Left';
 export const SIDES = [UP, RIGHT, DOWN, LEFT] as Array<DirSide>;
+export const SIDES_DIAGONAL = ['UpLeft', 'UpRight', 'DownLeft', 'DownRight'];
 export const SIDES_LEFT_RIGHT = [RIGHT, LEFT] as Array<DirSide>;
 export const SIDES_UP_DOWN = [UP, DOWN] as Array<DirSide>;
 export const SIDES_TURN_90 = {

@@ -405,13 +405,14 @@ export abstract class SchemeBase {
         return false;
     }
 
+    protected isSemiconductorAwakeAroundDiagonal(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, CONF.SIDES_DIAGONAL); }
     protected isSemiconductorSleepAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_SLEEP); }
     protected isSemiconductorAwakeAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE); }
     protected isSemiconductorAwakeAtLeftOrAtRight(poss: IPoss) : boolean {
         return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
     }
 
-    private isSemiconductorTypeAround(poss: IPoss, scType: CellSemiconductorType, sides: Array<DirSide> = SIDES) : boolean {
+    private isSemiconductorTypeAround(poss: IPoss, scType: CellSemiconductorType, sides: Array<string> = SIDES) : boolean {
         for (let side of sides) {
             let cell = this.findCellOfSemiconductor(HH[side](poss));
             if (cell && cell.semiconductor.type == scType) {

@@ -31,15 +31,6 @@ export class Scheme extends SchemeBase {
 
         this.refreshVisibleCell(poss);
         this.afterChange();
-
-        // if (this.coloringAwaitTick) {
-        //     this.coloringCellCache(poss).push({
-        //         type: CONF.ST_STONE_VIOLET,
-        //         method: 'setColorForRoadsAroundByStone',
-        //         params: [poss],
-        //         cacheDirections: [...CONF.SIDES],
-        //     });
-        // }
     }
 
     public removeContent(poss: IPoss) {
@@ -575,13 +566,10 @@ export class Scheme extends SchemeBase {
         this.setColorToNewSemiconductor(cellSemi);
     }
 
-    private putAwakeSemiconductor(poss: IPoss) {
+    private putAwakeSemiconductor(poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell && !this.isCellEmpty(poss)) { return; }
-
-        if (this.isSemiconductorChargedAround(poss)) {
-            return;
-        }
+        if (this.isSemiconductorChargedAround(poss) || this.isSemiconductorAwakeAroundDiagonal(poss)) { return; }
 
         let clusterFree = this.allowedAmountOfAwakesCluster - 1;
         SIDES.map((side) => {

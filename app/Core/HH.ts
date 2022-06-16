@@ -28,6 +28,10 @@ export class HH {
     public static Right(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y }; }
     public static Down(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y + 1 }; }
     public static Left(poss: IPoss) : IPoss { return { x: poss.x - 1, y: poss.y }; }
+    public static UpLeft(poss: IPoss) : IPoss { return { x: poss.x - 1, y: poss.y - 1 }; }
+    public static UpRight(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y - 1 }; }
+    public static DownLeft(poss: IPoss) : IPoss { return { x: poss.x - 1, y: poss.y + 1 }; }
+    public static DownRight(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y + 1 }; }
 
     public static clonePoss(poss: IPoss) : IPoss {
         return { x: poss.x, y: poss.y };
