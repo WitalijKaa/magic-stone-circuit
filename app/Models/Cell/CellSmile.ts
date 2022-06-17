@@ -15,10 +15,6 @@ export class CellSmile {
                 this.cell.setColor(0x37474f);
                 this.cell.twiceSize = true;
                 this.isSmileDrawn = true;
-                // @ts-ignore
-                //this.cell.model.scale = 2;
-                // this.cell.setSize(80);
-                // this.cell.model.anchor.set(0.5, 0.5);
             }
         }
         else if (this.isSmileDrawn) {

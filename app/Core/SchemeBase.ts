@@ -17,6 +17,7 @@ import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Ty
 import {CellStone, CellStoneType} from "./Types/CellStone";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
+import {Cell} from "./Cell";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -101,6 +102,10 @@ export abstract class SchemeBase {
                     this.contentCells[this.cellName(poss)] = poss;
                     toAwake.push([poss, schemeCell.content.type])
                 }
+                else if ('smile' in schemeCell) {
+                    this._devCell = Cell.clonePoss(poss).Left;
+                    this.putSmile();
+                }
             }
         }
         toAwake.map((params) => { this.setAwakeColorAroundForAwakeSemi(...params); });
@@ -130,6 +135,7 @@ export abstract class SchemeBase {
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
+    public abstract putSmile() : void;
 
     // LIFE CYCLE
 

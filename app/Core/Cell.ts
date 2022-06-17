@@ -24,4 +24,5 @@ export class Cell implements IPoss {
     public static Down(poss: IPoss) : Cell { return new Cell(poss.x, poss.y + 1); }
     public static Left(poss: IPoss) : Cell { return new Cell(poss.x - 1, poss.y); }
     public static Create(x: number, y: number) : Cell { return new Cell(x, y); }
+    public static clonePoss(poss: IPoss) : Cell { return new Cell(poss.x, poss.y); }
 }

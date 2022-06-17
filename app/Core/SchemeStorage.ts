@@ -4,6 +4,7 @@ import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {DEFAULT_SCHEME_NAME} from "../config/game";
 import {RoadSavePathsArray} from "./Types/CellRoad";
+import {ICellWithSmile} from "./Interfaces/ICellWithSmile";
 
 export class SchemeStorage {
 
@@ -19,7 +20,7 @@ export class SchemeStorage {
     public resetScheme(name: string = DEFAULT_SCHEME_NAME) { this.schemes[name] = {}; }
 
     public save(name: string = DEFAULT_SCHEME_NAME) : void {
-        let scheme = this.getNamedScheme(name) as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor } };
+        let scheme = this.getNamedScheme(name) as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor | ICellWithSmile } };
         let schemeCopy: SchemeCopy = {};
 
         for (let row in scheme) {
@@ -41,6 +42,9 @@ export class SchemeStorage {
                 }
                 else if ('content' in schemeCell && schemeCell.content) {
                     schemeCopy[row][column] = { content: schemeCell.content };
+                }
+                else if ('smile' in schemeCell && schemeCell.smile.view) {
+                    schemeCopy[row][column] = { smile: schemeCell.smile };
                 }
             }
         }
