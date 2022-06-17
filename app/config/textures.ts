@@ -15,4 +15,5 @@ export const TT = {
     roadAwakening: 'resources/40/road_awakening.png',
     roadAwakeningCharge: 'resources/40/road_awake_charge.png',
     roadAwakeningFlow: 'resources/40/road_awake_flow.png',
+    switcher: 'resources/40/road_switcher.png',
 } as const;
