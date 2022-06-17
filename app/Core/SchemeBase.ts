@@ -12,10 +12,9 @@ import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
-import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
-import {CellStone} from "./Types/CellStone";
+import {CellStone, CellStoneType} from "./Types/CellStone";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 
@@ -78,7 +77,7 @@ export abstract class SchemeBase {
     }
 
     public loadScheme(source: SchemeCopy) {
-        let toAwake: Array<[IPoss, CellStone]> = [];
+        let toAwake: Array<[IPoss, CellStoneType]> = [];
         for (let row in source) {
             for (let column in source[row]) {
                 let schemeCell = source[row][column];
@@ -95,9 +94,12 @@ export abstract class SchemeBase {
                     }
                 }
                 else if ('content' in schemeCell) {
+                    if ('number' == typeof schemeCell.content) {
+                        schemeCell.content = { type: schemeCell.content, range: [] }
+                    }
                     this.getCellForStoneForced(poss, schemeCell.content);
                     this.contentCells[this.cellName(poss)] = poss;
-                    toAwake.push([poss, schemeCell.content])
+                    toAwake.push([poss, schemeCell.content.type])
                 }
             }
         }
@@ -126,7 +128,7 @@ export abstract class SchemeBase {
     public abstract get isRoadBuildMode() : boolean;
     protected abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
-    protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStone | null) : void;
+    protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
 
     // LIFE CYCLE

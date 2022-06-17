@@ -5,7 +5,7 @@ import {ROAD_PATH_UP, ROAD_PATH_RIGHT, ROAD_PATH_DOWN, ROAD_PATH_LEFT, ROAD_PATH
 import {Cell} from "./Cell";
 import {SchemeBase} from "./SchemeBase";
 import {CellRoad} from "./Types/CellRoad";
-import {CellStone} from "./Types/CellStone";
+import {CellStone, CellStoneType} from "./Types/CellStone";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {CellSemiconductor, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {HH} from "./HH";
@@ -30,9 +30,9 @@ export class CellScheme implements ICellScheme {
 
     public get poss() : IPoss { return { x: this.x, y: this.y }; }
 
-    get stone() : CellStone | null {
-        if (this.content && HH.isStone(this.content)) {
-            return this.content;
+    get stone() : CellStoneType | null {
+        if (this.content && HH.isStone(this.content.type)) {
+            return this.content.type;
         }
         return null;
     }

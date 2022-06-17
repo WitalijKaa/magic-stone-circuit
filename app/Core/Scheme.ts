@@ -3,7 +3,7 @@ import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
-import {CellStone} from "./Types/CellStone";
+import {CellStone, CellStoneType} from "./Types/CellStone";
 import {CellRoad, CellRoadPathType, CellRoadType, RoadChangeHistory, RoadChangeHistoryCell, RoadSavePathsArray} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {Axis, BuildRoadWays} from "./Types/BuildRoadWays";
@@ -20,14 +20,14 @@ export class Scheme extends SchemeBase {
 
     /** STONEs **/
 
-    public putContent(type: CellStone, poss: IPoss) : void {
+    public putContent(stoneType: CellStoneType, poss: IPoss) : void {
         let cell = this.getCellForContent(poss);
-        if (!cell || cell.content == type) { return; }
+        if (!cell || (cell.content && cell.content.type == stoneType)) { return; }
 
         this.cancelColorPathsForAnyRoadAround(poss);
-        cell.content = type;
+        cell.content = { type: stoneType, range: [] };
         this.contentCells[this.cellName(poss)] = poss;
-        this.setAwakeColorAroundForAwakeSemi(poss, type);
+        this.setAwakeColorAroundForAwakeSemi(poss, stoneType);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
@@ -51,13 +51,13 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         SIDES.map((sideTo: DirSide) => {
-            this.setColorToRoad(CONF.STONE_TYPE_TO_ROAD_COLOR[cell!.content], CONF.OPPOSITE_SIDE[sideTo], HH[sideTo](poss))
+            this.setColorToRoad(CONF.STONE_TYPE_TO_ROAD_COLOR[cell!.content.type], CONF.OPPOSITE_SIDE[sideTo], HH[sideTo](poss))
         });
     }
 
-    protected setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: SemiColor) : void {
+    protected setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneType: CellStoneType | null) : void {
         SIDES.map((side: DirSide) => {
-            this.setAwakeColorToSemiconductor(stoneColor ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneColor] : null, HH[side](poss), true);
+            this.setAwakeColorToSemiconductor(stoneType ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType] : null, HH[side](poss), true);
         });
     }
 
@@ -621,7 +621,7 @@ export class Scheme extends SchemeBase {
             if (!cellSide) { return; }
 
             if (cellSide.content) {
-                this.setAwakeColorToSemiconductor(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!], cell, false);
+                this.setAwakeColorToSemiconductor(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!.type], cell, false);
             }
 
             if (!cell.semiconductor.colorAwake && cellSide.isAwakeSemiconductor && cellSide.semiconductor!.colorAwake) {
