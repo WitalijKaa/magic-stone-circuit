@@ -13,6 +13,7 @@ import {DirSide} from "./Types/DirectionSide";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {IPoss} from "./IPoss";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
+import {CellSmile} from "./Types/CellSmile";
 
 export class CellScheme implements ICellScheme {
 
@@ -22,6 +23,7 @@ export class CellScheme implements ICellScheme {
     content: CellStone | null = null;
     road: CellRoad | null = null;
     semiconductor: CellSemiconductor | null = null;
+    smile: CellSmile | null = null;
 
     constructor(x: number, y: number, scheme: SchemeBase) {
         this.cellPosition = new Cell(x, y);

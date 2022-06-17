@@ -59,6 +59,8 @@ export const ST_ENERGY = 5;
 export const ST_ROAD = 6;
 export const ST_ROAD_SLEEP = 7;
 export const ST_ROAD_AWAKE = 8;
+export const ST_SMILE = 9;
+export const ST_SMILE_IN = 10;
 export const ST_EMPTY = 'q';
 
 export const CONTENT_SPRITES = {

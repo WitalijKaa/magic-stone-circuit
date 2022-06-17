@@ -8,6 +8,8 @@ export class SpriteModel extends DisplayModel {
     public model: Sprite;
 
     private isPivotCenter: boolean = false;
+    private isNormalSize: boolean = true;
+    protected sizeOffset: number = 0;
 
     constructor(texture: string | Sprite) {
         super();
@@ -50,6 +52,26 @@ export class SpriteModel extends DisplayModel {
         }
     }
 
+    set twiceSize(val: boolean) {
+        if (this.isNormalSize != val) { return; }
+        if (this.isNormalSize) {
+            this.isNormalSize = false;
+            this.model.anchor.set(1, 1);
+            this.model.width = this.model.height = 80;
+            this.sizeOffset = 40;
+            this.model.x += this.sizeOffset;
+            this.model.y += this.sizeOffset;
+        }
+        else {
+            this.isNormalSize = true;
+            this.model.anchor.set(0, 0);
+            this.model.width = this.model.height = 40;
+            this.model.x -= this.sizeOffset;
+            this.model.y -= this.sizeOffset;
+            this.sizeOffset = 0;
+        }
+    }
+
     get x () : number {
         if (this.isPivotCenter) {
             return this.model.x - this.model.width / 2;
@@ -66,8 +88,12 @@ export class SpriteModel extends DisplayModel {
             return this.model.y;
         }
     }
-    get w () : number { return this.model.width; }
-    get h () : number { return this.model.height; }
+    get w () : number {
+        return this.model.width - this.sizeOffset;
+    }
+    get h () : number {
+        return this.model.height - this.sizeOffset;
+    }
     set x (val: number) {
         if (this.isPivotCenter) {
             this.model.x = val + this.model.width / 2;

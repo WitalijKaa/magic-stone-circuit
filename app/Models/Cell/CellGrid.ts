@@ -12,12 +12,14 @@ import {CellRoad} from "./CellRoad";
 import {MouseOver} from "../../Core/Behaviors/MouseOver";
 import {HH} from "../../Core/HH";
 import {CellSemiconductor} from "./CellSemiconductor";
+import {CellSmile} from "./CellSmile";
 
 export class CellGrid extends CellAbstract {
 
     private cellContent: CellContent;
     private cellRoad: CellRoad;
     private cellSemiconductor: CellSemiconductor;
+    private cellSmile: CellSmile;
 
     constructor(position: Cell, grid: SchemeGrid) {
         super(position, grid, SpriteModel.from(TT.cell));
@@ -25,6 +27,7 @@ export class CellGrid extends CellAbstract {
         this.cellContent = new CellContent(this);
         this.cellRoad = new CellRoad(this);
         this.cellSemiconductor = new CellSemiconductor(this);
+        this.cellSmile = new CellSmile(this);
 
         this.on('click', () => { this.handleClick() });
         new MouseClick(this, this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
@@ -71,6 +74,7 @@ export class CellGrid extends CellAbstract {
     get schemeCell() : null | CellScheme { return this.grid.scheme.findCell(this.schemePosition) }
 
     refreshVisibleAll() {
+        this.cellSmile.updateVisibleSprites();
         this.cellContent.updateVisibleStone();
         this.cellRoad.updateVisibleRoad();
         this.cellSemiconductor.updateVisibleSemiconductor();

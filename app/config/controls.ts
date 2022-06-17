@@ -45,6 +45,7 @@ export const CONTROL_EVENTS_KEYS = {
     'P': 'setVioletSwitcher',
     'o': 'setIndigoSwitcher',
     'O': 'setIndigoSwitcher',
+    'l': 'putSmile',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];

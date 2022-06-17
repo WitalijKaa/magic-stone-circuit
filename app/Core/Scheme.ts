@@ -1031,4 +1031,14 @@ export class Scheme extends SchemeBase {
     public setIndigoSwitcher() : void {
         this.switcherMode = [CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE];
     }
+
+    public putSmile() : void {
+        let cell = this.getCell(this._devCell);
+        cell.smile = { type: CONF.ST_SMILE_IN, color: null, view: false };
+        this.getCell(cell.cellPosition.Up).smile = { type: CONF.ST_SMILE, color: null, view: false };
+        this.getCell(cell.cellPosition.Right).smile = { type: CONF.ST_SMILE, color: null, view: true };
+        this.getCell(cell.cellPosition.Up.Right).smile = { type: CONF.ST_SMILE, color: null, view: false };
+
+        this.refreshVisibleCell(cell.cellPosition.Right);
+    }
 }
