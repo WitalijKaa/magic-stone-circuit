@@ -18,6 +18,10 @@ import {Poss} from "./Poss";
 
 export class Scheme extends SchemeBase {
 
+    public beforeAnyInput() {
+        this.switcherMode = false;
+    }
+
     /** STONEs **/
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
@@ -25,7 +29,7 @@ export class Scheme extends SchemeBase {
         if (!cell || (cell.content && cell.content.type == stoneType)) { return; }
 
         this.cancelColorPathsForAnyRoadAround(poss);
-        cell.content = { type: stoneType, range: [] };
+        cell.content = { type: stoneType, range: this.switcherMode ? [...this.switcherMode] : [] };
         this.contentCells[this.cellName(poss)] = poss;
         this.setAwakeColorAroundForAwakeSemi(poss, stoneType);
 
@@ -1002,4 +1006,14 @@ export class Scheme extends SchemeBase {
         });
     }
 
+    /** TRICKs **/
+
+    private switcherMode: false | Array<CellStoneType> = false;
+
+    public setVioletSwitcher() : void {
+        this.switcherMode = [CONF.ST_STONE_VIOLET, CONF.ST_STONE_RED];
+    }
+    public setIndigoSwitcher() : void {
+        this.switcherMode = [CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE];
+    }
 }

@@ -544,7 +544,7 @@ export abstract class SchemeBase {
         }
         else if (cell.road) {
             showInConsole =
-                'Type ' + ROAD_DEV[cell.road.type] +
+                'ROAD ' + ROAD_DEV[cell.road.type] +
                 ' ## ' +
                 cell.road.paths.map((path, ix) => {
                     if ('boolean' == typeof path) {
@@ -560,10 +560,17 @@ export abstract class SchemeBase {
                     }
                 }).join('|');
         }
+        else if (cell.content) {
+            showInConsole =
+                'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]] +
+                (!cell.content.range.length ? '' :
+                ' ## ' +
+                cell.content.range.map(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
+        }
         console.log(
             'devCellEcho',
             poss.x + ' ' + poss.y,
-            cell.road ? showInConsole : (cell.content ? 'color_' + cell.content : (cell.semiconductor ? cell.semiconductor : cell))
+            showInConsole ? showInConsole : (cell.semiconductor ? cell.semiconductor : cell)
         );
     }
 }

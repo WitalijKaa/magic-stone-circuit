@@ -48,6 +48,7 @@ if (pixiAppContainer)
         });
 
         document.addEventListener('keypress', (event) => {
+            scheme.beforeAnyInput();
             if (CONTROL.CONTROL_KEYS.hasOwnProperty(event.key)) {
                 schemeGrid.controlPen = CONTROL.CONTROL_KEYS[event.key];
                 viewControlPen(schemeGrid.controlPen);
@@ -62,6 +63,7 @@ if (pixiAppContainer)
         for (let $btn of $buttons) {
             let $subscriber = $btn;
             $btn.addEventListener('click', () => {
+                scheme.beforeAnyInput();
                 let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
                 if (CONTROL.CONTROL_KEYS.hasOwnProperty(pen)) {
                     schemeGrid.controlPen = pen;

@@ -14,6 +14,10 @@ export const CONTROL_KEYS = {
     '8': CONF.ST_EMPTY,
     'q': CONF.ST_EMPTY,
     'Q': CONF.ST_EMPTY,
+    'p': CONF.ST_STONE_VIOLET,
+    'P': CONF.ST_STONE_VIOLET,
+    'o': CONF.ST_STONE_INDIGO,
+    'O': CONF.ST_STONE_INDIGO,
 }
 
 export const CONTROL_EVENTS_KEYS = {
@@ -31,6 +35,10 @@ export const CONTROL_EVENTS_KEYS = {
     '+': 'speedUp',
     '-': 'speedDown',
     '_': 'speedDown',
+    'p': 'setVioletSwitcher',
+    'P': 'setVioletSwitcher',
+    'o': 'setIndigoSwitcher',
+    'O': 'setIndigoSwitcher',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];
