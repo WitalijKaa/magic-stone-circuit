@@ -530,8 +530,9 @@ export class Scheme extends SchemeBase {
 
     public putSemiconductor(scType: CellSemiconductorType | null, poss: IPoss) {
         if (!scType) {
-            this.killCell(poss); // todo
-            delete(this.contentCells[this.cellName(poss)]);
+            let cell = this.findCellOfSemiconductor(poss);
+            // if (cell?.semiconductor.colorCharge) { return; }
+            this.removeSemiconductor(cell);
         }
         else if (CONF.ST_ROAD_SLEEP == scType) {
             this.putSleepSemiconductor(poss);
@@ -541,6 +542,33 @@ export class Scheme extends SchemeBase {
         }
         this.refreshVisibleCell(poss);
         this.afterChange();
+    }
+
+    private removeSemiconductor(cell: ICellWithSemiconductor | null) : void {
+        if (!cell) { return; }
+
+        SIDES.map((side: DirSide) => {
+            let sideCell = this.findCellOfSemiconductor(HH[side](cell));
+            if (sideCell) {
+
+                if (cell.isAwakeSemiconductor) {
+                    if (sideCell.isAwakeSemiconductor && !this.hasTransistorTheAwakeSources(sideCell)) {
+                        this.setAwakeColorToSemiconductor(null, sideCell, true);
+                    }
+                    else if (sideCell.isSleepSemiconductor) {
+                        this.setAwakeColorToSemiconductor(null, sideCell, false);
+                    }
+
+                    this.setChargeColorToSemiconductorByAwake(null, HH[side](cell))
+                }
+                else if (cell.isSleepSemiconductor) {
+                    this.setChargeColorToSemiconductorBySleep(null, CONF.OPPOSITE_SIDE[side], HH[side](cell));
+                }
+            }
+        });
+
+        this.killCell(cell);
+        delete(this.contentCells[this.cellName(cell)]);
     }
 
     private putSleepSemiconductor(poss: IPoss) : void {
@@ -684,7 +712,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         if (cell.isAwakeSemiconductor) {
-            if (!color && this.hasTransistorTheSources(cell)) { return; }
+            if (!color && this.hasTransistorTheChargeSources(cell)) { return; }
             this.setChargeColorToSemiconductorByAwake(color, poss);
         }
         else if (cell.isSleepSemiconductor) {
@@ -693,11 +721,11 @@ export class Scheme extends SchemeBase {
             }
             else if (UP != fromDir && DOWN != fromDir) { return; }
 
-            this.setColorToSemiconductorBySleep(color, fromDir, poss);
+            this.setChargeColorToSemiconductorBySleep(color, fromDir, poss);
         }
     }
 
-    private hasTransistorTheSources(cell: ICellWithSemiconductor, checkRun: number | null = null) {
+    private hasTransistorTheChargeSources(cell: ICellWithSemiconductor, checkRun: number | null = null) {
         if (!cell.isAwakeSemiconductor || !cell.semiconductor.colorCharge) { return false; }
 
         let exceptThisOne = false;
@@ -723,13 +751,22 @@ export class Scheme extends SchemeBase {
         for (let ix = 0; ix < SIDES.length; ix++) {
             let sideCell = this.findCellOfSemiconductor(HH[SIDES[ix]](cell));
             if (!sideCell) { continue; }
-            if (this.hasTransistorTheSources(sideCell, checkRun)) {
+            if (this.hasTransistorTheChargeSources(sideCell, checkRun)) {
                 return true;
             }
         }
     }
 
-    private setColorToSemiconductorBySleep(color: SemiColor, fromDir: DirSide, poss: IPoss): void {
+    private hasTransistorTheAwakeSources(cell: ICellWithSemiconductor) : boolean {
+        for (let ix = 0; ix < SIDES.length; ix++) {
+            if (this.findCellOfContent(HH[SIDES[ix]](cell))) {
+                return true; // works only for transistor with 1 awake semiconductors
+            }
+        }
+        return false;
+    }
+
+    private setChargeColorToSemiconductorBySleep(color: SemiColor, fromDir: DirSide, poss: IPoss): void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
         let semi = cell.semiconductor;
@@ -754,13 +791,13 @@ export class Scheme extends SchemeBase {
             if (color) {
                 this.coloringCellCache(possSide).push({
                     type: CONF.ST_ROAD_SLEEP,
-                    method: 'setColorToSemiconductorBySleep',
+                    method: 'setChargeColorToSemiconductorBySleep',
                     params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
                     cacheDirections: [toDir],
                 });
             }
             else {
-                this.setColorToSemiconductorBySleep(color, CONF.OPPOSITE_SIDE[toDir], possSide);
+                this.setChargeColorToSemiconductorBySleep(color, CONF.OPPOSITE_SIDE[toDir], possSide);
             }
         });
 
