@@ -514,7 +514,6 @@ export abstract class SchemeBase {
     }
 
     canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
-    canPathCancelColor(road: CellRoad, pathType: CellRoadPathType) { return !!(true !== road.paths[pathType] && road.paths[pathType]); }
 
     removeColoringCellCacheToDir(toDir, poss: IPoss) {
         let name = this.cellName(poss);

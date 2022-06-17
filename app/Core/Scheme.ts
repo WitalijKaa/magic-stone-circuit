@@ -557,7 +557,7 @@ export class Scheme extends SchemeBase {
                 direction = (ROAD_LEFT_RIGHT == cellSemi.semiconductor.direction ? ROAD_UP_DOWN : ROAD_LEFT_RIGHT);
             }
         }
-        else if (!this.isAnyRoadLeftOrRight(poss)) {
+        else if (this.isAnyRoadAround(poss) && !this.isAnyRoadLeftOrRight(poss)) {
             direction = ROAD_UP_DOWN;
         }
 
@@ -593,11 +593,11 @@ export class Scheme extends SchemeBase {
             if (!cellSide) { return; }
 
             if (cellSide.content) {
-                setTimeout(() => { this.setAwakeColorToSemiconductor(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!], cellSide!.poss, true); }, CONF.NANO_MS);
+                this.setAwakeColorToSemiconductor(CONF.STONE_TYPE_TO_ROAD_COLOR[cellSide!.content!], cell, false);
             }
 
-            if (cellSide.semiconductor && !cell.semiconductor.colorAwake && CONF.ST_ROAD_AWAKE == cellSide.semiconductor.type) {
-                cell.semiconductor.colorAwake = cellSide.semiconductor.colorAwake;
+            if (!cell.semiconductor.colorAwake && cellSide.isAwakeSemiconductor && cellSide.semiconductor!.colorAwake) {
+                this.setAwakeColorToSemiconductor(cellSide.semiconductor!.colorAwake, cell, false);
             }
         })
     }
