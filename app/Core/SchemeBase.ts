@@ -181,7 +181,7 @@ export abstract class SchemeBase {
                 else if (cell.semiconductor && CONF.ST_ROAD_SLEEP == cell.semiconductor.type) {
                     this.coloringCellCache(this.contentCells[cellName]).push({
                         type: CONF.ST_ROAD_SLEEP,
-                        method: 'setColorAroundBySleep',
+                        method: 'setColorToRoadBySleepSemiconductor',
                         params: [false, this.contentCells[cellName]],
                         cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
                     });
