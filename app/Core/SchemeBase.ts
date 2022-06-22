@@ -7,7 +7,7 @@ import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 import {GridCursor} from "./Types/GridCursor";
 import {IPoss} from "./IPoss";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
-import {CellPath, CellRoad, CellRoadPathType, CellRoadType, RoadPathsArray} from "./Types/CellRoad";
+import {CellPath, CellRoad, CellRoadPathType, CellRoadType, RoadPathsArray, RoadSavePathsArray} from "./Types/CellRoad";
 import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
@@ -87,26 +87,31 @@ export abstract class SchemeBase {
             for (let column in source[row]) {
                 let schemeCell = source[row][column];
                 if (!schemeCell) { continue; }
-                let poss = { x: +row, y: +column };
+                let poss = { x: +row + 800000000 - 100, y: +column + 800000000 - 100 };
 
-                if ('road' in schemeCell) {
-                    this.getCellForRoadForced(poss, schemeCell.road.type, schemeCell.road.paths);
+                if ('r' in schemeCell) {
+                    let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
+                    schemeCell.r.p.split('').map((ix) => {
+                        paths[+ix] = true;
+                    })
+                    this.getCellForRoadForced(poss, schemeCell.r.t, paths);
                 }
-                else if ('semiconductor' in schemeCell) {
-                    this.getCellForSemiconductorForced(poss, schemeCell.semiconductor.direction, schemeCell.semiconductor.type);
-                    if (CONF.ST_ROAD_SLEEP == schemeCell.semiconductor.type) {
+                else if ('s' in schemeCell) {
+                    this.getCellForSemiconductorForced(poss, schemeCell.s.d, schemeCell.s.t);
+                    if (CONF.ST_ROAD_SLEEP == schemeCell.s.t) {
                         this.contentCells[this.cellName(poss)] = poss;
                     }
                 }
-                else if ('content' in schemeCell) {
-                    if ('number' == typeof schemeCell.content) {
-                        schemeCell.content = { type: schemeCell.content, range: [] }
+                else if ('c' in schemeCell) {
+                    let range = [] as Array<CellStoneType>;
+                    if (schemeCell.c.r) {
+                        range = schemeCell.c.r;
                     }
-                    this.getCellForStoneForced(poss, schemeCell.content);
+                    this.getCellForStoneForced(poss, { type: schemeCell.c.t, range: range });
                     this.contentCells[this.cellName(poss)] = poss;
-                    toAwake.push([poss, schemeCell.content.type])
+                    toAwake.push([poss, schemeCell.c.t])
                 }
-                else if ('smile' in schemeCell) {
+                else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
                     this.putSmile();
                 }

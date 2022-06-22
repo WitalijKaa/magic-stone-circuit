@@ -4,3 +4,8 @@ export type CellStone = {
     type: CellStoneType,
     range: Array<CellStoneType>,
 };
+
+export type CellStoneCopy = {
+    t: CellStoneType,
+    r?: Array<CellStoneType>,
+};

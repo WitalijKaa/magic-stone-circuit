@@ -6,3 +6,9 @@ export type CellSmile = {
     view: boolean,
     logic: string,
 }
+
+export type CellSmileCopy = {
+    t: 9 | 10,
+    v: number,
+    l: string,
+}

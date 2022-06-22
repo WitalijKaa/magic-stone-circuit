@@ -27,24 +27,30 @@ export class SchemeStorage {
             for (let column in scheme[row]) {
                 let schemeCell = scheme[row][column];
                 if (!schemeCell) { continue; }
-                if (!schemeCopy[row]) { schemeCopy[row] = {}; }
+
+                let rr = +row - 800000000 + 100;
+                let cc = +column - 800000000 + 100;
+                if (!schemeCopy[rr]) { schemeCopy[rr] = {}; }
 
                 if ('road' in schemeCell && schemeCell.road) {
-                    schemeCopy[row][column] = { road:
+                    schemeCopy[rr][cc] = { r:
                             {
-                                type: schemeCell.road.type,
-                                paths: schemeCell.road.paths.map((path) => { return !!path; }) as RoadSavePathsArray,
+                                t: schemeCell.road.type,
+                                p: schemeCell.road.paths.map((path, ix) => { return path ? ix : ''; }).join(''),
                             }
                     };
                 }
                 else if ('semiconductor' in schemeCell && schemeCell.semiconductor) {
-                    schemeCopy[row][column] = { semiconductor: { type: schemeCell.semiconductor.type, direction: schemeCell.semiconductor.direction }}
+                    schemeCopy[rr][cc] = { s: { t: schemeCell.semiconductor.type, d: schemeCell.semiconductor.direction }}
                 }
                 else if ('content' in schemeCell && schemeCell.content) {
-                    schemeCopy[row][column] = { content: schemeCell.content };
+                    schemeCopy[rr][cc] = { c: { t: schemeCell.content.type } };
+                    if (schemeCell.content.range && schemeCell.content.range.length) {
+                        schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
+                    }
                 }
                 else if ('smile' in schemeCell && schemeCell.smile.view) {
-                    schemeCopy[row][column] = { smile: schemeCell.smile };
+                    schemeCopy[rr][cc] = { i: { t: schemeCell.smile.type, v: +schemeCell.smile.view, l: schemeCell.smile.logic } };
                 }
             }
         }
