@@ -87,7 +87,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         this.cancelColorPathsRoadsAroundByPaths(cell.road.paths, poss);
-        this.cancelSemiColorByRoadPaths(cell.road.paths, poss);
+        this.cancelColorsAroundByRoadPaths(cell.road.paths, poss);
 
         this.killCell(poss);
         this.removeColoringCellCache(poss);
@@ -896,6 +896,7 @@ export class Scheme extends SchemeBase {
 
         if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
             this.setColorToSemiconductorByRoad(null, fromDir, nextCellPoss);
+            this.cSmile.setColorToSmileByRoad(null, fromDir, nextCellPoss);
         }
         this.eraseColorOnRoadPath(road, pathType);
         this.cancelColorOnRoadFromSide(nextCheckRun, fromDir, nextCellPoss);

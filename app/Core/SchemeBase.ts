@@ -474,10 +474,11 @@ export abstract class SchemeBase {
         });
     }
 
-    protected cancelSemiColorByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
-        SIDES.map((side: DirSide) => {
-            if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
-                this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
+    protected cancelColorsAroundByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
+        SIDES.map((toDir: DirSide) => {
+            if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
+                this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[toDir], HH[toDir](poss));
+                this.cSmile.setColorToSmileByRoad(null, CONF.OPPOSITE_SIDE[toDir], HH[toDir](poss));
             }
         });
     }
