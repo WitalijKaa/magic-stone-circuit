@@ -15,8 +15,13 @@ import {HH} from "./HH";
 import {CellScheme} from "./CellScheme";
 import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 import {Poss} from "./Poss";
+import {SmileComponent} from "./Components/SmileComponent";
 
 export class Scheme extends SchemeBase {
+
+    protected initComponents() {
+        this.cSmile = new SmileComponent(this);
+    }
 
     public beforeAnyInput() {
         this.switcherMode = false;
@@ -1010,6 +1015,7 @@ export class Scheme extends SchemeBase {
         nextSides.map((toDir: DirSide) => {
             this.setColorToRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
             this.setColorToSemiconductorByRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
+            this.cSmile.setColorToSmileByRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
         });
     }
 
@@ -1039,13 +1045,5 @@ export class Scheme extends SchemeBase {
         this.switcherMode = [CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE];
     }
 
-    public putSmile() : void {
-        let cell = this.getCell(this._devCell);
-        cell.smile = { type: CONF.ST_SMILE_IN, color: null, view: false };
-        this.getCell(cell.cellPosition.Up).smile = { type: CONF.ST_SMILE, color: null, view: false };
-        this.getCell(cell.cellPosition.Right).smile = { type: CONF.ST_SMILE, color: null, view: true };
-        this.getCell(cell.cellPosition.Up.Right).smile = { type: CONF.ST_SMILE, color: null, view: false };
-
-        this.refreshVisibleCell(cell.cellPosition.Right);
-    }
+    public putSmile() : void { this.cSmile.putSmile(); }
 }

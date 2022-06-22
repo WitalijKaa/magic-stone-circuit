@@ -18,6 +18,7 @@ import {CellStone, CellStoneType} from "./Types/CellStone";
 import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 import {Cell} from "./Cell";
+import {SmileComponent} from "./Components/SmileComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -41,6 +42,8 @@ const COLOR_DEV = {
 
 export abstract class SchemeBase {
 
+    protected cSmile!: SmileComponent;
+
     scheme: SchemeStructure = {};
     visibleGrid!: IVisibleGrid;
 
@@ -54,10 +57,11 @@ export abstract class SchemeBase {
     public get checkRun() : number { return this._checkRun += 3; }
 
     init(grid: SchemeGrid) : void {
-        this.visibleGrid = grid
+        this.visibleGrid = grid;
+        this.initComponents();
     }
 
-    protected refreshVisibleCell(poss: IPoss) {
+    public refreshVisibleCell(poss: IPoss) {
         this.visibleGrid.refreshCell(poss);
     }
 
@@ -130,6 +134,7 @@ export abstract class SchemeBase {
 
     // ABSTRACT
 
+    protected abstract initComponents() : void;
     public abstract get isRoadBuildMode() : boolean;
     protected abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
@@ -537,9 +542,9 @@ export abstract class SchemeBase {
 
     // DEV
 
-    _devCell: IPoss = { x: this.sizeRadius, y: this.sizeRadius };
-    devCell(poss: IPoss) { this._devCell = poss; }
-    devCellEcho(poss?: IPoss) {
+    public _devCell: IPoss = { x: this.sizeRadius, y: this.sizeRadius };
+    public devCell(poss: IPoss) { this._devCell = poss; }
+    public devCellEcho(poss?: IPoss) {
         if (!poss) { poss = this._devCell; }
         let cell = this.findCell(poss);
 

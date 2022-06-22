@@ -25,6 +25,7 @@ export const COLOR_VIOLET_ROAD_LIGHT = 0xb39ddb;
 export const COLOR_RED_ROAD_LIGHT = 0xe57373;
 export const COLOR_INDIGO_ROAD_LIGHT = 0x5c6bc0;
 export const COLOR_ORANGE_ROAD_LIGHT = 0xffcc80;
+export const COLOR_DARK_SMILE = 0x37474f;
 
 export const UP = 'Up';
 export const RIGHT = 'Right';
