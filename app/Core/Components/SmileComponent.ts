@@ -25,6 +25,10 @@ export class SmileComponent extends AbstractComponent {
 
         if (!this['logic' + cell.smile.logic](color)) { color = null; }
 
+        if (cell.Right!.smile!.event) {
+            cell.Right!.smile!.event(color);
+        }
+
         cell.Right!.smile!.color = color;
         this.refreshVisibleCell(cell.cellPosition.Right);
     }
