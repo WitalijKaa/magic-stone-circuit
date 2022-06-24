@@ -5,6 +5,10 @@ html, body {
     overflow: hidden;
 }
 
+.el--hidden {
+    display: none;
+}
+
 .el--texted {
     color: #cfd8dc;
     font-size: 14px;
@@ -76,4 +80,45 @@ html, body {
     position: fixed;
     right: 0;
     bottom: 0;
+}
+
+.header {
+    color: #004d40;
+    font-size: 16px;
+    font-family: Consolas;
+    font-weight: bold;
+    user-select: none;
+}
+
+.saved-links {
+    color: #006064;
+    font-size: 14px;
+    font-family: Consolas;
+    user-select: none;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.saved-links span {
+    margin-right: 10px;
+    cursor: pointer;
+    background: linear-gradient(to right, #006064, #00acc1);
+    background-size: 0 0.1em, 100% 0.1em;
+    background-position: 0 100%, 100% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 400ms;
+}
+.saved-links span:not(:first-child) {
+}
+.saved-links span:hover {
+    background-size: 100% 0.1em, 0 0.1em;
+}
+
+.saved-links--levels {
+    color: #1a237e;
+}
+.saved-links--levels span {
+    background: linear-gradient(to right, #1a237e, #3949ab);
+    background-size: 0 0.1em, 100% 0.1em;
+    background-position: 0 100%, 100% 100%;
+    background-repeat: no-repeat;
 }

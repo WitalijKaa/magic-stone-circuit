@@ -26,7 +26,7 @@ https://www.instagram.com/witalij.kaa/
 - Task 10: restrict to put objects where they should not be.
 - Task 11: cancel of cached actions should be targeted. --D
 - Task 12: energy starts coloring roads, not stones. Switchers.
-- Task 13: smiles consume energy.
+- Task 13: smiles consume energy. --D
 - Task 14: put roads by start-end. --D
 - Task 15: add variations on putting roads.
 - Task 16: big menu at left. --D
@@ -43,3 +43,4 @@ https://www.instagram.com/witalij.kaa/
 - Task 27: variations on road-cell switch 2.
 - Task 28: right click road build feature improve.
 - Task 29: TypeScript. --D
+- Task 30: game levels and save scheme menu.

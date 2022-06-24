@@ -1,0 +1,19 @@
+.modal-wrapper {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.modal-container {
+    position: absolute;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #eceff1;
+    width: 650px;
+    top: 100px;
+    margin-left: -325px;
+    left: 50%;
+}

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="modal.css" rel="stylesheet">
     <link href="main.css" rel="stylesheet">
     <title>Magic Stones</title>
 </head>
@@ -60,6 +61,14 @@
     </div>
     <div id="app"></div>
     <div id="scheme-name" class="scheme-name el--texted"></div>
+    <div class="modal-wrapper el--hidden">
+        <div class="modal-container">
+            <div class="header">Сохранённые схемы</div>
+            <div class="saved-links"></div>
+            <div class="header">Уровни</div>
+            <div class="saved-links saved-links--levels"></div>
+        </div>
+    </div>
 </div>
 <script src="dist/main.js" type="application/javascript"></script>
 </body>
