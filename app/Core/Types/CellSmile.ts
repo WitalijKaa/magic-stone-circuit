@@ -5,6 +5,7 @@ export type CellSmile = {
     color: SemiColor,
     view: boolean,
     logic: string,
+    event?: Promise<SemiColor>,
 }
 
 export type CellSmileCopy = {
