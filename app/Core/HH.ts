@@ -24,6 +24,10 @@ export class HH {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    public static timestamp() : number {
+        return Math.floor(Date.now() / 1000);
+    }
+
     public static Up(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y - 1 }; }
     public static Right(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y }; }
     public static Down(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y + 1 }; }

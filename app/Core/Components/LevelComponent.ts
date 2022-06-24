@@ -89,12 +89,15 @@ export class LevelComponent extends AbstractComponent {
             return Promise.reject();
         }
 
+        await this.littlePause();
+
         this.scheme.anyClick(switcher.poss);
         this.scheme.anyClick(switcher.poss);
         smileColor = this.colorAwaiter(smile.poss);
         this.scheme.anyClick(switcher.poss);
 
-        if (colorB == await smileColor) {
+        color = await smileColor;
+        if (colorB == color) {
             return Promise.resolve(true);
         }
         else {
@@ -105,6 +108,12 @@ export class LevelComponent extends AbstractComponent {
     private async isSmileColored(x: number, y: number) : Promise<boolean> {
         let cell = this.findCell({x: x, y: y});
         return !!cell?.smile?.color;
+    }
+
+    private async littlePause() : Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(() => { resolve(); }, 500)
+        });
     }
 
     private async colorAwaiter(poss: IPoss) : Promise<SemiColor> {
@@ -119,12 +128,12 @@ export class LevelComponent extends AbstractComponent {
                 setTimeout(() => { resolve(color); }, CONF.NANO_MS);
             };
 
-            setTimeout(() => {
+            this.scheme.addRoadColoringFinalHandler(() => {
                 if (!schemeLock) {
                     cell!.smile!.event = null;
                     resolve(null);
                 }
-            }, 5000);
+            })
         })
     }
 }

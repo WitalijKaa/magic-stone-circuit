@@ -61,6 +61,7 @@ export abstract class SchemeBase {
     init(grid: SchemeGrid) : void {
         this.visibleGrid = grid;
         this.initComponents();
+        this.updatePauseLastMoment = HH.timestamp();
     }
 
     public refreshVisibleCell(poss: IPoss) {
@@ -171,10 +172,21 @@ export abstract class SchemeBase {
             this.buildRoadTick();
         }
         else {
+            let roadColoringProcess = false;
             this.extractCacheActions().map((cache: ColorCellCache) => {
+                if (cache.method == 'execMoveColorToNextPaths') {
+                    roadColoringProcess = true;
+                }
                 this[cache.method](...cache.params);
             })
             this.updateTickContent();
+
+            if (roadColoringProcess) {
+                this.updatePauseLastMoment = HH.timestamp();
+            }
+            else {
+                this.roadColoringFinalHandler();
+            }
         }
         setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
     }
@@ -224,6 +236,24 @@ export abstract class SchemeBase {
             }
         }
         return cacheColorings;
+    }
+
+    // UPDATE pause
+
+    private updatePauseLength: number = 2;
+    private updatePauseLastMoment: number = 0;
+    private updatePauseEventsArr: Array<() => void> = [];
+
+    public addRoadColoringFinalHandler(callback: () => void) : void {
+        this.updatePauseLastMoment = HH.timestamp() + 5;
+        this.updatePauseEventsArr.push(callback);
+    }
+
+    protected roadColoringFinalHandler() : void {
+        if (this.updatePauseEventsArr.length && HH.timestamp() - this.updatePauseLastMoment > this.updatePauseLength) {
+            this.updatePauseEventsArr.map((callback) => { callback(); });
+            this.updatePauseEventsArr = [];
+        }
     }
 
     // CELL
