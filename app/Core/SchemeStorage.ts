@@ -76,4 +76,15 @@ export class SchemeStorage {
         if (!item) { return {}; }
         return JSON.parse(item) as SchemeCopy;
     }
+
+    public getSchemesNames() : Array<string> {
+        let names: Array<string> = [];
+        for (let name in window.localStorage) {
+            if ('__schema__' == name.substr(0, 10)) {
+                if (DEFAULT_SCHEME_NAME == name.substr(10)) { continue; }
+                names.push(name.substr(10));
+            }
+        }
+        return names.sort();
+    }
 }

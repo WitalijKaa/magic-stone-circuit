@@ -91,18 +91,23 @@ html, body {
 }
 
 .saved-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     color: #006064;
     font-size: 14px;
     font-family: Consolas;
     user-select: none;
     padding-top: 20px;
     padding-bottom: 20px;
+    width: 100%;
 }
 .saved-links span {
     margin-right: 10px;
+    margin-bottom: 10px;
     cursor: pointer;
     background: linear-gradient(to right, #006064, #00acc1);
-    background-size: 0 0.1em, 100% 0.1em;
+    background-size: 0 2px, 100% 2px;
     background-position: 0 100%, 100% 100%;
     background-repeat: no-repeat;
     transition: background-size 400ms;
@@ -110,15 +115,20 @@ html, body {
 .saved-links span:not(:first-child) {
 }
 .saved-links span:hover {
-    background-size: 100% 0.1em, 0 0.1em;
+    background-size: 100% 2px, 0 2px;
 }
 
 .saved-links--levels {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     color: #1a237e;
 }
 .saved-links--levels span {
+    margin-bottom: 5px;
+    align-self: flex-start;
     background: linear-gradient(to right, #1a237e, #3949ab);
-    background-size: 0 0.1em, 100% 0.1em;
+    background-size: 0 2px, 100% 2px;
     background-position: 0 100%, 100% 100%;
     background-repeat: no-repeat;
 }

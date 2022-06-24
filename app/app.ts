@@ -10,9 +10,10 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
-import {findButtonCode, loadScheme, viewControlPen} from "./config/controls";
+import {findButtonCode, loadScheme, openModal, SWITCH_TO_OTHER_SCHEME, viewControlPen} from "./config/controls";
 import {Scheme} from "./Core/Scheme";
 import {DEFAULT_SCHEME_NAME} from "./config/game";
+import {LEVELS} from "./config/levels";
 
 if (pixiAppContainer)
 {
@@ -54,7 +55,9 @@ if (pixiAppContainer)
                 viewControlPen(schemeGrid.controlPen);
             }
             schemeGrid.controlEvent = event.key;
-            loadScheme(event.key, scheme, schemeStorage);
+            if (SWITCH_TO_OTHER_SCHEME.includes(event.key)) {
+                openModal();
+            }
         });
 
         viewControlPen(schemeGrid.controlPen);
@@ -70,9 +73,31 @@ if (pixiAppContainer)
                     viewControlPen(pen);
                 }
                 schemeGrid.controlEvent = pen;
-                loadScheme(pen, scheme, schemeStorage);
+                if (SWITCH_TO_OTHER_SCHEME.includes(pen)) {
+                    openModal();
+                }
             })
         }
+
+        let menuHtml = '';
+        schemeStorage.getSchemesNames().map((name: string) => {
+            menuHtml += '<span>' + name + '</span>';
+        })
+        menuHtml += '<span>RESET</span>';
+        document.getElementById('saved-schemes')!.innerHTML = menuHtml;
+        // @ts-ignore
+        for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
+            $elSpan.addEventListener('click', () => {
+                document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+                loadScheme(scheme, schemeStorage, $elSpan.innerText);
+            })
+        }
+
+        menuHtml = '';
+        for (let levelCode in LEVELS) {
+            menuHtml += '<span>' + LEVELS[levelCode].name + '</span>';
+        }
+        document.getElementById('levels')!.innerHTML = menuHtml;
     });
 }
 else {

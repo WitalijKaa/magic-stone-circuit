@@ -71,26 +71,28 @@ export function viewControlPen(pen: string) : void {
     }
 }
 
-export function loadScheme(eventKey: string, scheme: Scheme, schemeStorage: SchemeStorage) {
-    if (SWITCH_TO_OTHER_SCHEME.includes(eventKey)) {
-        let name = prompt('name of Scheme...');
-        if (!name) { return; }
+export function openModal() : void {
+    document.getElementById('modal-wrapper')!.classList.remove('el--hidden');
+}
 
-        let freshScheme = scheme.resetScheme();
+export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) {
+    if (!name) { name = prompt('name of Scheme...'); }
+    if (!name) { return; }
 
-        if (RESET_SCHEME_NAME == name) {
-            scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
-            schemeStorage.resetScheme();
-            schemeStorage.save();
-            scheme.loadScheme(schemeStorage.load(freshScheme));
-            name = DEFAULT_SCHEME_NAME;
-        }
-        else {
-            scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
-            scheme.loadScheme(schemeStorage.load(freshScheme, name));
-        }
+    let freshScheme = scheme.resetScheme();
 
-        let $name = document.getElementById('scheme-name');
-        if ($name) { $name.innerText = name; }
+    if (RESET_SCHEME_NAME == name.toLowerCase()) {
+        scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
+        schemeStorage.resetScheme();
+        schemeStorage.save();
+        scheme.loadScheme(schemeStorage.load(freshScheme));
+        name = DEFAULT_SCHEME_NAME;
     }
+    else {
+        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
+        scheme.loadScheme(schemeStorage.load(freshScheme, name));
+    }
+
+    let $name = document.getElementById('scheme-name');
+    if ($name) { $name.innerText = name; }
 }
