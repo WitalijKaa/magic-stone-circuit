@@ -33,10 +33,6 @@ export const CONTROL_EVENTS_KEYS = {
     'К': 'changeBuildRoadWayFixed',
     'm': 'devCellEcho',
     'ь': 'devCellEcho',
-    'd': 'resetScheme',
-    'D': 'resetScheme',
-    'в': 'resetScheme',
-    'В': 'resetScheme',
     '=': 'speedUp',
     '+': 'speedUp',
     '-': 'speedDown',
@@ -71,13 +67,26 @@ export function viewControlPen(pen: string) : void {
     }
 }
 
-export function openModal() : void {
+export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     document.getElementById('modal-wrapper')!.classList.remove('el--hidden');
+
+    let menuHtml = '';
+    schemeStorage.getSchemesNames().map((name: string) => {
+        menuHtml += '<span>' + name + '</span>';
+    })
+    document.getElementById('saved-schemes')!.innerHTML = menuHtml;
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
+        $elSpan.addEventListener('click', () => {
+            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+            loadScheme(scheme, schemeStorage, $elSpan.innerText);
+        })
+    }
 }
 
 export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) {
-    if (!name) { name = prompt('name of Scheme...'); }
-    if (!name) { return; }
+    if (!name || "NEW SCHEME" == name) { name = prompt('name of Scheme...'); }
+    if (!name || "NEW SCHEME" == name) { return; }
 
     let freshScheme = scheme.resetScheme();
 

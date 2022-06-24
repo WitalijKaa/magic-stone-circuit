@@ -56,7 +56,7 @@ if (pixiAppContainer)
             }
             schemeGrid.controlEvent = event.key;
             if (SWITCH_TO_OTHER_SCHEME.includes(event.key)) {
-                openModal();
+                openModal(scheme, schemeStorage);
             }
         });
 
@@ -74,19 +74,17 @@ if (pixiAppContainer)
                 }
                 schemeGrid.controlEvent = pen;
                 if (SWITCH_TO_OTHER_SCHEME.includes(pen)) {
-                    openModal();
+                    openModal(scheme, schemeStorage);
                 }
             })
         }
 
         let menuHtml = '';
-        schemeStorage.getSchemesNames().map((name: string) => {
-            menuHtml += '<span>' + name + '</span>';
-        })
         menuHtml += '<span>RESET</span>';
-        document.getElementById('saved-schemes')!.innerHTML = menuHtml;
+        menuHtml += '<span>NEW SCHEME</span>';
+        document.getElementById('menu-schemes')!.innerHTML = menuHtml;
         // @ts-ignore
-        for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
+        for (let $elSpan of document.querySelectorAll('#menu-schemes span')) {
             $elSpan.addEventListener('click', () => {
                 document.getElementById('modal-wrapper')!.classList.add('el--hidden');
                 loadScheme(scheme, schemeStorage, $elSpan.innerText);

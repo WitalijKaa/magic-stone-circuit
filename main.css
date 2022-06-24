@@ -118,6 +118,10 @@ html, body {
     background-size: 100% 2px, 0 2px;
 }
 
+.saved-links--addition {
+    padding-top: 0;
+}
+
 .saved-links--levels {
     flex-direction: column;
     flex-wrap: nowrap;
