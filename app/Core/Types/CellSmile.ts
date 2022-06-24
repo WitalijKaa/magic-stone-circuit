@@ -8,7 +8,5 @@ export type CellSmile = {
 }
 
 export type CellSmileCopy = {
-    t: 9 | 10,
-    v: number,
     l: string,
 }

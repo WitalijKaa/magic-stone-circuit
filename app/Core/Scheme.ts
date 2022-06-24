@@ -1046,5 +1046,5 @@ export class Scheme extends SchemeBase {
         this.switcherMode = [CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE];
     }
 
-    public putSmile() : void { this.cSmile.putSmile(); }
+    public putSmile(logic: string = 'True') : void { this.cSmile.putSmile(logic); }
 }

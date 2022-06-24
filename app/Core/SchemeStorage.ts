@@ -50,7 +50,7 @@ export class SchemeStorage {
                     }
                 }
                 else if ('smile' in schemeCell && schemeCell.smile.view) {
-                    schemeCopy[rr][cc] = { i: { t: schemeCell.smile.type, v: +schemeCell.smile.view, l: schemeCell.smile.logic } };
+                    schemeCopy[rr][cc] = { i: { l: schemeCell.smile.logic } };
                 }
             }
         }

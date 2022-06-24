@@ -113,7 +113,7 @@ export abstract class SchemeBase {
                 }
                 else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
-                    this.putSmile();
+                    this.putSmile(schemeCell.i.l);
                 }
             }
         }
@@ -145,7 +145,7 @@ export abstract class SchemeBase {
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
-    public abstract putSmile() : void;
+    public abstract putSmile(logic: string) : void;
 
     // LIFE CYCLE
 
