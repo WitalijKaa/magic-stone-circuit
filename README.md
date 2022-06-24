@@ -40,7 +40,12 @@ https://www.instagram.com/witalij.kaa/
 - Task 24: turn semiconductors; disable big semiconductors. --D
 - Task 25: special colors while road building.
 - Task 26: delete LIGHT HEAVY road types; implement directions types. --D
-- Task 27: variations on road-cell switch 2.
+- Task 27: variations on road-cell switch 2. --D
 - Task 28: right click road build feature improve.
 - Task 29: TypeScript. --D
-- Task 30: game levels and save scheme menu.
+- Task 30: game levels and save scheme menu. --D
+- Task 31: nice message about win.
+- Task 32: delete scheme.
+- Task 33: more levels.
+- Task 34: improve modal.
+- Task 35: languages serbian ukrainian belorussian russian and english.
