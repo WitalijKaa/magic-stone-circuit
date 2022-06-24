@@ -108,12 +108,10 @@ export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: s
     if ($name) { $name.innerText = name; }
 }
 
-export function loadLevel(scheme: Scheme, schemeStorage: SchemeStorage, levelCode: string) {
+export function loadLevel(scheme: Scheme, levelCode: string) {
     let level = LEVELS[levelCode];
 
-    scheme.resetScheme();
-    scheme.loadScheme(JSON.parse(level.json));
-    scheme.levelMode();
+    scheme.levelMode(levelCode);
 
     let $name = document.getElementById('scheme-name');
     if ($name) { $name.innerText = level.name; }

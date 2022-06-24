@@ -12,4 +12,6 @@ export abstract class AbstractComponent {
     protected getCell(poss: IPoss) : CellScheme { return this.scheme.getCell(poss); }
 
     protected refreshVisibleCell(poss: IPoss) : void { this.scheme.refreshVisibleCell(poss); }
+
+    public get isRoadBuildMode() : boolean { return this.scheme.isRoadBuildMode; }
 }

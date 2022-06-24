@@ -107,7 +107,7 @@ if (pixiAppContainer)
         for (let $elSpan of document.querySelectorAll('#levels span')) {
             $elSpan.addEventListener('click', function () {
                 document.getElementById('modal-wrapper')!.classList.add('el--hidden');
-                loadLevel(scheme, schemeStorage, this.dataset.code);
+                loadLevel(scheme, this.dataset.code);
             })
         }
     });

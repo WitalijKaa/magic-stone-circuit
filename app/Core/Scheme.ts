@@ -16,11 +16,13 @@ import {CellScheme} from "./CellScheme";
 import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 import {Poss} from "./Poss";
 import {SmileComponent} from "./Components/SmileComponent";
+import {LevelComponent} from "./Components/LevelComponent";
 
 export class Scheme extends SchemeBase {
 
     protected initComponents() {
         this.cSmile = new SmileComponent(this);
+        this.cLevel = new LevelComponent(this);
     }
 
     public beforeAnyInput() {

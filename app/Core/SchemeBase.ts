@@ -19,6 +19,7 @@ import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 import {Cell} from "./Cell";
 import {SmileComponent} from "./Components/SmileComponent";
+import {LevelComponent} from "./Components/LevelComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -43,6 +44,7 @@ const COLOR_DEV = {
 export abstract class SchemeBase {
 
     protected cSmile!: SmileComponent;
+    protected cLevel!: LevelComponent;
 
     scheme: SchemeStructure = {};
     visibleGrid!: IVisibleGrid;
@@ -82,7 +84,7 @@ export abstract class SchemeBase {
     }
 
     public loadScheme(source: SchemeCopy) {
-        this._levelMode = false;
+        this.cLevel.isLevelMode = false;
         let toAwake: Array<[IPoss, CellStoneType]> = [];
         for (let row in source) {
             for (let column in source[row]) {
@@ -122,21 +124,16 @@ export abstract class SchemeBase {
         this.visibleGrid.refreshAllCells();
     }
 
-    protected _levelMode: boolean = false;
-    protected _levelModeCheck: boolean = false;
-    public levelMode() {
-        this._levelMode = true;
-        this.setSaveToStorageMethod(() => {})
+    public levelMode(code: string) : void {
+        this.cLevel.levelMode(code);
     }
 
-    public checkLevel() {
-        if (this._levelMode && !this.isRoadBuildMode) {
-            this._levelModeCheck = true;
-        }
+    public checkLevel() : void {
+        this.cLevel.checkLevel();
     }
 
     public get inputAllowed() : boolean {
-        return false == this._levelModeCheck;
+        return this.cLevel.inputAllowed;
     }
 
     public get sizeRadius() : number { return 800000000; }
