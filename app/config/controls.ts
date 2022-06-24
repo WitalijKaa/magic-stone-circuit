@@ -2,6 +2,7 @@ import * as CONF from "./game";
 import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
 import {DEFAULT_SCHEME_NAME, RESET_SCHEME_NAME} from "./game";
+import {LEVELS} from "./levels";
 
 export const CONTROL_KEYS = {
     '1': CONF.ST_STONE_VIOLET,
@@ -42,6 +43,7 @@ export const CONTROL_EVENTS_KEYS = {
     'o': 'setIndigoSwitcher',
     'O': 'setIndigoSwitcher',
     'l': 'putSmile',
+    'a': 'checkLevel',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];
@@ -104,4 +106,15 @@ export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: s
 
     let $name = document.getElementById('scheme-name');
     if ($name) { $name.innerText = name; }
+}
+
+export function loadLevel(scheme: Scheme, schemeStorage: SchemeStorage, levelCode: string) {
+    let level = LEVELS[levelCode];
+
+    scheme.resetScheme();
+    scheme.loadScheme(JSON.parse(level.json));
+    scheme.levelMode();
+
+    let $name = document.getElementById('scheme-name');
+    if ($name) { $name.innerText = level.name; }
 }

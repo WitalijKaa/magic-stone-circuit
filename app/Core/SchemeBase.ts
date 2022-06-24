@@ -82,6 +82,7 @@ export abstract class SchemeBase {
     }
 
     public loadScheme(source: SchemeCopy) {
+        this._levelMode = false;
         let toAwake: Array<[IPoss, CellStoneType]> = [];
         for (let row in source) {
             for (let column in source[row]) {
@@ -119,6 +120,23 @@ export abstract class SchemeBase {
         }
         toAwake.map((params) => { this.setAwakeColorAroundForAwakeSemi(...params); });
         this.visibleGrid.refreshAllCells();
+    }
+
+    protected _levelMode: boolean = false;
+    protected _levelModeCheck: boolean = false;
+    public levelMode() {
+        this._levelMode = true;
+        this.setSaveToStorageMethod(() => {})
+    }
+
+    public checkLevel() {
+        if (this._levelMode && !this.isRoadBuildMode) {
+            this._levelModeCheck = true;
+        }
+    }
+
+    public get inputAllowed() : boolean {
+        return false == this._levelModeCheck;
     }
 
     public get sizeRadius() : number { return 800000000; }

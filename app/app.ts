@@ -10,7 +10,14 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
-import {findButtonCode, loadScheme, openModal, SWITCH_TO_OTHER_SCHEME, viewControlPen} from "./config/controls";
+import {
+    findButtonCode,
+    loadLevel,
+    loadScheme,
+    openModal,
+    SWITCH_TO_OTHER_SCHEME,
+    viewControlPen
+} from "./config/controls";
 import {Scheme} from "./Core/Scheme";
 import {DEFAULT_SCHEME_NAME} from "./config/game";
 import {LEVELS} from "./config/levels";
@@ -93,9 +100,16 @@ if (pixiAppContainer)
 
         menuHtml = '';
         for (let levelCode in LEVELS) {
-            menuHtml += '<span>' + LEVELS[levelCode].name + '</span>';
+            menuHtml += '<span data-code="' + levelCode + '">' + LEVELS[levelCode].name + '</span>';
         }
         document.getElementById('levels')!.innerHTML = menuHtml;
+        // @ts-ignore
+        for (let $elSpan of document.querySelectorAll('#levels span')) {
+            $elSpan.addEventListener('click', function () {
+                document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+                loadLevel(scheme, schemeStorage, this.dataset.code);
+            })
+        }
     });
 }
 else {

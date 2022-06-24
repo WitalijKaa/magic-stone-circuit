@@ -37,6 +37,8 @@ export class CellGrid extends CellAbstract {
     public static get defaultTexture () : string { return TT.cell; }
 
     handleClick() {
+        if (!this.scheme.inputAllowed) { return; }
+
         if (HH.isStone(this.grid.controlPen)) {
             this.scheme.anyClick(this.schemePosition);
 
@@ -64,7 +66,10 @@ export class CellGrid extends CellAbstract {
             this.scheme.putSemiconductor(null, this.schemePosition);
         }
     }
-    handleRightClick() { this.scheme.putRoadSmart(this.schemePosition); }
+    handleRightClick() {
+        if (!this.scheme.inputAllowed) { return; }
+        this.scheme.putRoadSmart(this.schemePosition);
+    }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
     get visiblePosition() { return [this.gridX + CONF.GRID_OFFSET, this.gridY + CONF.GRID_OFFSET]; }
