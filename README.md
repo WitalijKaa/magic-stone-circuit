@@ -49,3 +49,4 @@ https://www.instagram.com/witalij.kaa/
 - Task 33: more levels.
 - Task 34: improve modal. --D
 - Task 35: languages serbian ukrainian belorussian russian and english.
+- Task 36: filter buttons on levels. --D

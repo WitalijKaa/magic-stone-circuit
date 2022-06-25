@@ -142,7 +142,10 @@ export abstract class SchemeBase {
     // SPEED
 
     private _coloringSpeedMs: number = 100;
-    private get coloringSpeedMs() : number { return this._coloringSpeedMs; }
+    private get coloringSpeedMs() : number {
+        if (this.cLevel.isLevelMode) { return 25; }
+        return this._coloringSpeedMs;
+    }
 
     public speedUp() {
         this._coloringSpeedMs -= 20;

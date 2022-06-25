@@ -81,6 +81,9 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
         $elSpan.addEventListener('click', () => {
+            for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
+                $btn.classList.remove('el--hidden')
+            }
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadScheme(scheme, schemeStorage, $elSpan.innerText);
         })
@@ -120,7 +123,6 @@ export function loadLevel(scheme: Scheme, levelCode: string) {
 
 export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, schemeGrid: SchemeGrid) : void {
     document.addEventListener('keypress', (event) => {
-        console.log(event.key)
         scheme.beforeAnyInput();
         if (CONTROL_KEYS.hasOwnProperty(event.key)) {
             schemeGrid.controlPen = CONTROL_KEYS[event.key];
@@ -170,6 +172,9 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#menu-schemes span')) {
         $elSpan.addEventListener('click', () => {
+            for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
+                $btn.classList.remove('el--hidden')
+            }
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadScheme(scheme, schemeStorage, $elSpan.innerText);
         })
@@ -183,6 +188,14 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#levels span')) {
         $elSpan.addEventListener('click', function () {
+            let level = LEVELS[this.dataset.code];
+            for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
+                $btn.classList.add('el--hidden')
+            }
+            level.buttons.map((btnNick) => {
+                document.getElementById('b-' + btnNick)!.classList.remove('el--hidden')
+            })
+
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadLevel(scheme, this.dataset.code);
         })
