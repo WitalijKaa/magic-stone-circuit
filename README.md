@@ -44,8 +44,8 @@ https://www.instagram.com/witalij.kaa/
 - Task 28: right click road build feature improve.
 - Task 29: TypeScript. --D
 - Task 30: game levels and save scheme menu. --D
-- Task 31: nice message about win.
+- Task 31: nice message about win. --D
 - Task 32: delete scheme.
 - Task 33: more levels.
-- Task 34: improve modal.
+- Task 34: improve modal. --D
 - Task 35: languages serbian ukrainian belorussian russian and english.

@@ -3,6 +3,7 @@ import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
 import {DEFAULT_SCHEME_NAME, RESET_SCHEME_NAME} from "./game";
 import {LEVELS} from "./levels";
+import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 
 export const CONTROL_KEYS = {
     '1': CONF.ST_STONE_VIOLET,
@@ -86,7 +87,7 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     }
 }
 
-export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) {
+export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) : void {
     if (!name || "NEW SCHEME" == name) { name = prompt('name of Scheme...'); }
     if (!name || "NEW SCHEME" == name) { return; }
 
@@ -115,4 +116,75 @@ export function loadLevel(scheme: Scheme, levelCode: string) {
 
     let $name = document.getElementById('scheme-name');
     if ($name) { $name.innerText = level.name; }
+}
+
+export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, schemeGrid: SchemeGrid) : void {
+    document.addEventListener('keypress', (event) => {
+        console.log(event.key)
+        scheme.beforeAnyInput();
+        if (CONTROL_KEYS.hasOwnProperty(event.key)) {
+            schemeGrid.controlPen = CONTROL_KEYS[event.key];
+            viewControlPen(schemeGrid.controlPen);
+        }
+        schemeGrid.controlEvent = event.key;
+        if (SWITCH_TO_OTHER_SCHEME.includes(event.key)) {
+            openModal(scheme, schemeStorage);
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if(event.key === "Escape" && !document.getElementById('modal-wrapper')!.classList.contains('el--hidden')) {
+            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+        }
+    });
+
+    document.getElementById('modal-wrapper')!.addEventListener('click', () => {
+        if(!document.getElementById('modal-wrapper')!.classList.contains('el--hidden')) {
+            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+        }
+    });
+
+    let $buttons = document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>;
+    for (let $btn of $buttons) {
+        let $subscriber = $btn;
+        $btn.addEventListener('click', () => {
+            scheme.beforeAnyInput();
+            let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
+            if (CONTROL_KEYS.hasOwnProperty(pen)) {
+                schemeGrid.controlPen = pen;
+                viewControlPen(pen);
+            }
+            schemeGrid.controlEvent = pen;
+            if (SWITCH_TO_OTHER_SCHEME.includes(pen)) {
+                openModal(scheme, schemeStorage);
+            }
+        })
+    }
+}
+
+export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
+    let menuHtml = '';
+    menuHtml += '<span>RESET</span>';
+    menuHtml += '<span>NEW SCHEME</span>';
+    document.getElementById('menu-schemes')!.innerHTML = menuHtml;
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#menu-schemes span')) {
+        $elSpan.addEventListener('click', () => {
+            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+            loadScheme(scheme, schemeStorage, $elSpan.innerText);
+        })
+    }
+
+    menuHtml = '';
+    for (let levelCode in LEVELS) {
+        menuHtml += '<span data-code="' + levelCode + '">' + LEVELS[levelCode].name + '</span>';
+    }
+    document.getElementById('levels')!.innerHTML = menuHtml;
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#levels span')) {
+        $elSpan.addEventListener('click', function () {
+            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+            loadLevel(scheme, this.dataset.code);
+        })
+    }
 }
