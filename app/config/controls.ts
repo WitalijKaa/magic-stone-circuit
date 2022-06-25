@@ -45,6 +45,9 @@ export const CONTROL_EVENTS_KEYS = {
     'O': 'setIndigoSwitcher',
     'l': 'putSmile',
     'a': 'checkLevel',
+    'A': 'checkLevel',
+    'ф': 'checkLevel',
+    'Ф': 'checkLevel',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];
@@ -84,6 +87,7 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.remove('el--hidden')
             }
+            document.getElementById('b-l')!.classList.add('el--hidden');
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadScheme(scheme, schemeStorage, $elSpan.innerText);
         })
@@ -175,6 +179,7 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.remove('el--hidden')
             }
+            document.getElementById('b-l')!.classList.add('el--hidden');
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadScheme(scheme, schemeStorage, $elSpan.innerText);
         })

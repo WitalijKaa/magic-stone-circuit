@@ -39,15 +39,7 @@ export class CellGrid extends CellAbstract {
     handleClick() {
         if (!this.scheme.inputAllowed) { return; }
 
-        if (HH.isStone(this.grid.controlPen)) {
-            this.scheme.anyClick(this.schemePosition);
-
-            let cell = this.scheme.findCellOfContent(this.schemePosition);
-            if (cell && cell.content.range.length) { return; }
-
-            this.scheme.putContent(this.grid.controlPen, this.schemePosition);
-        }
-        else if (HH.isRoad(this.grid.controlPen)) {
+        if (HH.isRoad(this.grid.controlPen)) {
             if (!this.scheme.isRoadBuildMode) {
                 this.scheme.startToBuildRoad(this.schemePosition);
             }
@@ -55,15 +47,27 @@ export class CellGrid extends CellAbstract {
                 this.scheme.finishToBuildRoad();
             }
         }
-        if (HH.isSemiconductor(this.grid.controlPen)) {
-            this.scheme.anyClick(this.schemePosition);
+        else {
+            this.scheme.cancelToBuildRoad();
 
-            this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
-        }
-        else if (CONF.ST_EMPTY == this.grid.controlPen) {
-            this.scheme.removeContent(this.schemePosition);
-            this.scheme.removeRoad(this.schemePosition);
-            this.scheme.putSemiconductor(null, this.schemePosition);
+            if (HH.isStone(this.grid.controlPen)) {
+                this.scheme.anyClick(this.schemePosition);
+
+                let cell = this.scheme.findCellOfContent(this.schemePosition);
+                if (cell && cell.content.range.length) { return; }
+
+                this.scheme.putContent(this.grid.controlPen, this.schemePosition);
+            }
+            else if (HH.isSemiconductor(this.grid.controlPen)) {
+                this.scheme.anyClick(this.schemePosition);
+
+                this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
+            }
+            else if (CONF.ST_EMPTY == this.grid.controlPen) {
+                this.scheme.removeContent(this.schemePosition);
+                this.scheme.removeRoad(this.schemePosition);
+                this.scheme.putSemiconductor(null, this.schemePosition);
+            }
         }
     }
     handleRightClick() {

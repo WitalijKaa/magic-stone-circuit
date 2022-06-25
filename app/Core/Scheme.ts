@@ -29,6 +29,10 @@ export class Scheme extends SchemeBase {
         this.switcherMode = false;
     }
 
+    cancelProcesses() : void {
+        this.cancelToBuildRoad();
+    }
+
     /** STONEs **/
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
@@ -159,7 +163,14 @@ export class Scheme extends SchemeBase {
         this.buildingRoad.way = { auto: CONF.BUILD_ROAD_WAY_HORZ_VERT, fixed: null, last: null };
     }
 
+    public cancelToBuildRoad() {
+        this.removePrevBuiltRoad();
+        this.buildingRoad.isOn = false;
+    }
+
     public finishToBuildRoad() : void {
+        if (!this.buildingRoad.isOn) { return; }
+        this.buildingRoad.path = [];
         this.buildingRoad.isOn = false;
         this.afterChange();
     }

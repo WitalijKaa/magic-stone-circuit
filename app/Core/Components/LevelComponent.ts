@@ -24,13 +24,15 @@ export class LevelComponent extends AbstractComponent {
     }
 
     public async checkLevel() {
+        this.scheme.cancelProcesses();
+
         if (this.isLevelMode && !this.isRoadBuildMode) {
             this.levelModeCheck = true;
         }
         if (this.levelModeCheck) {
             this['check_' + this.levelCode]()
                 .then(() => {
-                    this.showMessage('YES!!!! You win!');
+                    this.showMessage('YES!!!! You win! ᕦ(ò_óˇ)ᕤ');
                 })
                 .catch(() => {
                     this.showMessage('Sorry, you loose :(', false);

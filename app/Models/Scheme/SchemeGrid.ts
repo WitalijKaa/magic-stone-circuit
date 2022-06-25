@@ -82,6 +82,7 @@ export class SchemeGrid implements IVisibleGrid {
     public get controlPen() { return this.controlPenCode; }
 
     public set controlPen(val) {
+        this.scheme.cancelProcesses();
         this.controlPenCode = val;
 
         if (CONF.ST_ROAD != val) {
