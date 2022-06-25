@@ -30,17 +30,17 @@ export class LevelComponent extends AbstractComponent {
         if (this.levelModeCheck) {
             this['check_' + this.levelCode]()
                 .then(() => {
-                    alert('YES!!!! You win!');
+                    this.showMessage('YES!!!! You win!');
                 })
                 .catch(() => {
-                    alert('Sorry, you loose :(');
+                    this.showMessage('Sorry, you loose :(', false);
                 })
                 .finally(() => {
                     this.levelModeCheck = false;
                 });
             return;
         }
-        alert('Stop to build road first...');
+        this.showMessage('Stop to build road first...', false);
     }
 
     private async check_l1() : Promise<boolean> {
@@ -107,7 +107,12 @@ export class LevelComponent extends AbstractComponent {
 
     private async isSmileColored(x: number, y: number) : Promise<boolean> {
         let cell = this.findCell({x: x, y: y});
-        return !!cell?.smile?.color;
+        if (cell?.smile?.color) {
+            return Promise.resolve(true);
+        }
+        else {
+            return Promise.reject();
+        }
     }
 
     private async littlePause() : Promise<void> {
@@ -135,5 +140,48 @@ export class LevelComponent extends AbstractComponent {
                 }
             })
         })
+    }
+
+    private _msgNo = 0;
+
+    private showMessage(text: string, isGood: boolean = true) : void {
+        const $el = document.getElementById('notice');
+        if (!$el) { return; }
+
+        if ($el.classList.contains('notice--too-many')) { return; }
+        this._msgNo++;
+
+        let pause = CONF.NANO_MS;
+        if ($el.classList.contains('notice--blocked')) {
+            $el.classList.add('notice--too-many');
+            setTimeout(() => {
+                $el.classList.remove('notice--too-many');
+            }, 4480);
+            this.removeMessage($el, this._msgNo);
+            pause = 450;
+        }
+
+        setTimeout(() => {
+            $el.innerText = text;
+            if (!isGood) {
+                $el.classList.add('notice--error');
+            }
+            $el.classList.add('notice--on');
+            $el.classList.add('notice--blocked');
+
+            let no = this._msgNo;
+            setTimeout(() => {
+                this.removeMessage($el, no);
+            }, 4000);
+        }, pause);
+    }
+
+    private removeMessage($el, no) : void {
+        if (no != this._msgNo) { return; }
+        $el.classList.remove('notice--on');
+        setTimeout(() => {
+            $el.classList.remove('notice--error');
+            $el.classList.remove('notice--blocked');
+        }, 410);
     }
 }

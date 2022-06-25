@@ -110,7 +110,7 @@ html, body {
     background-size: 0 2px, 100% 2px;
     background-position: 0 100%, 100% 100%;
     background-repeat: no-repeat;
-    transition: background-size 400ms;
+    transition: background-size 400ms ease-in;
 }
 .saved-links span:not(:first-child) {
 }

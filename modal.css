@@ -18,3 +18,32 @@
     margin-left: -325px;
     left: 50%;
 }
+
+.notice {
+    position: fixed;
+    top: 20px;
+    right: 0;
+}
+.notice-container {
+    border: 2px solid #1a237e;
+    background-color: #3949ab;
+    color: #cfd8dc;
+    font-size: 16px;
+    font-family: Consolas;
+    user-select: none;
+    padding: 20px 20px;
+    transition: margin-left 400ms ease-in;
+    word-wrap: normal;
+    height: 100%;
+    width: 100%;
+
+    position: relative;
+    margin-left: 100%;
+}
+.notice--error {
+    border: 2px solid #bf360c;
+    background-color: #f4511e;
+}
+.notice--on {
+    margin-left: 0;
+}
