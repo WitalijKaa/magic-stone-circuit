@@ -23,7 +23,7 @@ https://www.instagram.com/witalij.kaa/
 - Task 7: coloring roads with energy.
 - Task 8: sleepy road may awake.
 - Task 9: correct reset of color. --Done 1-9
-- Task 10: restrict to put objects where they should not be.
+- Task 10: restrict to put objects where they should not be. --В
 - Task 11: cancel of cached actions should be targeted. --D
 - Task 12: energy starts coloring roads, not stones. Switchers.
 - Task 13: smiles consume energy. --D
