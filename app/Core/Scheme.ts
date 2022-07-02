@@ -498,6 +498,7 @@ export class Scheme extends SchemeBase {
         return this.setPathsOnRoadByArr(false, false, [zone], ROAD_LIGHT, poss);
     }
 
+    private smartPathsLogicClickedPoss: null | IPoss = null;
     private setSmartPathsForRoad(poss: IPoss) : null | false | RoadChangeHistory {
         let wasCellEmpty = this.isCellEmpty(poss);
         let cell = this.getCellForRoad(poss);
@@ -511,10 +512,6 @@ export class Scheme extends SchemeBase {
                 return this.setPathsOnRoadByArr(false, true, [UP, DOWN], ROAD_LIGHT, poss);
             }
             return false;
-        }
-
-        if (ROAD_LIGHT == cell.road.type && cell.isAllSidesPathsExist) {
-            return this.setPathsOnRoadByArr(false, false, [], ROAD_HEAVY, poss);
         }
 
         let sides: Array<DirSide> = [];
@@ -552,8 +549,40 @@ export class Scheme extends SchemeBase {
                 }
                 return this.setPathsOnRoadByArr(false, true, sides, ROAD_LIGHT, poss);
             }
+            if (sides.length == 4) {
+                if (ROAD_LIGHT == cell.road.type && cell.isAllSidesPathsExist) {
+                    return this.setPathsOnRoadByArr(false, false, [], ROAD_HEAVY, poss);
+                }
+                else if (this.smartPathsLogicClickedPoss && cell.isAtPosition(this.smartPathsLogicClickedPoss)) {
+                    if (4 == cell.countSidePathsOnly) {
+                        sides = [...CONF.PATHS_IF_FOUR_AROUND_COMBINATIONS[0]];
+                        return this.setPathsOnRoadByArr(false, true, sides, ROAD_HEAVY, poss);
+                    }
+                    else if (3 == cell.countSidePathsOnly) {
+                        let nextSides = this.findNextCombination(CONF.PATHS_IF_FOUR_AROUND_COMBINATIONS, this.roadPathsToZones(cell));
+                        if (!nextSides) {
+                            sides = [...CONF.PATHS_IF_THREE_AROUND_COMBINATIONS[0]];
+                            return this.setPathsOnRoadByArr(false, true, sides, ROAD_LIGHT, poss);
+                        }
+                        sides = nextSides;
+                        return this.setPathsOnRoadByArr(false, true, sides, ROAD_HEAVY, poss);
+                    }
+                    else if (2 == cell.countSidePathsOnly) {
+                        let nextSides = this.findNextCombination(CONF.PATHS_IF_THREE_AROUND_COMBINATIONS, this.roadPathsToZones(cell));
+                        if (!nextSides) {
+                            return false;
+                        }
+                        sides = nextSides;
+                        return this.setPathsOnRoadByArr(false, true, sides, ROAD_LIGHT, poss);
+                    }
+                }
+
+            }
         }
 
+        if (4 == cell.countSidePathsOnly) {
+            this.smartPathsLogicClickedPoss = cell.poss;
+        }
 
         return false;
     }

@@ -41,7 +41,7 @@ https://www.instagram.com/witalij.kaa/
 - Task 25: special colors while road building.
 - Task 26: delete LIGHT HEAVY road types; implement directions types. --D
 - Task 27: variations on road-cell switch 2. --D
-- Task 28: right click road build feature improve.
+- Task 28: right click road build feature improve. --D
 - Task 29: TypeScript. --D
 - Task 30: game levels and save scheme menu. --D
 - Task 31: nice message about win. --D

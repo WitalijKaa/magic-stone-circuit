@@ -143,3 +143,9 @@ export const PATHS_IF_THREE_AROUND_COMBINATIONS = [
     [DOWN, LEFT],
     [LEFT, UP],
 ] as Array<Array<DirSide>>;
+export const PATHS_IF_FOUR_AROUND_COMBINATIONS = [
+    [UP, RIGHT, DOWN],
+    [RIGHT, DOWN, LEFT],
+    [DOWN, LEFT, UP],
+    [LEFT, UP, RIGHT],
+] as Array<Array<DirSide>>;

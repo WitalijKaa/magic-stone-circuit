@@ -15,6 +15,7 @@ export interface ICellScheme extends IPoss {
     get poss() : IPoss;
     get isAllSidesPathsExist() : boolean;
 
+    isAtPosition(poss: IPoss) : boolean;
     isCellConnectedAtSide(side: DirSide) : boolean;
     isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean
 

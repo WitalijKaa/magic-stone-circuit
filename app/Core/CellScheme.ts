@@ -32,6 +32,10 @@ export class CellScheme implements ICellScheme {
 
     public get poss() : IPoss { return { x: this.x, y: this.y }; }
 
+    public isAtPosition(poss: IPoss) : boolean {
+        return this.cellPosition.isAtPosition(poss);
+    }
+
     get stone() : CellStoneType | null {
         if (this.content && HH.isStone(this.content.type)) {
             return this.content.type;

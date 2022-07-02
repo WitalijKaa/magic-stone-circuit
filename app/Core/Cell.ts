@@ -19,6 +19,10 @@ export class Cell implements IPoss {
     get Down() : Cell { return new Cell(this.x, this.y + 1); }
     get Left() : Cell { return new Cell(this.x - 1, this.y); }
 
+    public isAtPosition(poss: IPoss) : boolean {
+        return this.x == poss.x && this.y == poss.y;
+    }
+
     public static Up(poss: IPoss) : Cell { return new Cell(poss.x, poss.y - 1); }
     public static Right(poss: IPoss) : Cell { return new Cell(poss.x + 1, poss.y); }
     public static Down(poss: IPoss) : Cell { return new Cell(poss.x, poss.y + 1); }
