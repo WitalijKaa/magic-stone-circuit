@@ -33,6 +33,10 @@ export class Scheme extends SchemeBase {
         this.cancelToBuildRoad();
     }
 
+    public setVisualCenter() : void {
+        this.visibleGrid.setCenter();
+    }
+
     /** STONEs **/
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {

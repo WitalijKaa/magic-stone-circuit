@@ -48,6 +48,10 @@ export const CONTROL_EVENTS_KEYS = {
     'A': 'checkLevel',
     'ф': 'checkLevel',
     'Ф': 'checkLevel',
+    'c': 'setVisualCenter',
+    'C': 'setVisualCenter',
+    'с': 'setVisualCenter',
+    'С': 'setVisualCenter',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];
@@ -172,6 +176,7 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
     let menuHtml = '';
     menuHtml += '<span>RESET</span>';
     menuHtml += '<span>NEW SCHEME</span>';
+    menuHtml += '<span>JUST FIND CENTER</span>';
     document.getElementById('menu-schemes')!.innerHTML = menuHtml;
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#menu-schemes span')) {
@@ -181,7 +186,12 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
             }
             document.getElementById('b-l')!.classList.add('el--hidden');
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
-            loadScheme(scheme, schemeStorage, $elSpan.innerText);
+            if ('JUST FIND CENTER' == $elSpan.innerText) {
+                scheme.setVisualCenter();
+            }
+            else {
+                loadScheme(scheme, schemeStorage, $elSpan.innerText);
+            }
         })
     }
 

@@ -197,6 +197,11 @@ export class SchemeGrid implements IVisibleGrid {
         this.refreshAllCells();
     }
 
+    setCenter() {
+        this.dragX = this.dragY = this.scheme.sizeRadius;
+        this.refreshAllCells();
+    }
+
     // HANDLERS
 
     private lastMousePxGlobalPositions: Poss = [100, 100];
