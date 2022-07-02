@@ -51,7 +51,7 @@ export class CellScheme implements ICellScheme {
     get y() : number { return this.cellPosition.y; }
 
     get isEmptyAround() : boolean {
-        return !this.up && !this.right && !this.down && !this.left;
+        return !this.Up && !this.Right && !this.Down && !this.Left;
     }
 
     get isAwakeSemiconductor() : boolean {
@@ -178,13 +178,13 @@ export class CellScheme implements ICellScheme {
         return count;
     }
 
-    get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
-    get right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.right); }
-    get down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.down); }
-    get left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.left); }
+    get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Up); }
+    get right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Right); }
+    get down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Down); }
+    get left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Left); }
 
-    get Up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }
-    get Right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.right); }
-    get Down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.down); }
-    get Left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.left); }
+    get Up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Up); }
+    get Right() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Right); }
+    get Down() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Down); }
+    get Left() : CellScheme | null { return this.scheme.findCell(this.cellPosition.Left); }
 }

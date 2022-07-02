@@ -669,6 +669,7 @@ export class Scheme extends SchemeBase {
     }
 
     private putAwakeSemiconductor(poss: IPoss) : void {
+        if (this.isDifferentStoneColorsAround(poss)) { return; }
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell && !this.isCellEmpty(poss)) { return; }
         if (this.isSemiconductorChargedAround(poss) || this.isSemiconductorAwakeAroundDiagonal(poss)) { return; }

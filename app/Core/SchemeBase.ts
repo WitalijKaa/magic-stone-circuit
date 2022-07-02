@@ -622,6 +622,35 @@ export abstract class SchemeBase {
         }
     }
 
+    public isDifferentStoneColorsAround(poss: IPoss) : boolean {
+        let color: null | false | SemiColor = null;
+        SIDES.forEach((side: DirSide) => {
+            let sideColor = this.colorForAwakeAtSide(HH[side](poss));
+            if (!sideColor) { return; }
+
+            if (null === color) {
+                color = sideColor;
+            }
+            if (color != sideColor) {
+                color = false;
+            }
+        });
+        return false === color;
+    }
+
+    private colorForAwakeAtSide(poss: IPoss) : SemiColor | null {
+        let cell = this.findCell(poss);
+        if (!cell) { return null; }
+
+        if (cell.content) {
+            return CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type];
+        }
+        if (cell.semiconductor && cell.semiconductor.colorAwake) {
+            return cell.semiconductor.colorAwake;
+        }
+        return null;
+    }
+
     // DEV
 
     public _devCell: IPoss = { x: this.sizeRadius, y: this.sizeRadius };
