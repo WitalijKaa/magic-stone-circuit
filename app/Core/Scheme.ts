@@ -36,6 +36,9 @@ export class Scheme extends SchemeBase {
     /** STONEs **/
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
+        if (stoneType && this.isDifferentAwakeColorsAround(poss, CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType], true)) {
+            return;
+        }
         let cell = this.getCellForContent(poss);
         if (!cell || (cell.content && cell.content.type == stoneType)) { return; }
 
@@ -669,7 +672,7 @@ export class Scheme extends SchemeBase {
     }
 
     private putAwakeSemiconductor(poss: IPoss) : void {
-        if (this.isDifferentStoneColorsAround(poss)) { return; }
+        if (this.isDifferentAwakeColorsAround(poss)) { return; }
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell && !this.isCellEmpty(poss)) { return; }
         if (this.isSemiconductorChargedAround(poss) || this.isSemiconductorAwakeAroundDiagonal(poss)) { return; }
