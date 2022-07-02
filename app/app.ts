@@ -33,6 +33,7 @@ if (pixiAppContainer)
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
+        pixiApp.stage.addChild(schemeGrid.containerFront);
 
         scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
         scheme.loadScheme(schemeStorage.load(scheme.scheme));

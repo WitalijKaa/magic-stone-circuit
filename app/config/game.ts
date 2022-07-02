@@ -8,7 +8,7 @@ export const GRID_OFFSET = 2;
 
 import {TT} from "./textures";
 
-export const NANO_MS = 2;
+export const NANO_MS = 5;
 
 export const PIXI_MOUSE_RIGHT = 2;
 

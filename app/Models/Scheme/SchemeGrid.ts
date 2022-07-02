@@ -20,6 +20,7 @@ import {CONTROL_EVENTS_KEYS} from "../../config/controls";
 export class SchemeGrid implements IVisibleGrid {
 
     container: Container;
+    containerFront: Container;
     grid!: Array<Array<CellGrid>>
 
     dragX: number;
@@ -42,6 +43,7 @@ export class SchemeGrid implements IVisibleGrid {
         this.container.interactive = true;
         // @ts-ignore
         this.container.hitArea = new Rectangle(0, 0, 100000, 100000);
+        this.containerFront = new Container();
 
         this.dragX = this.dragY = scheme.sizeRadius;
         this.createGrid();
@@ -51,7 +53,7 @@ export class SchemeGrid implements IVisibleGrid {
         new MouseOver(new ContainerModel(this.container), this, { [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
         this.pointedCellZone = new CellPointer(this);
         this.pointedCellZone.setSize(this.cellSizePx);
-        this.addCellToStage(this.pointedCellZone);
+        this.containerFront.addChild(this.pointedCellZone.model);
 
         setTimeout(() => { this.scheme.updateTickInit(); }, CONF.START_TIMEOUT);
     }
@@ -140,6 +142,7 @@ export class SchemeGrid implements IVisibleGrid {
         while (this.visibleCellsAreaCurrentHeight < this.gridCellsAreaSize.height) {
             this.addCellsRow(columnAdded);
         }
+        this.refreshAllCells();
     }
 
     private addCellsRow(skipLast = 0) {
@@ -210,7 +213,7 @@ export class SchemeGrid implements IVisibleGrid {
             }
             this.scheme.setActiveCursorPosition(zone, ...this.lastMouseMovePositions.globalGrid);
 
-            setTimeout(() => { this.mouseLock = false;}, CONF.NANO_MS);
+            setTimeout(() => { this.mouseLock = false; }, CONF.NANO_MS);
         }
     }
 
