@@ -504,7 +504,13 @@ export class Scheme extends SchemeBase {
         let cell = this.getCellForRoad(poss);
         if (!cell) { return null; }
 
-        if (cell.isEmptyAround) {
+        let sides: Array<DirSide> = [];
+        if (cell.isCellConnectedAtSide(UP)) { sides.push(UP); }
+        if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
+        if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
+        if (cell.isCellConnectedAtSide(LEFT)) { sides.push(LEFT); }
+
+        if (!sides.length) {
             if (wasCellEmpty) {
                 return this.setPathsOnRoadByArr(false, true, [LEFT, RIGHT], ROAD_LIGHT, poss);
             }
@@ -513,12 +519,6 @@ export class Scheme extends SchemeBase {
             }
             return false;
         }
-
-        let sides: Array<DirSide> = [];
-        if (cell.isCellConnectedAtSide(UP)) { sides.push(UP); }
-        if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
-        if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
-        if (cell.isCellConnectedAtSide(LEFT)) { sides.push(LEFT); }
 
         if (wasCellEmpty) {
             if (sides.length == 1) {

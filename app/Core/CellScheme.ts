@@ -50,10 +50,6 @@ export class CellScheme implements ICellScheme {
     get x() : number { return this.cellPosition.x; }
     get y() : number { return this.cellPosition.y; }
 
-    get isEmptyAround() : boolean {
-        return !this.Up && !this.Right && !this.Down && !this.Left;
-    }
-
     get isAwakeSemiconductor() : boolean {
         return !!(this.semiconductor && CONF.ST_ROAD_AWAKE == this.semiconductor.type);
     }

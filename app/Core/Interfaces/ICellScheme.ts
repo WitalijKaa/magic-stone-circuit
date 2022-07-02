@@ -11,7 +11,6 @@ export interface ICellScheme extends IPoss {
     cellPosition: Cell;
     scheme: SchemeBase;
 
-    get isEmptyAround() : boolean;
     get poss() : IPoss;
     get isAllSidesPathsExist() : boolean;
 
