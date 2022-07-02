@@ -368,8 +368,8 @@ export abstract class SchemeBase {
 
     // ZONES
 
-    zonesToRoadPaths(zones: Array<string>, isHeavy: CellPath) : Array<boolean> {
-        let paths = [false, false, false, false, !!isHeavy];
+    protected zonesToRoadPaths(zones: Array<string>, isHeavy: boolean) : Array<boolean> {
+        let paths = [false, false, false, false, isHeavy];
         zones.map((zone) => { paths[CONF.SIDE_TO_ROAD_PATH[zone]] = true; });
         return paths;
     }
@@ -381,9 +381,9 @@ export abstract class SchemeBase {
         return resultZones;
     }
 
-    private roadPathsToZones(poss: IPoss) : Array<string> {
+    protected roadPathsToZones(poss: IPoss) : Array<DirSide> {
         let cell = this.findCellOfRoad(poss);
-        let zones: Array<string> = [];
+        let zones: Array<DirSide> = [];
         if (cell) {
             if (cell.road.paths[ROAD_PATH_UP]) { zones.push(UP); }
             if (cell.road.paths[ROAD_PATH_RIGHT]) { zones.push(RIGHT); }
@@ -391,6 +391,34 @@ export abstract class SchemeBase {
             if (cell.road.paths[ROAD_PATH_LEFT]) { zones.push(LEFT); }
         }
         return zones;
+    }
+
+    protected cloneCombinations(combinations: Array<Array<DirSide>>, allowedSides: Array<DirSide> = []) : Array<Array<DirSide>> {
+        let combos = combinations.map((combo: Array<DirSide>) => { return [...combo]; });
+        combos = combos.filter((combo: Array<DirSide>) => {
+            return combo.every((side: DirSide) => {
+                return allowedSides.includes(side);
+            });
+        })
+        return combos;
+    }
+
+    protected findNextCombination(combinations: Array<Array<DirSide>>, zones: Array<DirSide>) : Array<DirSide> | null {
+        let ix = 0
+        for (; ix < combinations.length; ix++) {
+            let isComboInZones = zones.every((side: DirSide) => {
+                return combinations[ix].includes(side);
+            });
+
+            if (isComboInZones) {
+                break;
+            }
+        }
+        ix++;
+        if (ix < combinations.length) {
+            return combinations[ix];
+        }
+        return null;
     }
 
     // ROADs

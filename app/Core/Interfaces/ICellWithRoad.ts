@@ -10,4 +10,5 @@ export interface ICellWithRoad extends ICellScheme {
     isUncoloredRoadPathFromSide(side: DirSide) : boolean;
     isColoredRoadPathAtSideFlowToThatSide(side: DirSide) : boolean;
     isColoredRoadPathAtSideFlowFromThatSide(side: DirSide) : boolean;
+    get countSidePathsOnly() : number;
 }

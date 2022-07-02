@@ -134,3 +134,12 @@ export const ROAD_PATH_TO_SIDE = {
 } as const;
 export const ALL_PATHS_EMPTY = [false, false, false, false, false] as const;
 export const ALL_PATHS_ARE = [true, true, true, true, false] as const;
+
+export const PATHS_IF_THREE_AROUND_COMBINATIONS = [
+    [LEFT, RIGHT],
+    [UP, DOWN],
+    [UP, RIGHT],
+    [RIGHT, DOWN],
+    [DOWN, LEFT],
+    [LEFT, UP],
+] as Array<Array<DirSide>>;

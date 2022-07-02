@@ -13,7 +13,7 @@ export interface ICellScheme extends IPoss {
 
     get isEmptyAround() : boolean;
     get poss() : IPoss;
-    get isSidesPathsAllExist() : boolean;
+    get isAllSidesPathsExist() : boolean;
 
     isCellConnectedAtSide(side: DirSide) : boolean;
     isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean

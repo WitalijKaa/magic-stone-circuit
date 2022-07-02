@@ -79,9 +79,9 @@ export class Scheme extends SchemeBase {
     /** ROADs **/
 
     public putRoadSmart(poss: IPoss) {
-        if (this.isRoadBuildMode) { return; }
+        if (this.isRoadBuildMode || !this.inputAllowed) { return; }
 
-        if (false === this.setPathsOnRoadByTap(poss)) {
+        if (false === this.setSmartPathsForRoad(poss)) {
             this.removeRoad(poss);
         }
         this.removeColoringCellCache(poss);
@@ -498,7 +498,7 @@ export class Scheme extends SchemeBase {
         return this.setPathsOnRoadByArr(false, false, [zone], ROAD_LIGHT, poss);
     }
 
-    private setPathsOnRoadByTap(poss: IPoss) : null | false | RoadChangeHistory {
+    private setSmartPathsForRoad(poss: IPoss) : null | false | RoadChangeHistory {
         let wasCellEmpty = this.isCellEmpty(poss);
         let cell = this.getCellForRoad(poss);
         if (!cell) { return null; }
@@ -513,25 +513,48 @@ export class Scheme extends SchemeBase {
             return false;
         }
 
-        if (ROAD_LIGHT == cell.road.type && cell.isSidesPathsAllExist) {
+        if (ROAD_LIGHT == cell.road.type && cell.isAllSidesPathsExist) {
             return this.setPathsOnRoadByArr(false, false, [], ROAD_HEAVY, poss);
         }
 
-        if (wasCellEmpty) {
-            let sides: Array<DirSide> = [];
-            if (cell.isCellConnectedAtSide(UP)) { sides.push(UP); } // todo use road func
-            if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
-            if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
-            if (cell.isCellConnectedAtSide(LEFT)) { sides.push(LEFT); }
+        let sides: Array<DirSide> = [];
+        if (cell.isCellConnectedAtSide(UP)) { sides.push(UP); }
+        if (cell.isCellConnectedAtSide(RIGHT)) { sides.push(RIGHT); }
+        if (cell.isCellConnectedAtSide(DOWN)) { sides.push(DOWN); }
+        if (cell.isCellConnectedAtSide(LEFT)) { sides.push(LEFT); }
 
-            if (sides.length > 1) {
+        if (wasCellEmpty) {
+            if (sides.length == 1) {
+                if (sides[0] == UP || sides[0] == DOWN) {
+                    return this.setPathsOnRoadByArr(false, true, [UP, DOWN], ROAD_LIGHT, poss);
+                }
+                else { return this.setPathsOnRoadByArr(false, true, [LEFT, RIGHT], ROAD_LIGHT, poss); }
+            }
+            else {
                 return this.setPathsOnRoadByArr(false, true, sides, null, poss);
             }
-            else if (sides.length == 1 && (sides[0] == UP || sides[0] == DOWN)) {
-                return this.setPathsOnRoadByArr(false, true, [UP, DOWN], ROAD_LIGHT, poss);
-            }
-            else { return this.setPathsOnRoadByArr(false, true, [LEFT, RIGHT], ROAD_LIGHT, poss); }
         }
+        else {
+            if (sides.length == 3) {
+                let combos = this.cloneCombinations(CONF.PATHS_IF_THREE_AROUND_COMBINATIONS, sides);
+                if (3 == cell.countSidePathsOnly) {
+                    sides = combos.shift() as Array<DirSide>;
+                }
+                else if (2 == cell.countSidePathsOnly) {
+                    let nextSides = this.findNextCombination(combos, this.roadPathsToZones(cell));
+                    if (!nextSides) {
+                        return false;
+                    }
+                    sides = nextSides;
+                }
+                else {
+                    return false;
+                }
+                return this.setPathsOnRoadByArr(false, true, sides, ROAD_LIGHT, poss);
+            }
+        }
+
+
         return false;
     }
 

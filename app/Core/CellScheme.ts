@@ -57,11 +57,8 @@ export class CellScheme implements ICellScheme {
         return !!(this.semiconductor && CONF.ST_ROAD_SLEEP == this.semiconductor.type);
     }
 
-    get isSidesPathsAllExist() : boolean {
-        if (this.road) {
-            return !!(this.road.paths[0] && this.road.paths[1] && this.road.paths[2] && this.road.paths[3]);
-        }
-        return false;
+    get isAllSidesPathsExist() : boolean {
+        return 4 === this.countSidePathsOnly;
     }
 
     isCellConnectedAtSide(side: DirSide) : boolean {
@@ -164,6 +161,17 @@ export class CellScheme implements ICellScheme {
         let sideCell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
         if (!sideCell) { return false; }
         return HH.isSemiconductorCanBeConnectedToSide(sideCell, side);
+    }
+
+    public get countSidePathsOnly () : number {
+        if (!this.road) { return 0; }
+        let count = 0;
+        for (let ix = 0; ix < 4; ix++) {
+            if (this.road.paths[ix]) {
+                count++;
+            }
+        }
+        return count;
     }
 
     get up() : CellScheme | null { return this.scheme.findCell(this.cellPosition.up); }

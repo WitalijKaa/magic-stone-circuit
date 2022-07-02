@@ -71,7 +71,6 @@ export class CellGrid extends CellAbstract {
         }
     }
     handleRightClick() {
-        if (!this.scheme.inputAllowed) { return; }
         this.scheme.putRoadSmart(this.schemePosition);
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
