@@ -45,7 +45,9 @@ export class CellSemiconductor {
                 }
                 this[spriteType] = null;
             }
-            this.cell.changeTexture(CellGrid.defaultTexture);
+            if (!this.cell.schemeCell?.content) {
+                this.cell.changeTexture(CellGrid.defaultTexture);
+            }
             this.semiconductorDrawn = null;
         }
     }
@@ -67,13 +69,13 @@ export class CellSemiconductor {
             this[spriteType] = new SpriteModel(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi['color' + spriteType])]]);
             this[spriteType].centeredPivot = true;
             this.cell.model.addChild(this[spriteType].model);
-            this[spriteType].model.angle = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
         }
         else if (this.semiconductorDrawn != schemeSemi.type ||
             this['t' + spriteType] != this.colorToVarConstIx(schemeSemi['color' + spriteType]))
         {
             this[spriteType].changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi['color' + spriteType])]]);
         }
+        this[spriteType].model.angle = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
         this['t' + spriteType] = this.colorToVarConstIx(schemeSemi['color' + spriteType]);
     }
 
