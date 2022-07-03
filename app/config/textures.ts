@@ -39,6 +39,11 @@ export const TT = {
     sleepFlowR: 'resources/40/sleep_flow_red.png',
     sleepFlowI: 'resources/40/sleep_flow_indigo.png',
     sleepFlowO: 'resources/40/sleep_flow_orange.png',
+    sleepFlowTurn: 'resources/40/sleep_flow_turn.png',
+    sleepFlowVTurn: 'resources/40/sleep_flow_violet_turn.png',
+    sleepFlowRTurn: 'resources/40/sleep_flow_red_turn.png',
+    sleepFlowITurn: 'resources/40/sleep_flow_indigo_turn.png',
+    sleepFlowOTurn: 'resources/40/sleep_flow_orange_turn.png',
     switcher: 'resources/40/road_switcher.png',
     smile: 'resources/40/smile.png',
 } as const;

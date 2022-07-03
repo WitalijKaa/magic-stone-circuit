@@ -22,6 +22,7 @@ export class CellSemiconductor {
     private Awake!: SpriteModel;
     private Charge!: SpriteModel;
 
+    private flowRotate: number = 0;
     private tFlow: number = 0;
     private tAwake: number = 0;
     private tCharge: number = 0;
@@ -38,7 +39,7 @@ export class CellSemiconductor {
             this.semiconductorDrawn = semi.type;
         }
         else if (this.semiconductorDrawn) {
-            for (let spriteType in ADDITIONAL_SPRITES) {
+            for (let spriteType of ADDITIONAL_SPRITES) {
                 if (this[spriteType]) {
                     this[spriteType].destroy();
                 }
@@ -52,9 +53,11 @@ export class CellSemiconductor {
     private showFlow(schemeSemi: SchemeSemi) : void {
         if (!this.semiconductorDrawn ||
             this.semiconductorDrawn != schemeSemi.type ||
-            this.tFlow != this.colorToIx(schemeSemi.colorFlow))
+            this.tFlow != this.colorToIx(schemeSemi.colorFlow) ||
+            this.flowRotate != CONF.ROAD_COMMON_ROTATE[schemeSemi.direction])
         {
-            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToIx(schemeSemi.colorFlow)]]);
+            this.flowRotate = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
+            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToIx(schemeSemi.colorFlow)] + (this.flowRotate ? 'Turn' : '')]);
         }
         this.tFlow = this.colorToIx(schemeSemi.colorFlow);
     }
