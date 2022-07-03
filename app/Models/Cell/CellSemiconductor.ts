@@ -2,63 +2,43 @@ import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
 import {CellSemiconductor as SchemeSemi, CellSemiconductorType, SemiColor} from "../../Core/Types/CellSemiconductor";
 import {TT} from "../../config/textures";
-import {
-    COLOR_INDIGO_ROAD, COLOR_ORANGE_ROAD,
-    COLOR_RED_ROAD,
-    COLOR_VIOLET_ROAD,
-    PIXI_ROTATE_LEFT,
-    ROAD_PATH_DOWN,
-    ROAD_PATH_UP,
-    ST_ROAD_AWAKE,
-    ST_ROAD_SLEEP, ST_STONE_INDIGO, ST_STONE_ORANGE, ST_STONE_RED,
-    ST_STONE_VIOLET
-} from "../../config/game";
+import { ST_ROAD_AWAKE, ST_ROAD_SLEEP } from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
-import {HH} from "../../Core/HH";
 
-type SpriteType = 'awake' | 'charge' | 'flow';
-const SEMICONDUCTOR_SPRITES = {
-    'awake': {
-        [ST_ROAD_SLEEP]: TT.roadSleep,
-        [ST_ROAD_AWAKE]: TT.roadAwakening,
-    },
-    'charge': {
-        [ST_ROAD_SLEEP]: TT.roadSleepCharge,
-        [ST_ROAD_AWAKE]: TT.roadAwakeningCharge,
-    },
+type SpriteType = 'Awake' | 'Charge' | 'Flow';
+
+const TYPE_TO_VAR = {
+    [ST_ROAD_SLEEP]: 'sleep',
+    [ST_ROAD_AWAKE]: 'semi',
 } as const;
 
-const FLOW_SPRITES = {
-    [ST_ROAD_SLEEP]: [TT.sleepFlow, TT.sleepFlowV, TT.sleepFlowR, TT.sleepFlowI, TT.sleepFlowO],
-    [ST_ROAD_AWAKE]: [TT.semiFlow, TT.semiFlowV, TT.semiFlowR, TT.semiFlowI, TT.semiFlowO],
-};
+const COLOR_TO_VAR = ['', 'V', 'R', 'I', 'O'];
+
+const ADDITIONAL_SPRITES = ['Awake', 'Charge'];
 
 export class CellSemiconductor {
 
     private semiconductorDrawn: CellSemiconductorType | null = null;
-    private awake!: SpriteModel;
-    private charge!: SpriteModel;
+    private Awake!: SpriteModel;
+    private Charge!: SpriteModel;
 
-    private flowType: number = 0;
+    private tFlow: number = 0;
+    private tAwake: number = 0;
+    private tCharge: number = 0;
 
     constructor(private cell: CellGrid) { }
 
     public updateVisibleSemiconductor() : void {
         let semi = this.cell.schemeCell?.semiconductor
         if (semi) {
-            for (let spriteType in SEMICONDUCTOR_SPRITES) {
-                this.initSprite(spriteType as SpriteType, semi);
-                let model: SpriteModel = this[spriteType];
-
-                this.cell.model.addChild(model.model);
-                model.model.angle = CONF.ROAD_COMMON_ROTATE[semi.direction];
-                model.setColor(semi['color' + HH.ucfirst(spriteType)] as SemiColor)
+            this.showFlow(semi);
+            for (let spriteType of ADDITIONAL_SPRITES) {
+                this.showSprite(spriteType as SpriteType, semi);
             }
-
             this.semiconductorDrawn = semi.type;
         }
         else if (this.semiconductorDrawn) {
-            for (let spriteType in SEMICONDUCTOR_SPRITES) {
+            for (let spriteType in ADDITIONAL_SPRITES) {
                 if (this[spriteType]) {
                     this[spriteType].destroy();
                 }
@@ -69,27 +49,32 @@ export class CellSemiconductor {
         }
     }
 
-    private initSprite(spriteType: SpriteType, schemeSemi: SchemeSemi) : void {
-        if (!this[spriteType]) {
-            this.cell.changeTexture(FLOW_SPRITES[schemeSemi.type][this.colorToIx(schemeSemi.colorFlow)]);
+    private showFlow(schemeSemi: SchemeSemi) : void {
+        if (!this.semiconductorDrawn ||
+            this.semiconductorDrawn != schemeSemi.type ||
+            this.tFlow != this.colorToIx(schemeSemi.colorFlow))
+        {
+            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToIx(schemeSemi.colorFlow)]]);
+        }
+        this.tFlow = this.colorToIx(schemeSemi.colorFlow);
+    }
 
-            this[spriteType] = new SpriteModel(SEMICONDUCTOR_SPRITES[spriteType][schemeSemi.type]);
+    private showSprite(spriteType: SpriteType, schemeSemi: SchemeSemi) : void {
+        if (!this[spriteType]) {
+            this[spriteType] = new SpriteModel(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToIx(schemeSemi['color' + spriteType])]]);
             this[spriteType].centeredPivot = true;
             this.cell.model.addChild(this[spriteType].model);
+            this[spriteType].model.angle = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
         }
-        else if (this.semiconductorDrawn != schemeSemi.type) {
-            this.cell.changeTexture(FLOW_SPRITES[schemeSemi.type][this.colorToIx(schemeSemi.colorFlow)]);
-
-            this[spriteType].changeTexture(SEMICONDUCTOR_SPRITES[spriteType][schemeSemi.type]);
+        else if (this.semiconductorDrawn != schemeSemi.type ||
+            this['t' + spriteType] != this.colorToIx(schemeSemi['color' + spriteType]))
+        {
+            this[spriteType].changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToIx(schemeSemi['color' + spriteType])]]);
         }
-        else if (this.flowType != this.colorToIx(schemeSemi.colorFlow)) {
-            this.cell.changeTexture(FLOW_SPRITES[schemeSemi.type][this.colorToIx(schemeSemi.colorFlow)]);
-        }
-        this.flowType = this.colorToIx(schemeSemi.colorFlow);
+        this['t' + spriteType] = this.colorToIx(schemeSemi['color' + spriteType]);
     }
 
     private colorToIx(color: SemiColor) : number {
-        console.log('colorToIx', color)
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
     }
