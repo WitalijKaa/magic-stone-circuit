@@ -53,31 +53,31 @@ export class CellSemiconductor {
     private showFlow(schemeSemi: SchemeSemi) : void {
         if (!this.semiconductorDrawn ||
             this.semiconductorDrawn != schemeSemi.type ||
-            this.tFlow != this.colorToIx(schemeSemi.colorFlow) ||
+            this.tFlow != this.colorToVarConstIx(schemeSemi.colorFlow) ||
             this.flowRotate != CONF.ROAD_COMMON_ROTATE[schemeSemi.direction])
         {
             this.flowRotate = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
-            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToIx(schemeSemi.colorFlow)] + (this.flowRotate ? 'Turn' : '')]);
+            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi.colorFlow)] + (this.flowRotate ? 'Turn' : '')]);
         }
-        this.tFlow = this.colorToIx(schemeSemi.colorFlow);
+        this.tFlow = this.colorToVarConstIx(schemeSemi.colorFlow);
     }
 
     private showSprite(spriteType: SpriteType, schemeSemi: SchemeSemi) : void {
         if (!this[spriteType]) {
-            this[spriteType] = new SpriteModel(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToIx(schemeSemi['color' + spriteType])]]);
+            this[spriteType] = new SpriteModel(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi['color' + spriteType])]]);
             this[spriteType].centeredPivot = true;
             this.cell.model.addChild(this[spriteType].model);
             this[spriteType].model.angle = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
         }
         else if (this.semiconductorDrawn != schemeSemi.type ||
-            this['t' + spriteType] != this.colorToIx(schemeSemi['color' + spriteType]))
+            this['t' + spriteType] != this.colorToVarConstIx(schemeSemi['color' + spriteType]))
         {
-            this[spriteType].changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToIx(schemeSemi['color' + spriteType])]]);
+            this[spriteType].changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + spriteType + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi['color' + spriteType])]]);
         }
-        this['t' + spriteType] = this.colorToIx(schemeSemi['color' + spriteType]);
+        this['t' + spriteType] = this.colorToVarConstIx(schemeSemi['color' + spriteType]);
     }
 
-    private colorToIx(color: SemiColor) : number {
+    private colorToVarConstIx(color: SemiColor) : number {
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
     }
