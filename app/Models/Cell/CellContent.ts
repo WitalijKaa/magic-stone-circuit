@@ -6,7 +6,7 @@ import {STONE_TYPE_TO_ROAD_COLOR} from "../../config/game";
 export class CellContent {
 
     private isStoneDrawn: boolean = false;
-    private isColored: boolean = false;
+    private isColored: boolean = false; // its only for switcher, not for stone
 
     constructor(private cell: CellGrid) { }
 
