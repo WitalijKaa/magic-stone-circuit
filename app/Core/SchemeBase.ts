@@ -535,23 +535,15 @@ export abstract class SchemeBase {
     }
 
     protected countStonesAround(poss: IPoss) : number {
-        let count = 0;
-        SIDES.forEach((side: DirSide) => {
-            if (this.findCellOfContent(HH[side](poss))) {
-                count++;
-            }
-        });
-        return count;
+        return SIDES.reduce((count: number, side: DirSide) => {
+            return this.findCellOfContent(HH[side](poss)) ? ++count : count;
+        }, 0);
     }
 
     protected hasAwakeSemiNeighborsAnyStoneAround(poss: IPoss) : boolean {
         return !SIDES.every((side: DirSide) => {
             let cell = this.findCellOfSemiconductor(HH[side](poss));
-            if (!cell || !cell.isAwakeSemiconductor) { return true; }
-            if (this.countStonesAround(cell)) {
-                return false;
-            }
-            return true;
+            return !cell || !cell.isAwakeSemiconductor || !this.countStonesAround(cell);
         });
     }
 
