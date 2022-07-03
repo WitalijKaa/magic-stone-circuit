@@ -534,6 +534,27 @@ export abstract class SchemeBase {
         return count;
     }
 
+    protected countStonesAround(poss: IPoss) : number {
+        let count = 0;
+        SIDES.forEach((side: DirSide) => {
+            if (this.findCellOfContent(HH[side](poss))) {
+                count++;
+            }
+        });
+        return count;
+    }
+
+    protected hasAwakeSemiNeighborsAnyStoneAround(poss: IPoss) : boolean {
+        return !SIDES.every((side: DirSide) => {
+            let cell = this.findCellOfSemiconductor(HH[side](poss));
+            if (!cell || !cell.isAwakeSemiconductor) { return true; }
+            if (this.countStonesAround(cell)) {
+                return false;
+            }
+            return true;
+        });
+    }
+
     // COLORs cancel
 
     protected eraseColorOnRoadPath(road: CellRoad, pathType: CellRoadPathType) {

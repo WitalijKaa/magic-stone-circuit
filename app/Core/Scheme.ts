@@ -40,11 +40,24 @@ export class Scheme extends SchemeBase {
     /** STONEs **/
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
+        let prevCell = this.findCellOfContent(poss);
+        if (prevCell) {
+            this.removeContent(poss);
+        }
+
         if (stoneType && this.isDifferentAwakeColorsAround(poss, CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType], true)) {
+            if (prevCell) {
+                this.putContent(prevCell.content.type, poss);
+            }
             return;
         }
         let cell = this.getCellForContent(poss);
-        if (!cell || (cell.content && cell.content.type == stoneType)) { return; }
+        if (!cell || (cell.content && cell.content.type == stoneType)) {
+            if (prevCell) {
+                this.putContent(prevCell.content.type, poss);
+            }
+            return;
+        }
 
         this.cancelColorPathsForAnyRoadAround(poss);
         cell.content = { type: stoneType, range: this.switcherMode ? [...this.switcherMode] : [] };
@@ -60,9 +73,9 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         this.cancelColorPathsForAnyRoadAround(poss);
-        this.setAwakeColorAroundForAwakeSemi(poss, null);
         delete(this.contentCells[this.cellName(poss)]);
         this.killCell(poss);
+        this.setAwakeColorAroundForAwakeSemi(poss, null);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
@@ -714,7 +727,12 @@ export class Scheme extends SchemeBase {
 
     private setAwakeColorToSemiconductor(color: SemiColor, poss: IPoss, onlyForAwakeType: boolean = false) {
         let cell = this.findCellOfSemiconductor(poss);
-        if (!cell || (!cell.isAwakeSemiconductor && onlyForAwakeType) || cell.semiconductor.colorAwake == color) { return; }
+        if (!cell || (!cell.isAwakeSemiconductor && onlyForAwakeType) || cell.semiconductor.colorAwake == color) {
+            return;
+        }
+        if (cell.isAwakeSemiconductor && !color && (this.countStonesAround(poss) || this.hasAwakeSemiNeighborsAnyStoneAround(poss))) {
+            return; // helps to remove stone and do not reset semi
+        }
         let semi = cell.semiconductor;
 
         semi.colorAwake = color;
