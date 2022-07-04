@@ -118,6 +118,20 @@ html, body {
     background-size: 100% 2px, 0 2px;
 }
 
+.saved-links--whats {
+    padding-top: 10px;
+    padding-bottom: 0;
+}
+
+.saved-links--whats span {
+    margin-bottom: 0;
+}
+
+.saved-links--links {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 .saved-links--addition {
     padding-top: 0;
 }
@@ -128,6 +142,10 @@ html, body {
     justify-content: flex-start;
     color: #1a237e;
 }
+.saved-links--levels span a {
+    color: #1a237e;
+    text-decoration: none;
+}
 .saved-links--levels span {
     margin-bottom: 5px;
     align-self: flex-start;
@@ -135,6 +153,16 @@ html, body {
     background-size: 0 2px, 100% 2px;
     background-position: 0 100%, 100% 100%;
     background-repeat: no-repeat;
+}
+
+span.red {
+    background: linear-gradient(to right, #b71c1c, #ef9a9a);
+    background-size: 0 2px, 100% 2px;
+    background-position: 0 100%, 100% 100%;
+    background-repeat: no-repeat;
+}
+.saved-links--levels span.red a {
+    color: #c62828;
 }
 
 @media screen and (max-height: 460px) {
