@@ -47,3 +47,11 @@
 .notice--on {
     margin-left: 0;
 }
+
+.text--shading {
+    animation: shader-anim 1.5s infinite alternate;
+}
+@keyframes shader-anim {
+    from { opacity: 1; }
+    to { opacity: 0.4; }
+}

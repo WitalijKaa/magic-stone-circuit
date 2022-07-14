@@ -5,6 +5,7 @@ import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 import {DEFAULT_SCHEME_NAME} from "../config/game";
 import {RoadSavePathsArray} from "./Types/CellRoad";
 import {ICellWithSmile} from "./Interfaces/ICellWithSmile";
+import {preSchemes} from "../config/levels";
 
 export class SchemeStorage {
 
@@ -86,5 +87,17 @@ export class SchemeStorage {
             }
         }
         return names.sort();
+    }
+
+    public initPreSchemes() {
+        if (null === window.localStorage.getItem('__preload__1__')) {
+            for (let schemeName in preSchemes) {
+                if (null === window.localStorage.getItem('__schema__' + schemeName)) {
+                    window.localStorage.setItem('__schema__' + schemeName, preSchemes[schemeName]);
+                }
+            }
+        }
+        window.localStorage.setItem('__schema__' + DEFAULT_SCHEME_NAME, preSchemes[DEFAULT_SCHEME_NAME]);
+        window.localStorage.setItem('__preload__1__', '1');
     }
 }

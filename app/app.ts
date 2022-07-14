@@ -30,6 +30,8 @@ if (pixiAppContainer)
         const schemeStorage = new SchemeStorage();
         const scheme = new Scheme();
 
+        schemeStorage.initPreSchemes();
+
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(scheme, schemeContainer);
         pixiApp.stage.addChild(schemeGrid.container);
@@ -59,3 +61,16 @@ if (pixiAppContainer)
 else {
     console.error('no #app div in html :(');
 }
+
+document.getElementById('info_open')!.addEventListener('click', function (event) {
+    let isOpened = document.getElementById('info_1')!.classList.contains('el--hidden');
+
+    if (isOpened) {
+        document.getElementById('info_1')!.classList.remove('el--hidden');
+        document.getElementById('info_2')!.classList.remove('el--hidden');
+    }
+    else {
+        document.getElementById('info_1')!.classList.add('el--hidden');
+        document.getElementById('info_2')!.classList.add('el--hidden');
+    }
+});
