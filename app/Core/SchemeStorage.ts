@@ -96,8 +96,8 @@ export class SchemeStorage {
                     window.localStorage.setItem('__schema__' + schemeName, preSchemes[schemeName]);
                 }
             }
+            window.localStorage.setItem('__schema__' + DEFAULT_SCHEME_NAME, preSchemes[DEFAULT_SCHEME_NAME]);
+            window.localStorage.setItem('__preload__1__', '1');
         }
-        window.localStorage.setItem('__schema__' + DEFAULT_SCHEME_NAME, preSchemes[DEFAULT_SCHEME_NAME]);
-        window.localStorage.setItem('__preload__1__', '1');
     }
 }

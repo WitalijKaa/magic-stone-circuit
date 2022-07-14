@@ -30,21 +30,31 @@ export class CellGrid extends CellAbstract {
         this.cellSmile = new CellSmile(this);
 
         this.on('click', () => { this.handleClick() });
+        this.on('tap', () => { this.handleClick(true) });
         new MouseClick(this, this, { [MouseClick.CLICK_RIGHT]: 'handleRightClick' });
         new MouseOver(this, this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
     }
 
     public static get defaultTexture () : string { return TT.cell; }
 
-    handleClick() {
+    handleClick(tapMode: boolean = false) {
+        if (tapMode) {
+            this.grid.hidePointerZone();
+        }
+
         if (!this.scheme.inputAllowed) { return; }
 
         if (HH.isRoad(this.grid.controlPen)) {
-            if (!this.scheme.isRoadBuildMode) {
-                this.scheme.startToBuildRoad(this.schemePosition);
+            if (tapMode) {
+                this.scheme.putRoadSmart(this.schemePosition);
             }
             else {
-                this.scheme.finishToBuildRoad();
+                if (!this.scheme.isRoadBuildMode) {
+                    this.scheme.startToBuildRoad(this.schemePosition);
+                }
+                else {
+                    this.scheme.finishToBuildRoad();
+                }
             }
         }
         else {

@@ -95,6 +95,10 @@ export class SchemeGrid implements IVisibleGrid {
         }
     }
 
+    public hidePointerZone() {
+        this.pointedCellZone.hideZoneForever();
+    }
+
     public set controlEvent(val) {
         if (val in CONTROL_EVENTS_KEYS) {
             this.scheme[CONTROL_EVENTS_KEYS[val]]();

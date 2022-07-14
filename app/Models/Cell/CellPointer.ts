@@ -19,6 +19,8 @@ export class CellPointer extends CellAbstract {
     }
     cellPxSizeConfig: { lineA: number, lineB: number };
 
+    private hideForever: boolean = false;
+
     constructor(grid: SchemeGrid) {
         super(new Cell(0, 0), grid, SpriteModel.from(TT.zoneCenter));
         this.model.alpha = 0;
@@ -37,6 +39,8 @@ export class CellPointer extends CellAbstract {
 
 
     showZone(zone: GridZone, xCell: number, yCell: number) {
+        if (this.hideForever) { return; }
+
         this.model.alpha = 1;
         if (CONF.OVER_CENTER != zone) {
             this.sidePointer.model.alpha = 1;
@@ -58,6 +62,11 @@ export class CellPointer extends CellAbstract {
     hideZone() {
         this.model.alpha = 0;
         this.sidePointer.model.alpha = 0;
+    }
+
+    hideZoneForever() {
+        this.hideZone();
+        this.hideForever = true;
     }
 
     findOverZoneType(pxLocalX: number, pxLocalY: number) : GridZone {
