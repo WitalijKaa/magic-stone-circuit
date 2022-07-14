@@ -1,3 +1,5 @@
+import {preSchemes} from "./config/levels";
+
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 import { Application as PixiApplication } from '@pixi/app';
@@ -74,3 +76,13 @@ document.getElementById('info_open')!.addEventListener('click', function (event)
         document.getElementById('info_2')!.classList.add('el--hidden');
     }
 });
+
+if (!window.localStorage.getItem('__first-question__1__')) {
+    document.getElementById('faq')!.classList.remove('el--hidden');
+    document.getElementById('faq')!.addEventListener('click', function () {
+        document.getElementById('info_1')!.classList.remove('el--hidden');
+        document.getElementById('info_2')!.classList.remove('el--hidden');
+        document.getElementById('b-d')!.click();
+        window.localStorage.setItem('__first-question__1__', '1');
+    });
+}

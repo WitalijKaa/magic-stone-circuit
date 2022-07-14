@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="modal.css" rel="stylesheet">
     <link href="main.css" rel="stylesheet">
+    <script src="/resources/a.js" async></script>
     <title>Magic Stones</title>
 </head>
 <body>
@@ -69,10 +70,10 @@
         <div onclick="event.stopPropagation()" class="modal-container">
             <div class="header" style="margin-bottom: 10px;">Magic Stone Circuit <span id="info_open" class="header__open text--shading">>></span></div>
             <div id="info_1" class="saved-links saved-links--whats el--hidden">
-                <span>What is this?</span>
-                <span>Що це таке?</span>
-                <span>Что это?</span>
-                <span>Шта је ово?</span>
+                <span onclick="a_eng.play()">What is this?</span>
+                <span onclick="a_ukr.play()">Що це таке?</span>
+                <span onclick="a_rus.play()">Что это?</span>
+                <span onclick="a_srb.play()">Шта је ово?</span>
             </div>
             <div id="info_2" class="saved-links saved-links--levels saved-links--links el--hidden">
                 <span><a href="https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g" target="_blank">Video guides (youTube)</a></span>
@@ -89,6 +90,7 @@
         </div>
     </div>
     <div class="notice"><div id="notice" class="notice-container">Ha Ha</div></div>
+    <img id="faq" class="first-q el--hidden" src="/resources/q.png">
 </div>
 <script src="dist/main.js" type="application/javascript"></script>
 </body>
