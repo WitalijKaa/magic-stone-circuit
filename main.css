@@ -12,7 +12,7 @@ html, body {
 .el--texted {
     color: #cfd8dc;
     font-size: 14px;
-    font-family: Consolas;
+    font-family: "Consolas", monospace;
     user-select: none;
 }
 
@@ -85,7 +85,7 @@ html, body {
 .header {
     color: #004d40;
     font-size: 16px;
-    font-family: Consolas;
+    font-family: "Consolas", monospace;
     font-weight: bold;
     user-select: none;
 }
@@ -100,7 +100,7 @@ html, body {
     justify-content: space-between;
     color: #006064;
     font-size: 14px;
-    font-family: Consolas;
+    font-family: "Consolas", monospace;
     user-select: none;
     padding-top: 20px;
     padding-bottom: 20px;

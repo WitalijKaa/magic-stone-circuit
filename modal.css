@@ -35,7 +35,7 @@
     background-color: #3949ab;
     color: #cfd8dc;
     font-size: 16px;
-    font-family: Consolas;
+    font-family: "Consolas", monospace;
     user-select: none;
     padding: 20px 20px;
     transition: margin-left 400ms ease-in;
@@ -81,7 +81,7 @@
     position: fixed;
     background-color: #e65100;
     font-size: 32px;
-    font-family: Consolas;
+    font-family: "Consolas", monospace;
     font-weight: bold;
     justify-content: center;
     align-items: center;
