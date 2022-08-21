@@ -1,5 +1,3 @@
-import {preSchemes} from "./config/levels";
-
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 import { Application as PixiApplication } from '@pixi/app';
@@ -10,13 +8,10 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {FactoryGraphics} from "./Core/FactoryGraphics";
 import {SpriteModel} from "./Models/SpriteModel";
-import {
-    addPenHandlers,
-    createModal,
-    viewControlPen
-} from "./config/controls";
+import { addPenHandlers, createModal, viewControlPen } from "./config/controls";
+import { mainContainerResize } from "./config/appFunctions";
 import {Scheme} from "./Core/Scheme";
-import {DEFAULT_SCHEME_NAME} from "./config/game";
+import { DEFAULT_SCHEME_NAME } from "./config/game";
 
 if (pixiAppContainer)
 {
@@ -45,17 +40,8 @@ if (pixiAppContainer)
         let $name = document.getElementById('scheme-name');
         if ($name) { $name.innerText = DEFAULT_SCHEME_NAME; }
 
-        function mainContainerResize() {
-            if (!pixiAppContainer || !schemeGrid) { return; }
-            pixiApp.renderer.resize(pixiAppContainer.offsetWidth, pixiAppContainer.offsetHeight);
-            schemeGrid.resetVisibleGrid();
-        }
-        window.addEventListener('resize', function() {
-            mainContainerResize();
-        });
-
+        mainContainerResize(pixiApp, pixiAppContainer, schemeGrid);
         viewControlPen(schemeGrid.controlPen);
-
         addPenHandlers(scheme, schemeStorage, schemeGrid);
         createModal(scheme, schemeStorage);
     });
