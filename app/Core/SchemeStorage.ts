@@ -1,11 +1,7 @@
-import {ICellWithContent} from "./Interfaces/ICellWithContent";
-import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
-import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
-import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
+import {SchemeCopy, SchemeInstanceStructure, SchemeStructure} from "./Types/Scheme";
 import {DEFAULT_SCHEME_NAME} from "../config/game";
-import {RoadSavePathsArray} from "./Types/CellRoad";
-import {ICellWithSmile} from "./Interfaces/ICellWithSmile";
 import {preSchemes} from "../config/levels";
+import {SchemeFormatConverter} from "./SchemeFormatConverter";
 
 export class SchemeStorage {
 
@@ -21,50 +17,15 @@ export class SchemeStorage {
     public resetScheme(name: string = DEFAULT_SCHEME_NAME) { this.schemes[name] = {}; }
 
     public save(name: string = DEFAULT_SCHEME_NAME) : void {
-        let scheme = this.getNamedScheme(name) as { [keyX: number]: { [keyY: number]: null | ICellWithContent | ICellWithRoad | ICellWithSemiconductor | ICellWithSmile } };
-        let schemeCopy: SchemeCopy = {};
-
-        for (let row in scheme) {
-            for (let column in scheme[row]) {
-                let schemeCell = scheme[row][column];
-                if (!schemeCell) { continue; }
-
-                let rr = +row - 800000000 + 100;
-                let cc = +column - 800000000 + 100;
-                if (!schemeCopy[rr]) { schemeCopy[rr] = {}; }
-
-                if ('road' in schemeCell && schemeCell.road) {
-                    schemeCopy[rr][cc] = { r:
-                            {
-                                t: schemeCell.road.type,
-                                p: schemeCell.road.paths.map((path, ix) => { return path ? ix : ''; }).join(''),
-                            }
-                    };
-                }
-                else if ('semiconductor' in schemeCell && schemeCell.semiconductor) {
-                    schemeCopy[rr][cc] = { s: { t: schemeCell.semiconductor.type, d: schemeCell.semiconductor.direction }}
-                }
-                else if ('content' in schemeCell && schemeCell.content) {
-                    schemeCopy[rr][cc] = { c: { t: schemeCell.content.type } };
-                    if (schemeCell.content.range && schemeCell.content.range.length) {
-                        schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
-                    }
-                }
-                else if ('smile' in schemeCell && schemeCell.smile.view) {
-                    schemeCopy[rr][cc] = { i: { l: schemeCell.smile.logic } };
-                }
-            }
-        }
-
-        this.saveToDisk('__schema__' + name, schemeCopy)
+        this.saveToDisk('__schema__' + name, SchemeFormatConverter.toShortFormat(this.getNamedScheme(name)))
     }
 
-    public saveCallback(name: string = DEFAULT_SCHEME_NAME) : () => void {
+    public createSaveCallback(name: string = DEFAULT_SCHEME_NAME) : () => void {
         return this.save.bind(this, name);
     }
 
-    public load(scheme: SchemeStructure, name: string = DEFAULT_SCHEME_NAME) : SchemeCopy {
-        this.schemes[name] = scheme;
+    public load(scheme: SchemeInstanceStructure, name: string = DEFAULT_SCHEME_NAME) : SchemeCopy {
+        this.schemes[name] = scheme as SchemeStructure;
         return this.getFromDisk('__schema__' + name);
     }
 
@@ -89,6 +50,7 @@ export class SchemeStorage {
         return names.sort();
     }
 
+    /** пусть на старте в памяти будет немного моих схем */
     public initPreSchemes() {
         if (null === window.localStorage.getItem('__preload__1__')) {
             for (let schemeName in preSchemes) {

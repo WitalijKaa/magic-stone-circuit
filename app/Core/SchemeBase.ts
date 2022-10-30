@@ -15,7 +15,7 @@ import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
 import {CellStone, CellStoneType} from "./Types/CellStone";
-import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
+import {SchemeCopy, SchemeInstanceStructure, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 import {Cell} from "./Cell";
 import {SmileComponent} from "./Components/SmileComponent";
@@ -46,7 +46,7 @@ export abstract class SchemeBase {
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
 
-    scheme: SchemeStructure = {};
+    scheme: SchemeInstanceStructure = {};
     visibleGrid!: IVisibleGrid;
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
@@ -75,7 +75,7 @@ export abstract class SchemeBase {
         this._saveToStorageCallback();
     }
 
-    public resetScheme() : SchemeStructure {
+    public resetScheme() : SchemeInstanceStructure {
         this.scheme = {};
         this.contentCells = {};
         this.cacheColorings = {};
@@ -85,6 +85,7 @@ export abstract class SchemeBase {
     }
 
     public loadScheme(source: SchemeCopy) {
+        // todo use class SchemeFormatConverter
         this.cLevel.isLevelMode = false;
         let toAwake: Array<[IPoss, CellStoneType]> = [];
         for (let row in source) {
@@ -331,14 +332,14 @@ export abstract class SchemeBase {
 
     public findCell(poss: IPoss) : null | CellScheme {
         if (this.isCellEmpty(poss)) { return null; }
-        return this.scheme[poss.x][poss.y];
+        return this.scheme[poss.x][poss.y] as CellScheme;
     }
 
     public getCell(poss: IPoss) : CellScheme {
         if (!this.scheme[poss.x] || !this.scheme[poss.x][poss.y]) {
             return this.createCell(poss);
         }
-        return this.scheme[poss.x][poss.y]!;
+        return this.scheme[poss.x][poss.y] as CellScheme;
     }
 
     public killCell(poss: IPoss) : void {

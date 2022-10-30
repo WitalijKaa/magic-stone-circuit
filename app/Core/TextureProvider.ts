@@ -2,7 +2,7 @@ import {TT} from "../config/textures";
 import {Loader} from 'pixi.js';
 import {Texture} from '@pixi/core';
 
-export class FactoryGraphics {
+export class TextureProvider {
 
     loader: Loader;
     resources: { [key: string]: Texture } = {};
@@ -26,7 +26,7 @@ export class FactoryGraphics {
         this.loader.load();
     }
 
-    texture(name: string) : Texture {
+    public get(name: string) : Texture {
         return this.resources[name]
     }
 }

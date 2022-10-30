@@ -1,5 +1,5 @@
 import {Sprite} from '@pixi/sprite';
-import {FactoryGraphics} from "../Core/FactoryGraphics";
+import {TextureProvider} from "../Core/TextureProvider";
 import {DisplayModel} from "./DisplayModel";
 import {Colorizer} from "./Colorizer";
 
@@ -21,17 +21,17 @@ export class SpriteModel extends DisplayModel {
         }
     }
 
-    private static factoryGraphics
-    public static implementGraphics(factory: FactoryGraphics) : void {
-        this.factoryGraphics = factory;
+    private static textureProvider
+    public static injectTextureProvider(factory: TextureProvider) : void {
+        this.textureProvider = factory;
     }
 
     public static from(name: string) : Sprite {
-        return Sprite.from(this.factoryGraphics.texture(name));
+        return Sprite.from(this.textureProvider.get(name));
     }
 
     public changeTexture(name: string) {
-        this.model.texture = SpriteModel.factoryGraphics.texture(name)
+        this.model.texture = SpriteModel.textureProvider.get(name);
     }
 
     public destroy() : void { this.model.destroy(); }

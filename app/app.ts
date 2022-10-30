@@ -6,7 +6,7 @@ const pixiAppContainer = document.getElementById('app');
 import {SchemeContainer} from "./Models/Scheme/SchemeContainer";
 import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
-import {FactoryGraphics} from "./Core/FactoryGraphics";
+import {TextureProvider} from "./Core/TextureProvider";
 import {SpriteModel} from "./Models/SpriteModel";
 import { addPenHandlers, createModal, viewControlPen } from "./config/controls";
 import { mainContainerResize } from "./config/appFunctions";
@@ -21,8 +21,8 @@ if (pixiAppContainer)
     });
     pixiAppContainer.appendChild(pixiApp.view);
 
-    const loader = new FactoryGraphics();
-    SpriteModel.implementGraphics(loader);
+    const loader = new TextureProvider();
+    SpriteModel.injectTextureProvider(loader);
     loader.loadTextures(() => {
         const schemeStorage = new SchemeStorage();
         const scheme = new Scheme();
@@ -34,7 +34,7 @@ if (pixiAppContainer)
         pixiApp.stage.addChild(schemeGrid.container);
         pixiApp.stage.addChild(schemeGrid.containerFront);
 
-        scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
+        scheme.setSaveToStorageMethod(schemeStorage.createSaveCallback());
         scheme.loadScheme(schemeStorage.load(scheme.scheme));
 
         let $name = document.getElementById('scheme-name');

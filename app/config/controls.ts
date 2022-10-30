@@ -105,7 +105,7 @@ export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: s
     let freshScheme = scheme.resetScheme();
 
     if (RESET_SCHEME_NAME == name.toLowerCase()) {
-        scheme.setSaveToStorageMethod(schemeStorage.saveCallback());
+        scheme.setSaveToStorageMethod(schemeStorage.createSaveCallback());
         schemeStorage.resetScheme();
         schemeStorage.save();
         scheme.loadScheme(schemeStorage.load(freshScheme));
