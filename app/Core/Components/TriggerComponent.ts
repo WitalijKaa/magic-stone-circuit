@@ -14,12 +14,30 @@ export class TriggerComponent {
             this.scheme.refreshVisibleCell(poss);
             this.scheme.afterChange();
             this.scheme.setContentCell(poss);
+            this.scheme.cancelRoadColorPathBySide(CONF.LEFT, poss);
+            this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
         }
     }
 
-    public colorIt(color: ContentColor, fromDir: DirSide, poss: IPoss) {
+    public delete(poss: IPoss) {
         let cell = this.scheme.findCellOfTrigger(poss);
         if (!cell) { return; }
+
+        this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
+        this.scheme.removeContentCell(poss);
+        this.scheme.killCell(poss);
+        this.scheme.refreshVisibleCell(poss);
+        this.scheme.afterChange();
+    }
+
+    public colorIt(color: ContentColor, fromDir: DirSide, poss: IPoss) {
+        if (CONF.LEFT != fromDir) { return; }
+        let cell = this.scheme.findCellOfTrigger(poss);
+        if (!cell) { return; }
+
+        if (cell.trigger.color != color) {
+            this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
+        }
         
         cell.trigger.color = color;
         this.scheme.refreshVisibleCell(poss);

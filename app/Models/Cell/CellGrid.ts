@@ -83,6 +83,7 @@ export class CellGrid extends CellAbstract {
                 this.scheme.removeContent(this.schemePosition);
                 this.scheme.removeRoad(this.schemePosition);
                 this.scheme.putSemiconductor(null, this.schemePosition);
+                this.scheme.removeTrigger(this.schemePosition);
             }
         }
     }

@@ -36,7 +36,7 @@ https://www.instagram.com/witalij.kaa/
 - Task 18: save local storage to file, load from file.
 - Task 19: save blueprints to local storage, add them to menu.
 - Task 20: help and learn-how-to guide. !
-- Task 21: lock tick on any timeout changes.
+- Task 21: lock tick on any timeout changes. --C
 - Task 22: variations on road-cell switch. --D
 - Task 23: one-way energy filter.
 - Task 24: turn semiconductors; disable big semiconductors. --D
@@ -54,4 +54,4 @@ https://www.instagram.com/witalij.kaa/
 - Task 36: filter buttons on levels. --D
 - Task 37: graphics optimizations one.
 - Task 38: wait for next vacation and update code very little... :( --D
-- Task 39: trigger
+- Task 39: trigger --D

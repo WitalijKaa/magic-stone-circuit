@@ -57,6 +57,7 @@ export abstract class SchemeBase {
 
     protected contentCells: { [key: string]: IPoss } = {};
     protected cacheColorings: { [key: string]: Array<ColorCellCache> } = {};
+    protected activeCacheColorings: Array<ColorCellCache> = [];
     protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
@@ -185,7 +186,13 @@ export abstract class SchemeBase {
         }
         else {
             let roadColoringProcess = false;
-            this.extractCacheActions().map((cache: ColorCellCache) => {
+            this.activeCacheColorings = this.extractCacheActions();
+
+            this.activeCacheColorings.map((cache: ColorCellCache) => {
+                if (!this.activeCacheColorings.length) {
+                    return;
+                }
+
                 if (cache.method == 'execMoveColorToNextPaths') {
                     roadColoringProcess = true;
                 }
@@ -609,7 +616,7 @@ export abstract class SchemeBase {
         });
     }
 
-    private cancelRoadColorPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, side, poss); }
+    public cancelRoadColorPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, side, poss); }
     protected cancelRoadColorFlowsOutPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, true, true, false, side, poss); }
 
     private cancelColorPathBySideByParams(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, side: DirSide, poss: IPoss) : void {
@@ -651,6 +658,7 @@ export abstract class SchemeBase {
     removeColoringCellCache(poss: IPoss) {
         let name = this.cellName(poss);
         if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
+        this.activeCacheColorings = [];
     }
 
     canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
@@ -665,6 +673,7 @@ export abstract class SchemeBase {
                 }
             }
         }
+        this.activeCacheColorings = [];
     }
 
     public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | ContentColor = null, skipStones: boolean = false) : boolean {

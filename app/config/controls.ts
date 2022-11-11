@@ -14,6 +14,7 @@ export const CONTROL_KEYS = {
     '6': CONF.ST_ROAD_SLEEP,
     '7': CONF.ST_ROAD_AWAKE,
     '8': CONF.ST_EMPTY,
+    '9': CONF.ST_TRIGGER,
     'q': CONF.ST_EMPTY,
     'Q': CONF.ST_EMPTY,
     'x': CONF.ST_EMPTY,
@@ -26,10 +27,6 @@ export const CONTROL_KEYS = {
     'P': CONF.ST_STONE_VIOLET,
     'o': CONF.ST_STONE_INDIGO,
     'O': CONF.ST_STONE_INDIGO,
-    'z': CONF.ST_TRIGGER,
-    'Z': CONF.ST_TRIGGER,
-    'я': CONF.ST_TRIGGER,
-    'Я': CONF.ST_TRIGGER,
 }
 
 export const CONTROL_EVENTS_KEYS = {

@@ -11,7 +11,6 @@ export class CellTrigger {
     public updateVisibleTrigger() : void {
         if (this.cell.schemeCell?.trigger) {
             let color = this.cell.schemeCell.trigger.color;
-            console.log(color);
             if (!color) {
                 this.cell.changeTexture(TT.trigger);
             }

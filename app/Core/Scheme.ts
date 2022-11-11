@@ -1,5 +1,15 @@
 import * as CONF from "../config/game"
-import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
+import {
+    SIDES,
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT,
+    ROAD_PATH_UP,
+    ROAD_PATH_RIGHT,
+    ROAD_PATH_DOWN,
+    ROAD_PATH_LEFT, ROAD_PATH_HEAVY
+} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
@@ -41,9 +51,15 @@ export class Scheme extends SchemeBase {
         this.contentCells[this.cellName(poss)] = poss;
     }
 
+    public removeContentCell(poss: IPoss) {
+        delete(this.contentCells[this.cellName(poss)]);
+    }
+
     /** TRIGGERs **/
 
     public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }
+
+    public removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
 
     public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
 
