@@ -5,7 +5,7 @@ import {CellGrid} from "./CellGrid";
 import {SpriteModel} from "../SpriteModel";
 import {CellPath} from "../../Core/Types/CellRoad";
 import {CellRoad as CellRoadOfScheme} from "../../Core/Types/CellRoad";
-import {SemiColor} from "../../Core/Types/CellSemiconductor";
+import {ContentColor} from "../../Core/Types/ColorTypes";
 import * as CONF from "../../config/game";
 
 const TT_ROAD = {
@@ -90,7 +90,7 @@ export class CellRoad {
         return false;
     }
 
-    private colorToVarConstIx(color: SemiColor) : number {
+    private colorToVarConstIx(color: ContentColor) : number {
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
     }

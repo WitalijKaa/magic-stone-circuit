@@ -13,20 +13,18 @@ import {Cell} from "./Cell";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {HH} from "./HH";
 import {CellScheme} from "./CellScheme";
-import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
+import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
-import {TriggerStrategy} from "./Scheme/TriggerStrategy";
+import {TriggerComponent} from "./Components/TriggerComponent";
+import {ContentColor} from "./Types/ColorTypes";
 
 export class Scheme extends SchemeBase {
-
-    public trigger!: TriggerStrategy;
 
     protected initComponents() {
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
-
-        this.trigger = new TriggerStrategy(this);
+        this.cTrigger = new TriggerComponent(this);
     }
 
     public beforeAnyInput() {
@@ -37,9 +35,17 @@ export class Scheme extends SchemeBase {
         this.cancelToBuildRoad();
     }
 
-    public setVisualCenter() : void {
-        this.visibleGrid.setCenter();
+    public setVisualCenter() : void { this.visibleGrid.setCenter(); }
+
+    public setContentCell(poss: IPoss) {
+        this.contentCells[this.cellName(poss)] = poss;
     }
+
+    /** TRIGGERs **/
+
+    public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }
+
+    public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
 
     /** STONEs **/
 
@@ -729,7 +735,7 @@ export class Scheme extends SchemeBase {
         })
     }
 
-    private setAwakeColorToSemiconductor(color: SemiColor, poss: IPoss, onlyForAwakeType: boolean = false) {
+    private setAwakeColorToSemiconductor(color: ContentColor, poss: IPoss, onlyForAwakeType: boolean = false) {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || (!cell.isAwakeSemiconductor && onlyForAwakeType) || cell.semiconductor.colorAwake == color) {
             return;
@@ -784,7 +790,7 @@ export class Scheme extends SchemeBase {
         });
     }
 
-    private setChargeColorToSemiconductorByAwake(color: SemiColor, poss: IPoss) {
+    private setChargeColorToSemiconductorByAwake(color: ContentColor, poss: IPoss) {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || cell.semiconductor.colorCharge == color || (color && cell.semiconductor.colorAwake != color)) { return; }
         let semi = cell.semiconductor;
@@ -811,7 +817,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    protected setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void {
+    protected setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
 
@@ -870,7 +876,7 @@ export class Scheme extends SchemeBase {
         return false;
     }
 
-    private setFlowColorToSemiconductor(color: SemiColor, fromDir: DirSide, poss: IPoss): void {
+    private setFlowColorToSemiconductor(color: ContentColor, fromDir: DirSide, poss: IPoss): void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
         let semi = cell.semiconductor;
@@ -1011,7 +1017,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    setColorToRoad(color, fromDir: DirSide, poss: IPoss) {
+    setColorToRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return; }
         let pathFrom = CONF.SIDE_TO_ROAD_PATH[fromDir];
@@ -1111,6 +1117,7 @@ export class Scheme extends SchemeBase {
         nextSides.map((toDir: DirSide) => {
             this.setColorToRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
             this.setColorToSemiconductorByRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
+            this.cTrigger.colorIt(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
             this.cSmile.setColorToSmileByRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir]);
         });
     }

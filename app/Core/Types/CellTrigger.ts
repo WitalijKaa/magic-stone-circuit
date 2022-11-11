@@ -1,7 +1,7 @@
-import {SemiColor} from "./CellSemiconductor";
+import {ContentColor} from "./ColorTypes";
 
 export type CellTrigger = {
-    color: null | SemiColor,
+    color: null | ContentColor,
 };
 
 export type CellTriggerCopy = 1;

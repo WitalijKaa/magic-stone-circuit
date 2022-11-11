@@ -1,8 +1,9 @@
-import {SemiColor, SemiColorCallback} from "./CellSemiconductor";
+import {SemiColorCallback} from "./CellSemiconductor";
+import {ContentColor} from "./ColorTypes";
 
 export type CellSmile = {
     type: 9 | 10,
-    color: SemiColor,
+    color: ContentColor,
     view: boolean,
     logic: string,
     event?: null | SemiColorCallback,

@@ -72,10 +72,10 @@ export const CONTENT_SPRITES = {
 };
 
 export const TRIGGER_SPRITES = {
-    [COLOR_VIOLET_ROAD]: TT.triggerNull,
-    [COLOR_RED_ROAD]: TT.triggerNull,
-    [COLOR_INDIGO_ROAD]: TT.triggerNull,
-    [COLOR_ORANGE_ROAD]: TT.triggerNull,
+    [COLOR_VIOLET_ROAD]: TT.triggerV,
+    [COLOR_RED_ROAD]: TT.triggerR,
+    [COLOR_INDIGO_ROAD]: TT.triggerI,
+    [COLOR_ORANGE_ROAD]: TT.triggerO,
 };
 
 export const STONE_TYPE_TO_ROAD_COLOR = {

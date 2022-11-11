@@ -1,7 +1,6 @@
 import {CellGrid} from "./CellGrid";
 import * as CONF from "../../config/game";
 import {TT} from "../../config/textures";
-import {STONE_TYPE_TO_ROAD_COLOR} from "../../config/game";
 
 export class CellTrigger {
 
@@ -12,8 +11,9 @@ export class CellTrigger {
     public updateVisibleTrigger() : void {
         if (this.cell.schemeCell?.trigger) {
             let color = this.cell.schemeCell.trigger.color;
+            console.log(color);
             if (!color) {
-                this.cell.changeTexture(TT.triggerNull);
+                this.cell.changeTexture(TT.trigger);
             }
             else {
                 this.cell.changeTexture(CONF.TRIGGER_SPRITES[color]);

@@ -73,12 +73,11 @@ export class CellGrid extends CellAbstract {
             }
             else if (HH.isSemiconductor(this.grid.controlPen)) {
                 this.scheme.anyClick(this.schemePosition);
-
                 this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
             }
             else if (HH.isTrigger(this.grid.controlPen)) {
                 this.scheme.anyClick(this.schemePosition);
-                this.scheme.trigger.put(this.schemePosition);
+                this.scheme.putTrigger(this.schemePosition);
             }
             else if (CONF.ST_EMPTY == this.grid.controlPen) {
                 this.scheme.removeContent(this.schemePosition);

@@ -13,7 +13,7 @@ import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
 import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
-import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
+import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {CellStone, CellStoneType} from "./Types/CellStone";
 import {SchemeCopy, SchemeInstanceStructure, SchemeStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
@@ -21,6 +21,8 @@ import {Cell} from "./Cell";
 import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
+import {TriggerComponent} from "./Components/TriggerComponent";
+import {ContentColor} from "./Types/ColorTypes";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -46,6 +48,7 @@ export abstract class SchemeBase {
 
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
+    protected cTrigger!: TriggerComponent;
 
     scheme: SchemeInstanceStructure = {};
     visibleGrid!: IVisibleGrid;
@@ -119,6 +122,7 @@ export abstract class SchemeBase {
                 }
                 else if ('t' in schemeCell) {
                     this.createCellForTrigger(poss);
+                    this.contentCells[this.cellName(poss)] = poss;
                 }
                 else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
@@ -168,7 +172,7 @@ export abstract class SchemeBase {
     protected abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
-    protected abstract setColorToSemiconductorByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void;
+    protected abstract setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void;
     public abstract putSmile(logic: string) : void;
 
     // LIFE CYCLE
@@ -229,6 +233,14 @@ export abstract class SchemeBase {
                         method: 'setColorToRoadBySleepSemiconductor',
                         params: [false, this.contentCells[cellName]],
                         cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
+                    });
+                }
+                else if (cell.trigger && cell.trigger.color) {
+                    this.coloringCellCache(this.contentCells[cellName]).push({
+                        type: CONF.ST_TRIGGER,
+                        method: 'colorItAroundByTrigger',
+                        params: [this.contentCells[cellName]],
+                        cacheDirections: [RIGHT],
                     });
                 }
             }
@@ -328,9 +340,9 @@ export abstract class SchemeBase {
     private getCellForTrigger(poss: IPoss) : null | CellScheme {
         return this.getCellFor('trigger', poss);
     }
-    // public findCellOfTrigger(poss: IPoss) : null | ICellWithTrigger {
-    //     return this.findCellOf('trigger', poss) as null | ICellWithTrigger;
-    // }
+    public findCellOfTrigger(poss: IPoss) : null | ICellWithTrigger {
+        return this.findCellOf('trigger', poss) as null | ICellWithTrigger;
+    }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
         if (!this.isCellEmpty(poss)) {
@@ -655,7 +667,7 @@ export abstract class SchemeBase {
         }
     }
 
-    public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | SemiColor = null, skipStones: boolean = false) : boolean {
+    public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | ContentColor = null, skipStones: boolean = false) : boolean {
         SIDES.forEach((side: DirSide) => {
             let sideColor = this.colorForAwakeAtSide(HH[side](poss), skipStones);
             if (!sideColor) { return; }
@@ -670,7 +682,7 @@ export abstract class SchemeBase {
         return false === color;
     }
 
-    private colorForAwakeAtSide(poss: IPoss, skipStones: boolean) : SemiColor | null {
+    private colorForAwakeAtSide(poss: IPoss, skipStones: boolean) : ContentColor | null {
         let cell = this.findCell(poss);
         if (!cell) { return null; }
 
@@ -720,6 +732,10 @@ export abstract class SchemeBase {
                 (!cell.content.range.length ? '' :
                 ' ## ' +
                 cell.content.range.map(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
+        }
+        else if (cell.trigger) {
+            showInConsole =
+                'TRIGGER ' + (cell.trigger.color ? COLOR_DEV[cell.trigger.color] : '');
         }
         console.log(
             'devCellEcho',

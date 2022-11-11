@@ -1,9 +1,10 @@
 import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
-import {CellSemiconductor as SchemeSemi, CellSemiconductorType, SemiColor} from "../../Core/Types/CellSemiconductor";
+import {CellSemiconductor as SchemeSemi, CellSemiconductorType} from "../../Core/Types/CellSemiconductor";
 import {TT} from "../../config/textures";
 import { ST_ROAD_AWAKE, ST_ROAD_SLEEP } from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
+import {ContentColor} from "../../Core/Types/ColorTypes";
 
 type SpriteType = 'Awake' | 'Charge' | 'Flow';
 
@@ -79,7 +80,7 @@ export class CellSemiconductor {
         this['t' + spriteType] = this.colorToVarConstIx(schemeSemi['color' + spriteType]);
     }
 
-    private colorToVarConstIx(color: SemiColor) : number {
+    private colorToVarConstIx(color: ContentColor) : number {
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
     }

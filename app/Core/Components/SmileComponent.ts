@@ -1,7 +1,7 @@
 import * as CONF from "../../config/game";
 import {SIDES, UP, RIGHT, DOWN, LEFT} from "../../config/game";
 import {AbstractComponent} from "./AbstractComponent";
-import {SemiColor} from "../Types/CellSemiconductor";
+import {ContentColor} from "../Types/ColorTypes";
 import {DirSide} from "../Types/DirectionSide";
 import {IPoss} from "../IPoss";
 import {CellStoneType} from "../Types/CellStone";
@@ -18,7 +18,7 @@ export class SmileComponent extends AbstractComponent {
         this.refreshVisibleCell(cell.cellPosition.Right);
     }
 
-    public setColorToSmileByRoad(color: SemiColor, fromDir: DirSide, poss: IPoss) : void {
+    public setColorToSmileByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void {
         if (![LEFT, DOWN].includes(fromDir)) { return; }
         let cell = this.findCell(poss);
         if (!cell || !cell.smile || CONF.ST_SMILE_IN != cell.smile.type) { return; }
@@ -37,26 +37,26 @@ export class SmileComponent extends AbstractComponent {
         return true;
     }
 
-    private logicViolet(color: SemiColor) : boolean {
+    private logicViolet(color: ContentColor) : boolean {
         return color == CONF.COLOR_VIOLET_ROAD;
     }
-    private logicRed(color: SemiColor) : boolean {
+    private logicRed(color: ContentColor) : boolean {
         return color == CONF.COLOR_RED_ROAD;
     }
-    private logicIndigo(color: SemiColor) : boolean {
+    private logicIndigo(color: ContentColor) : boolean {
         return color == CONF.COLOR_INDIGO_ROAD;
     }
-    private logicOrange(color: SemiColor) : boolean {
+    private logicOrange(color: ContentColor) : boolean {
         return color == CONF.COLOR_ORANGE_ROAD;
     }
 
-    private logicSwitcherTrue(color: SemiColor) : boolean {
+    private logicSwitcherTrue(color: ContentColor) : boolean {
         let switcher = this.findCell({x: 800000012, y: 800000009});
         if (!switcher || !switcher.content) { return false; }
         return color == CONF.STONE_TYPE_TO_ROAD_COLOR[switcher.content.type];
     }
 
-    private logicSwitcherOpposite(color: SemiColor) : boolean {
+    private logicSwitcherOpposite(color: ContentColor) : boolean {
         let switcher = this.findCell({x: 800000012, y: 800000009});
         if (!switcher || !switcher.content || 2 != switcher.content.range.length) { return false; }
         let oppositeSwitcherType = [...switcher.content.range]

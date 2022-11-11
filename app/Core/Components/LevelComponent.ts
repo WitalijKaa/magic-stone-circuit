@@ -2,7 +2,7 @@ import * as CONF from "../../config/game";
 import {SIDES, UP, RIGHT, DOWN, LEFT} from "../../config/game";
 import {AbstractComponent} from "./AbstractComponent";
 import {LEVELS} from "../../config/levels";
-import {SemiColor} from "../Types/CellSemiconductor";
+import {ContentColor} from "../Types/ColorTypes";
 import {IPoss} from "../IPoss";
 
 export class LevelComponent extends AbstractComponent {
@@ -69,7 +69,7 @@ export class LevelComponent extends AbstractComponent {
         return this.logicWithTwoColors(CONF.COLOR_VIOLET_ROAD, CONF.COLOR_RED_ROAD);
     }
 
-    private async logicWithTwoColors(colorA: SemiColor, colorB: SemiColor) : Promise<boolean> {
+    private async logicWithTwoColors(colorA: ContentColor, colorB: ContentColor) : Promise<boolean> {
         let switcher = this.findCell({x: 800000012, y: 800000009});
         let smile = this.findCell({x: 800000023, y: 800000009});
 
@@ -123,13 +123,13 @@ export class LevelComponent extends AbstractComponent {
         });
     }
 
-    private async colorAwaiter(poss: IPoss) : Promise<SemiColor> {
+    private async colorAwaiter(poss: IPoss) : Promise<ContentColor> {
         let cell = this.findCell(poss);
         if (!cell?.smile) { return null; }
         return new Promise((resolve) => {
             let schemeLock = false;
 
-            cell!.smile!.event = (color: SemiColor) => {
+            cell!.smile!.event = (color: ContentColor) => {
                 schemeLock = true;
                 cell!.smile!.event = null;
                 setTimeout(() => { resolve(color); }, CONF.NANO_MS);
