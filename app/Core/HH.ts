@@ -15,6 +15,9 @@ export class HH {
     public static isSemiconductor(val: number) : boolean {
         return [CONF.ST_ROAD_SLEEP, CONF.ST_ROAD_AWAKE].includes(val);
     }
+    public static isTrigger(val: number) : boolean {
+        return CONF.ST_TRIGGER == val;
+    }
 
     public static rnd(min, max) {
         return Math.floor(Math.random() * (max - min) + min);

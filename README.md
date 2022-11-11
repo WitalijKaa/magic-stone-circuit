@@ -53,4 +53,5 @@ https://www.instagram.com/witalij.kaa/
 - Task 35: languages serbian ukrainian belorussian russian and english.
 - Task 36: filter buttons on levels. --D
 - Task 37: graphics optimizations one.
-- Task 38: wait for next vacation and update code very little... :(
+- Task 38: wait for next vacation and update code very little... :( --D
+- Task 39: trigger

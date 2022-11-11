@@ -31,7 +31,10 @@ export class SchemeFormatConverter {
                         schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
                     }
                 }
-                else if ('smile' in schemeCell && schemeCell.smile.view) {
+                else if ('trigger' in schemeCell && schemeCell.trigger) {
+                    schemeCopy[rr][cc] = { t: 1 };
+                }
+                else if ('smile' in schemeCell && schemeCell.smile?.view) {
                     schemeCopy[rr][cc] = { i: { l: schemeCell.smile.logic } };
                 }
             }

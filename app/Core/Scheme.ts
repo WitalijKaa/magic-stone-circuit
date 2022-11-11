@@ -3,7 +3,7 @@ import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
-import {CellStone, CellStoneType} from "./Types/CellStone";
+import {CellStoneType} from "./Types/CellStone";
 import {CellRoad, CellRoadPathType, CellRoadType, RoadChangeHistory, RoadChangeHistoryCell, RoadSavePathsArray} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {Axis, BuildRoadWays} from "./Types/BuildRoadWays";
@@ -14,15 +14,19 @@ import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {HH} from "./HH";
 import {CellScheme} from "./CellScheme";
 import {CellSemiconductorDirection, CellSemiconductorType, SemiColor} from "./Types/CellSemiconductor";
-import {Poss} from "./Poss";
 import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
+import {TriggerStrategy} from "./Scheme/TriggerStrategy";
 
 export class Scheme extends SchemeBase {
+
+    public trigger!: TriggerStrategy;
 
     protected initComponents() {
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
+
+        this.trigger = new TriggerStrategy(this);
     }
 
     public beforeAnyInput() {

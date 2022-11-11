@@ -13,12 +13,14 @@ import {MouseOver} from "../../Core/Behaviors/MouseOver";
 import {HH} from "../../Core/HH";
 import {CellSemiconductor} from "./CellSemiconductor";
 import {CellSmile} from "./CellSmile";
+import {CellTrigger} from "./CellTrigger";
 
 export class CellGrid extends CellAbstract {
 
     private cellContent: CellContent;
     private cellRoad: CellRoad;
     private cellSemiconductor: CellSemiconductor;
+    private cellTrigger: CellTrigger;
     private cellSmile: CellSmile;
 
     constructor(position: Cell, grid: SchemeGrid) {
@@ -27,6 +29,7 @@ export class CellGrid extends CellAbstract {
         this.cellContent = new CellContent(this);
         this.cellRoad = new CellRoad(this);
         this.cellSemiconductor = new CellSemiconductor(this);
+        this.cellTrigger = new CellTrigger(this);
         this.cellSmile = new CellSmile(this);
 
         this.on('click', () => { this.handleClick() });
@@ -73,6 +76,10 @@ export class CellGrid extends CellAbstract {
 
                 this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
             }
+            else if (HH.isTrigger(this.grid.controlPen)) {
+                this.scheme.anyClick(this.schemePosition);
+                this.scheme.trigger.put(this.schemePosition);
+            }
             else if (CONF.ST_EMPTY == this.grid.controlPen) {
                 this.scheme.removeContent(this.schemePosition);
                 this.scheme.removeRoad(this.schemePosition);
@@ -96,5 +103,6 @@ export class CellGrid extends CellAbstract {
         this.cellContent.updateVisibleStone();
         this.cellRoad.updateVisibleRoad();
         this.cellSemiconductor.updateVisibleSemiconductor();
+        this.cellTrigger.updateVisibleTrigger();
     }
 }

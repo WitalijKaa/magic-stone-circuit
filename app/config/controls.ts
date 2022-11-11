@@ -26,6 +26,10 @@ export const CONTROL_KEYS = {
     'P': CONF.ST_STONE_VIOLET,
     'o': CONF.ST_STONE_INDIGO,
     'O': CONF.ST_STONE_INDIGO,
+    'z': CONF.ST_TRIGGER,
+    'Z': CONF.ST_TRIGGER,
+    'я': CONF.ST_TRIGGER,
+    'Я': CONF.ST_TRIGGER,
 }
 
 export const CONTROL_EVENTS_KEYS = {

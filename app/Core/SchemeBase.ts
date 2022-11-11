@@ -20,6 +20,7 @@ import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 import {Cell} from "./Cell";
 import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
+import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -71,7 +72,7 @@ export abstract class SchemeBase {
     private _saveToStorageCallback: () => void = () => {};
     public setSaveToStorageMethod(saveToStorage: () => void) : void { this._saveToStorageCallback = saveToStorage; }
 
-    protected afterChange() : void {
+    public afterChange() : void {
         this._saveToStorageCallback();
     }
 
@@ -115,6 +116,9 @@ export abstract class SchemeBase {
                     this.getCellForStoneForced(poss, { type: schemeCell.c.t, range: range });
                     this.contentCells[this.cellName(poss)] = poss;
                     toAwake.push([poss, schemeCell.c.t])
+                }
+                else if ('t' in schemeCell) {
+                    this.createCellForTrigger(poss);
                 }
                 else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
@@ -312,6 +316,21 @@ export abstract class SchemeBase {
     public findCellOfSemiconductor(poss: IPoss) : null | ICellWithSemiconductor {
         return this.findCellOf('semiconductor', poss) as null | ICellWithSemiconductor;
     }
+
+    public createCellForTrigger(poss: IPoss) : boolean {
+        let cell = this.getCellForTrigger(poss);
+        if (cell) {
+            cell.trigger = { color: null };
+            return true;
+        }
+        return false;
+    }
+    private getCellForTrigger(poss: IPoss) : null | CellScheme {
+        return this.getCellFor('trigger', poss);
+    }
+    // public findCellOfTrigger(poss: IPoss) : null | ICellWithTrigger {
+    //     return this.findCellOf('trigger', poss) as null | ICellWithTrigger;
+    // }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
         if (!this.isCellEmpty(poss)) {

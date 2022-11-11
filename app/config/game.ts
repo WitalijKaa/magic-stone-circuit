@@ -56,7 +56,7 @@ export const ST_STONE_RED = 2;
 export const ST_STONE_INDIGO = 3;
 export const ST_STONE_ORANGE = 4;
 
-export const ST_ENERGY = 5;
+export const ST_TRIGGER = 5;
 export const ST_ROAD = 6;
 export const ST_ROAD_SLEEP = 7;
 export const ST_ROAD_AWAKE = 8;
@@ -69,7 +69,13 @@ export const CONTENT_SPRITES = {
     [ST_STONE_RED]: TT.stoneR,
     [ST_STONE_INDIGO]: TT.stoneI,
     [ST_STONE_ORANGE]: TT.stoneO,
-    //[ST_ENERGY]: TT.energy,
+};
+
+export const TRIGGER_SPRITES = {
+    [COLOR_VIOLET_ROAD]: TT.triggerNull,
+    [COLOR_RED_ROAD]: TT.triggerNull,
+    [COLOR_INDIGO_ROAD]: TT.triggerNull,
+    [COLOR_ORANGE_ROAD]: TT.triggerNull,
 };
 
 export const STONE_TYPE_TO_ROAD_COLOR = {

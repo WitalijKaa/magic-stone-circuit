@@ -36,6 +36,7 @@ export const TT = {
     semiFlowR: 'resources/40/semi_flow_red.png',
     semiFlowI: 'resources/40/semi_flow_indigo.png',
     semiFlowO: 'resources/40/semi_flow_orange.png',
+    triggerNull: 'resources/40/trigger_null.png',
     sleepAwake: 'resources/40/sleep_awake.png',
     sleepAwakeV: 'resources/40/sleep_awake_violet.png',
     sleepAwakeR: 'resources/40/sleep_awake_red.png',
