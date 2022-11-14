@@ -65,7 +65,7 @@ export class SchemeGrid implements IVisibleGrid {
 
     public changeScale(change: number) {
         let nextScale = this.scale + change;
-        if (nextScale > 4) { nextScale = 4; }
+        if (nextScale > 3) { nextScale = 3; }
         if (nextScale < 1) { nextScale = 1; }
 
         if (nextScale == this.scale) { return; }

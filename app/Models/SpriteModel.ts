@@ -2,6 +2,7 @@ import {Sprite} from '@pixi/sprite';
 import {TextureProvider} from "../Core/TextureProvider";
 import {DisplayModel} from "./DisplayModel";
 import {Colorizer} from "./Colorizer";
+import {SchemeContainer} from "./Scheme/SchemeContainer";
 
 export class SpriteModel extends DisplayModel {
 
@@ -57,15 +58,15 @@ export class SpriteModel extends DisplayModel {
         if (this.isNormalSize) {
             this.isNormalSize = false;
             this.model.anchor.set(1, 1);
-            this.model.width = this.model.height = 80;
-            this.sizeOffset = 40;
+            this.model.width = this.model.height = SchemeContainer.pxCell * 2;
+            this.sizeOffset = SchemeContainer.pxCell;
             this.model.x += this.sizeOffset;
             this.model.y += this.sizeOffset;
         }
         else {
             this.isNormalSize = true;
             this.model.anchor.set(0, 0);
-            this.model.width = this.model.height = 40;
+            this.model.width = this.model.height = SchemeContainer.pxCell;
             this.model.x -= this.sizeOffset;
             this.model.y -= this.sizeOffset;
             this.sizeOffset = 0;

@@ -21,10 +21,6 @@ export const COLOR_VIOLET_ROAD = 0x7e57c2;
 export const COLOR_RED_ROAD = 0xe53935;
 export const COLOR_INDIGO_ROAD = 0x3949ab;
 export const COLOR_ORANGE_ROAD = 0xffa726;
-export const COLOR_VIOLET_ROAD_LIGHT = 0xb39ddb;
-export const COLOR_RED_ROAD_LIGHT = 0xe57373;
-export const COLOR_INDIGO_ROAD_LIGHT = 0x5c6bc0;
-export const COLOR_ORANGE_ROAD_LIGHT = 0xffcc80;
 export const COLOR_DARK_SMILE = 0x37474f;
 
 export const UP = 'Up';
@@ -91,13 +87,6 @@ export const COLOR_TO_STONE_TYPE = {
     [COLOR_RED_ROAD]: ST_STONE_RED,
     [COLOR_INDIGO_ROAD]: ST_STONE_INDIGO,
     [COLOR_ORANGE_ROAD]: ST_STONE_ORANGE,
-} as const;
-
-export const ROAD_TO_LIGHT_COLOR = {
-    [COLOR_VIOLET_ROAD]: COLOR_VIOLET_ROAD_LIGHT,
-    [COLOR_RED_ROAD]: COLOR_RED_ROAD_LIGHT,
-    [COLOR_INDIGO_ROAD]: COLOR_INDIGO_ROAD_LIGHT,
-    [COLOR_ORANGE_ROAD]: COLOR_ORANGE_ROAD_LIGHT,
 } as const;
 
 // type BuildRoadWays

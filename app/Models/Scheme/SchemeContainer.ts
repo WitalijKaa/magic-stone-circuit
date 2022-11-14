@@ -6,17 +6,18 @@ export class SchemeContainer {
         this.element = element;
     }
 
-    private scaleSize = 40;
+    private static scaleSize = 32;
 
     public changeScale(scale: SchemeScaleSize) {
-        if (1 == scale) { this.scaleSize = 40; }
-        if (2 == scale) { this.scaleSize = 32; }
-        if (3 == scale) { this.scaleSize = 16; }
-        if (4 == scale) { this.scaleSize = 8; }
+        if (1 == scale) { SchemeContainer.scaleSize = 32; }
+        if (2 == scale) { SchemeContainer.scaleSize = 16; }
+        if (3 == scale) { SchemeContainer.scaleSize = 8; }
     }
 
+    public static get pxCell() : number { return SchemeContainer.scaleSize; }
+
     get cellSizePx() : number {
-        return this.scaleSize;
+        return SchemeContainer.scaleSize;
     }
     get widthCells() : number {
         return Math.floor(this.element.offsetWidth / this.cellSizePx);
