@@ -10,9 +10,9 @@ In my most cherished dreams, I really wanted to be a pioneer. Create the first t
 
 I decided to try to make a computer game about logic circuits. It will have other laws of physics, which, with a certain imagination, will give me the opportunity to consider myself as a pioneer.
 
-## history of project and some guides
+## guides
 
-https://www.instagram.com/witalij.kaa/
+https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 
 ## development
 

@@ -51,6 +51,7 @@ export const OVER_CENTER = 'Center';
 
 // SCENE
 
+export const ST_STUB = 0;
 export const ST_STONE_VIOLET = 1;
 export const ST_STONE_RED = 2;
 export const ST_STONE_INDIGO = 3;

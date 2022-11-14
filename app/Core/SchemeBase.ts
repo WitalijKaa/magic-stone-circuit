@@ -57,7 +57,7 @@ export abstract class SchemeBase {
 
     protected contentCells: { [key: string]: IPoss } = {};
     protected cacheColorings: { [key: string]: Array<ColorCellCache> } = {};
-    protected activeCacheColorings: Array<ColorCellCache> = [];
+    protected activeCacheColorings: { [key: string]: Array<ColorCellCache> } = {};
     protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
@@ -186,18 +186,18 @@ export abstract class SchemeBase {
         }
         else {
             let roadColoringProcess = false;
-            this.activeCacheColorings = this.extractCacheActions();
 
-            this.activeCacheColorings.map((cache: ColorCellCache) => {
-                if (!this.activeCacheColorings.length) {
-                    return;
-                }
+            this.activeCacheColorings = this.cacheColorings;
+            this.cacheColorings = {};
 
-                if (cache.method == 'execMoveColorToNextPaths') {
-                    roadColoringProcess = true;
+            for (let cacheName in this.activeCacheColorings) {
+                for (let cache of this.activeCacheColorings[cacheName]) {
+                    if (cache.method == 'execMoveColorToNextPaths') {
+                        roadColoringProcess = true;
+                    }
+                    this[cache.method](...cache.params);
                 }
-                this[cache.method](...cache.params);
-            })
+            }
             this.updateTickContent();
 
             if (roadColoringProcess) {
@@ -252,17 +252,6 @@ export abstract class SchemeBase {
                 }
             }
         }
-    }
-
-    extractCacheActions() {
-        let cacheColorings: Array<ColorCellCache> = [];
-        for (let cName in this.cacheColorings) {
-            if (this.cacheColorings[cName] && this.cacheColorings[cName].length) {
-                cacheColorings.push(...this.cacheColorings[cName].splice(0))
-                delete(this.cacheColorings[cName]);
-            }
-        }
-        return cacheColorings;
     }
 
     // UPDATE pause
@@ -658,7 +647,7 @@ export abstract class SchemeBase {
     removeColoringCellCache(poss: IPoss) {
         let name = this.cellName(poss);
         if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
-        this.activeCacheColorings = [];
+        if (this.activeCacheColorings[name]) { delete this.activeCacheColorings[name]; }
     }
 
     canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
@@ -670,11 +659,21 @@ export abstract class SchemeBase {
                 let cache = this.cacheColorings[name][ix];
                 if (cache.cacheDirections.includes((toDir))) {
                     this.cacheColorings[name].splice(ix, 1);
+
+                    if (this.activeCacheColorings[name] && this.activeCacheColorings[name][ix]) {
+                        this.activeCacheColorings[name][ix] = {
+                            type: CONF.ST_STUB,
+                            method: 'emptyCacheAction',
+                            params: [],
+                            cacheDirections: [...CONF.SIDES],
+                        }
+                    }
                 }
             }
         }
-        this.activeCacheColorings = [];
     }
+
+    emptyCacheAction() { }
 
     public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | ContentColor = null, skipStones: boolean = false) : boolean {
         SIDES.forEach((side: DirSide) => {
