@@ -3,7 +3,7 @@ import {Container} from '@pixi/display';
 import {Rectangle} from '@pixi/math';
 import {CellGrid} from "../Cell/CellGrid";
 import {Scheme} from "../../Core/Scheme";
-import {SchemeContainer} from "./SchemeContainer";
+import {SchemeContainer, SchemeScaleSize} from "./SchemeContainer";
 import {Size} from "../../Core/Size";
 import {Cell} from "../../Core/Cell";
 import {MouseDrag} from "../../Core/Behaviors/MouseDrag";
@@ -23,13 +23,14 @@ export class SchemeGrid implements IVisibleGrid {
     containerFront: Container;
     grid!: Array<Array<CellGrid>>
 
+    scale: SchemeScaleSize = 1;
     dragX: number;
     dragY: number;
     offsetX: number = 0;
     offsetY: number = 0;
 
     mouseLock = false;
-    private pointedCellZone: CellPointer;
+    private pointedCellZone!: CellPointer;
 
     private controlPenCode: any = CONF.ST_STONE_VIOLET;
 
@@ -46,16 +47,38 @@ export class SchemeGrid implements IVisibleGrid {
         this.containerFront = new Container();
 
         this.dragX = this.dragY = scheme.sizeRadius;
-        this.createGrid();
 
         new MouseDrag(new ContainerModel(this.container), this, { [MouseDrag.DRAGGING_RIGHT]: 'dragGridPx' });
-
         new MouseOver(new ContainerModel(this.container), this, { [MouseOver.MOUSE_MOVE]: 'handleMouseMove' });
+
+        this.createScaledGrid();
+
+        setTimeout(() => { this.scheme.updateTickInit(); }, CONF.START_TIMEOUT);
+    }
+
+    public createScaledGrid() {
+        this.createGrid();
         this.pointedCellZone = new CellPointer(this);
         this.pointedCellZone.setSize(this.cellSizePx);
         this.containerFront.addChild(this.pointedCellZone.model);
+    }
 
-        setTimeout(() => { this.scheme.updateTickInit(); }, CONF.START_TIMEOUT);
+    public changeScale(change: number) {
+        let nextScale = this.scale + change;
+        if (nextScale > 4) { nextScale = 4; }
+        if (nextScale < 1) { nextScale = 1; }
+
+        if (nextScale == this.scale) { return; }
+        this.scale = nextScale as SchemeScaleSize;
+
+        this.container.children.map((child) => { child.destroy(); })
+        this.containerFront.children.map((child) => { child.destroy(); })
+
+        this.container.removeChildren();
+        this.containerFront.removeChildren();
+        this.htmlContainer.changeScale(this.scale);
+        this.createScaledGrid();
+        this.refreshAllCells();
     }
 
     private addCellToStage(cell: SpriteModel | ContainerModel) : void {

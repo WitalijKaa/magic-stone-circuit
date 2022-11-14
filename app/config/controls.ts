@@ -17,12 +17,8 @@ export const CONTROL_KEYS = {
     '9': CONF.ST_TRIGGER,
     'q': CONF.ST_EMPTY,
     'Q': CONF.ST_EMPTY,
-    'x': CONF.ST_EMPTY,
-    'X': CONF.ST_EMPTY,
     'й': CONF.ST_EMPTY,
     'Й': CONF.ST_EMPTY,
-    'ч': CONF.ST_EMPTY,
-    'Ч': CONF.ST_EMPTY,
     'p': CONF.ST_STONE_VIOLET,
     'P': CONF.ST_STONE_VIOLET,
     'o': CONF.ST_STONE_INDIGO,
@@ -53,6 +49,14 @@ export const CONTROL_EVENTS_KEYS = {
     'C': 'setVisualCenter',
     'с': 'setVisualCenter',
     'С': 'setVisualCenter',
+    'z': 'scaleIncrease',
+    'Z': 'scaleIncrease',
+    'я': 'scaleIncrease',
+    'Я': 'scaleIncrease',
+    'x': 'scaleDecrease',
+    'X': 'scaleDecrease',
+    'ч': 'scaleDecrease',
+    'Ч': 'scaleDecrease',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];

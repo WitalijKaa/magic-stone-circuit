@@ -55,3 +55,4 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 37: graphics optimizations one.
 - Task 38: wait for next vacation and update code very little... :( --D
 - Task 39: trigger --D
+- Task 40: scale

@@ -1165,4 +1165,7 @@ export class Scheme extends SchemeBase {
     }
 
     public putSmile(logic: string = 'True') : void { this.cSmile.putSmile(logic); }
+
+    public scaleIncrease() { this.visibleGrid.changeScale(-1); }
+    public scaleDecrease() { this.visibleGrid.changeScale(1); }
 }
