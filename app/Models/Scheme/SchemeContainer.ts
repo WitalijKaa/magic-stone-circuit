@@ -1,3 +1,5 @@
+import {textureTrick} from "../../config/textures";
+
 export type SchemeScaleSize = 1 | 2 | 3 | 4;
 
 export class SchemeContainer {
@@ -12,6 +14,7 @@ export class SchemeContainer {
         if (1 == scale) { SchemeContainer.scaleSize = 32; }
         if (2 == scale) { SchemeContainer.scaleSize = 16; }
         if (3 == scale) { SchemeContainer.scaleSize = 8; }
+        textureTrick.changeSize(SchemeContainer.scaleSize);
     }
 
     public static get pxCell() : number { return SchemeContainer.scaleSize; }

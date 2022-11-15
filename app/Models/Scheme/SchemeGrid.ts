@@ -16,7 +16,6 @@ import {Poss} from "../../Core/Poss";
 import {IPoss} from "../../Core/IPoss";
 import {IVisibleGrid} from "../../Core/Interfaces/IVisibleGrid";
 import {CONTROL_EVENTS_KEYS} from "../../config/controls";
-import {HH} from "../../Core/HH";
 
 export class SchemeGrid implements IVisibleGrid {
 
@@ -204,7 +203,6 @@ export class SchemeGrid implements IVisibleGrid {
         let cellsOffset: Poss = [0, 0];
         if (Math.abs(this.offsetX) > this.cellSizePx) {
             let mult = Math.ceil(Math.abs(this.offsetX) / this.cellSizePx);
-            console.log(mult);
             let dir = this.offsetX < 0 ? mult : -1 * mult;
             cellsOffset[0] = dir;
             this.offsetX += dir * this.cellSizePx;

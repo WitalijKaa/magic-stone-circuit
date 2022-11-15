@@ -1,4 +1,4 @@
-import {TT} from "../config/textures";
+import {textureTrick} from "../config/textures";
 import {Loader} from 'pixi.js';
 import {Texture} from '@pixi/core';
 
@@ -12,13 +12,15 @@ export class TextureProvider {
     }
 
     public loadTextures(onComplete) {
-        for (let name in TT) {
-            this.loader.add(name, TT[name]);
+        let textures = textureTrick.getAll();
+
+        for (let name in textures) {
+            this.loader.add(name, textures[name]);
         }
         this.loader.onComplete.add((loader, resources) => {
-            for (let name in TT) {
+            for (let name in textures) {
                 // @ts-ignore
-                this.resources[TT[name]] = resources[name].texture;
+                this.resources[textures[name]] = resources[name].texture;
             }
         });
 
