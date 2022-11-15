@@ -77,6 +77,14 @@ export class SchemeGrid implements IVisibleGrid {
         this.container.removeChildren();
         this.containerFront.removeChildren();
         this.htmlContainer.changeScale(this.scale);
+
+        if (this.lastMouseMovePositions) {
+            let nextLocalX = Math.floor((this.lastMouseMovePositions.pxGlobal[0] - this.offsetX) / this.cellSizePx);
+            let nextLocalY = Math.floor((this.lastMouseMovePositions.pxGlobal[1] - this.offsetY) / this.cellSizePx);
+            this.dragX = this.lastMouseMovePositions.globalGrid[0] - nextLocalX;
+            this.dragY = this.lastMouseMovePositions.globalGrid[1] - nextLocalY;
+        }
+
         this.createScaledGrid();
         this.refreshAllCells();
     }
@@ -259,6 +267,7 @@ export class SchemeGrid implements IVisibleGrid {
         let localY = Math.floor((pxGlobalY - this.offsetY) / this.cellSizePx);
         let cellY = Math.floor((pxGlobalY - this.offsetY) - (localY * this.cellSizePx));
         return {
+            pxGlobal: [pxGlobalX, pxGlobalY],
             localGrid: [localX + CONF.GRID_OFFSET, localY + CONF.GRID_OFFSET],
             globalGrid: [localX + this.dragX, localY + this.dragY],
             localCellPx: [cellX, cellY],

@@ -49,14 +49,14 @@ export const CONTROL_EVENTS_KEYS = {
     'C': 'setVisualCenter',
     'с': 'setVisualCenter',
     'С': 'setVisualCenter',
-    'z': 'scaleIncrease',
-    'Z': 'scaleIncrease',
-    'я': 'scaleIncrease',
-    'Я': 'scaleIncrease',
-    'x': 'scaleDecrease',
-    'X': 'scaleDecrease',
-    'ч': 'scaleDecrease',
-    'Ч': 'scaleDecrease',
+    'x': 'scaleIncrease',
+    'X': 'scaleIncrease',
+    'ч': 'scaleIncrease',
+    'Ч': 'scaleIncrease',
+    'z': 'scaleDecrease',
+    'Z': 'scaleDecrease',
+    'я': 'scaleDecrease',
+    'Я': 'scaleDecrease',
 }
 
 export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];

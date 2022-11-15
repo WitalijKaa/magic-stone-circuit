@@ -92,8 +92,7 @@ export class CellGrid extends CellAbstract {
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
-    get visiblePosition() { return [this.gridX + CONF.GRID_OFFSET, this.gridY + CONF.GRID_OFFSET]; }
-    get schemePosition() : IPoss { return {x: this.grid.dragX + this.gridX, y: this.grid.dragY + this.gridY}; }
+    get schemePosition() : IPoss { return { x: this.grid.dragX + this.gridX, y: this.grid.dragY + this.gridY }; }
 
     get scheme() { return this.grid.scheme; }
     get schemeCell() : null | CellScheme { return this.grid.scheme.findCell(this.schemePosition) }
