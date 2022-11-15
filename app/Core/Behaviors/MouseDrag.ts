@@ -8,7 +8,7 @@ export class MouseDrag {
 
     events = {};
 
-    isDrag = false;
+    isDrag: boolean = false;
     button;
     startX!: number; startY!: number;
     draggedX!: number; draggedY!: number;
@@ -18,6 +18,8 @@ export class MouseDrag {
         this.model.on('pointerdown', (event) => { this.handleMoveStart(event) });
         this.model.on('pointermove', (event) => { this.handleMove(event) });
         this.model.on('pointerup', (event) => { this.handleMoveEnd(event) });
+        document.addEventListener('mouseup', (event) => { this.handleMoveEnd(event); }, false);
+        document.addEventListener('mouseleave', (event) => { this.handleMoveOutside(event); }, false);
 
         for (let eventName in config) {
             this.events[eventName] = (...args) => { subscriber[config[eventName]](...args); }
@@ -50,6 +52,12 @@ export class MouseDrag {
     }
 
     handleMoveEnd(event) {
+        if (this.isDrag) {
+            this.isDrag = false;
+        }
+    }
+
+    handleMoveOutside(event) {
         if (this.isDrag) {
             this.isDrag = false;
         }
