@@ -28,6 +28,7 @@ import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
 import {TriggerComponent} from "./Components/TriggerComponent";
 import {ContentColor} from "./Types/ColorTypes";
+import {SpeedComponent} from "./Components/SpeedComponent";
 
 export class Scheme extends SchemeBase {
 
@@ -35,6 +36,7 @@ export class Scheme extends SchemeBase {
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
         this.cTrigger = new TriggerComponent(this);
+        this.cSpeed = new SpeedComponent(this);
     }
 
     public beforeAnyInput() {
@@ -54,6 +56,12 @@ export class Scheme extends SchemeBase {
     public removeContentCell(poss: IPoss) {
         delete(this.contentCells[this.cellName(poss)]);
     }
+
+    /** SPEEDers **/
+
+    public putSpeed(poss: IPoss) { this.cSpeed.put(poss); }
+
+    public removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
 
     /** TRIGGERs **/
 

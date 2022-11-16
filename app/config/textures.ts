@@ -83,6 +83,11 @@ const TEXTURES = {
     sleepFlowRTurn: 'resources/----/WRT_flow.png',
     sleepFlowITurn: 'resources/----/WIT_flow.png',
     sleepFlowOTurn: 'resources/----/WOT_flow.png',
+    speed: 'resources/----/F.png',
+    speedV: 'resources/----/FV.png',
+    speedR: 'resources/----/FR.png',
+    speedI: 'resources/----/FI.png',
+    speedO: 'resources/----/FO.png',
     switcher: 'resources/----/road_switcher.png',
     smile: 'resources/----/smile.png',
 }

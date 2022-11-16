@@ -34,6 +34,9 @@ export class SchemeFormatConverter {
                 else if ('trigger' in schemeCell && schemeCell.trigger) {
                     schemeCopy[rr][cc] = { t: 1 };
                 }
+                else if ('speed' in schemeCell && schemeCell.speed) {
+                    schemeCopy[rr][cc] = { f: { t: schemeCell.speed.to } };
+                }
                 else if ('smile' in schemeCell && schemeCell.smile?.view) {
                     schemeCopy[rr][cc] = { i: { l: schemeCell.smile.logic } };
                 }

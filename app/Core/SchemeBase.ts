@@ -23,6 +23,8 @@ import {LevelComponent} from "./Components/LevelComponent";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {TriggerComponent} from "./Components/TriggerComponent";
 import {ContentColor} from "./Types/ColorTypes";
+import {SpeedComponent} from "./Components/SpeedComponent";
+import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -49,6 +51,7 @@ export abstract class SchemeBase {
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
     protected cTrigger!: TriggerComponent;
+    protected cSpeed!: SpeedComponent;
 
     scheme: SchemeInstanceStructure = {};
     visibleGrid!: IVisibleGrid;
@@ -123,6 +126,10 @@ export abstract class SchemeBase {
                 }
                 else if ('t' in schemeCell) {
                     this.createCellForTrigger(poss);
+                    this.contentCells[this.cellName(poss)] = poss;
+                }
+                else if ('f' in schemeCell) {
+                    this.createCellForSpeed(poss, schemeCell.f.t);
                     this.contentCells[this.cellName(poss)] = poss;
                 }
                 else if ('i' in schemeCell) {
@@ -338,6 +345,21 @@ export abstract class SchemeBase {
     }
     public findCellOfTrigger(poss: IPoss) : null | ICellWithTrigger {
         return this.findCellOf('trigger', poss) as null | ICellWithTrigger;
+    }
+
+    public createCellForSpeed(poss: IPoss, toSide: DirSide) : boolean {
+        let cell = this.getCellForSpeed(poss);
+        if (cell) {
+            cell.speed = { to: toSide, color: null };
+            return true;
+        }
+        return false;
+    }
+    private getCellForSpeed(poss: IPoss) : null | CellScheme {
+        return this.getCellFor('speed', poss);
+    }
+    public findCellOfSpeed(poss: IPoss) : null | ICellWithSpeed {
+        return this.findCellOf('speed', poss) as null | ICellWithSpeed;
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
@@ -581,7 +603,7 @@ export abstract class SchemeBase {
         if (road.paths[pathType]) { road.paths[pathType] = true; }
     }
 
-    protected cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
+    public cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             this.cancelRoadColorPathBySide(side, poss);
             //this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));

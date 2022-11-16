@@ -6,18 +6,11 @@ import {LEFT, RIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/
 
 export class HH {
 
-    public static isStone(val: number) : boolean {
-        return [CONF.ST_STONE_VIOLET, CONF.ST_STONE_RED, CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE].includes(val);
-    }
-    public static isRoad(val: number) : boolean {
-        return CONF.ST_ROAD == val;
-    }
-    public static isSemiconductor(val: number) : boolean {
-        return [CONF.ST_ROAD_SLEEP, CONF.ST_ROAD_AWAKE].includes(val);
-    }
-    public static isTrigger(val: number) : boolean {
-        return CONF.ST_TRIGGER == val;
-    }
+    public static isStone(val: number) : boolean { return [CONF.ST_STONE_VIOLET, CONF.ST_STONE_RED, CONF.ST_STONE_INDIGO, CONF.ST_STONE_ORANGE].includes(val); }
+    public static isRoad(val: number) : boolean { return CONF.ST_ROAD == val; }
+    public static isSemiconductor(val: number) : boolean { return [CONF.ST_ROAD_SLEEP, CONF.ST_ROAD_AWAKE].includes(val); }
+    public static isTrigger(val: number) : boolean { return CONF.ST_TRIGGER == val; }
+    public static isSpeed(val: number) : boolean { return CONF.ST_SPEED == val; }
 
     public static rnd(min, max) {
         return Math.floor(Math.random() * (max - min) + min);

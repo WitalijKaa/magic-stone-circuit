@@ -15,6 +15,7 @@ import {IPoss} from "./IPoss";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSmile} from "./Types/CellSmile";
 import {CellTrigger} from "./Types/CellTrigger";
+import {CellSpeed} from "./Types/CellSpeed";
 
 export class CellScheme implements ICellScheme {
 
@@ -25,6 +26,7 @@ export class CellScheme implements ICellScheme {
     road: CellRoad | null = null;
     semiconductor: CellSemiconductor | null = null;
     trigger: CellTrigger | null = null;
+    speed: CellSpeed | null = null;
     smile: CellSmile | null = null;
 
     constructor(x: number, y: number, scheme: SchemeBase) {

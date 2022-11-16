@@ -14,6 +14,7 @@ import {HH} from "../../Core/HH";
 import {CellSemiconductor} from "./CellSemiconductor";
 import {CellSmile} from "./CellSmile";
 import {CellTrigger} from "./CellTrigger";
+import {CellSpeed} from "./CellSpeed";
 
 export class CellGrid extends CellAbstract {
 
@@ -21,6 +22,7 @@ export class CellGrid extends CellAbstract {
     private cellRoad: CellRoad;
     private cellSemiconductor: CellSemiconductor;
     private cellTrigger: CellTrigger;
+    private cellSpeed: CellSpeed;
     private cellSmile: CellSmile;
 
     constructor(position: Cell, grid: SchemeGrid) {
@@ -30,6 +32,7 @@ export class CellGrid extends CellAbstract {
         this.cellRoad = new CellRoad(this);
         this.cellSemiconductor = new CellSemiconductor(this);
         this.cellTrigger = new CellTrigger(this);
+        this.cellSpeed = new CellSpeed(this);
         this.cellSmile = new CellSmile(this);
 
         this.on('click', () => { this.handleClick() });
@@ -79,11 +82,16 @@ export class CellGrid extends CellAbstract {
                 this.scheme.anyClick(this.schemePosition);
                 this.scheme.putTrigger(this.schemePosition);
             }
+            else if (HH.isSpeed(this.grid.controlPen)) {
+                this.scheme.anyClick(this.schemePosition);
+                this.scheme.putSpeed(this.schemePosition);
+            }
             else if (CONF.ST_EMPTY == this.grid.controlPen) {
                 this.scheme.removeContent(this.schemePosition);
                 this.scheme.removeRoad(this.schemePosition);
                 this.scheme.putSemiconductor(null, this.schemePosition);
                 this.scheme.removeTrigger(this.schemePosition);
+                this.scheme.removeSpeed(this.schemePosition);
             }
         }
     }
@@ -103,5 +111,6 @@ export class CellGrid extends CellAbstract {
         this.cellRoad.updateVisibleRoad();
         this.cellSemiconductor.updateVisibleSemiconductor();
         this.cellTrigger.updateVisibleTrigger();
+        this.cellSpeed.updateVisibleSpeed();
     }
 }

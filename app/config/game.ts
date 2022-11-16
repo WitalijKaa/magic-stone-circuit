@@ -22,6 +22,12 @@ export const COLOR_RED_ROAD = 0xe53935;
 export const COLOR_INDIGO_ROAD = 0x3949ab;
 export const COLOR_ORANGE_ROAD = 0xffa726;
 export const COLOR_DARK_SMILE = 0x37474f;
+export const COLOR_IX_STR = {
+    [COLOR_VIOLET_ROAD]: 'V',
+    [COLOR_RED_ROAD]: 'R',
+    [COLOR_INDIGO_ROAD]: 'I',
+    [COLOR_ORANGE_ROAD]: 'O',
+}
 
 export const UP = 'Up';
 export const RIGHT = 'Right';
@@ -37,6 +43,12 @@ export const SIDES_TURN_90 = {
     [LEFT]: SIDES_UP_DOWN,
     [RIGHT]: SIDES_UP_DOWN,
 } as const;
+export const SIDES_TURN_BY_CLOCK = {
+    [UP]: RIGHT,
+    [DOWN]: LEFT,
+    [LEFT]: UP,
+    [RIGHT]: DOWN,
+} as const;
 export const OPPOSITE_SIDE = {
     [UP]: DOWN,
     [DOWN]: UP,
@@ -44,6 +56,13 @@ export const OPPOSITE_SIDE = {
     [RIGHT]: LEFT,
 } as const;
 export const OVER_CENTER = 'Center';
+
+export const ROTATE_FOR_ORIGINAL_RIGHT = { // if original sprite is rotated to right
+    [UP]: PIXI_ROTATE_LEFT,
+    [DOWN]: PIXI_ROTATE_RIGHT,
+    [LEFT]: PIXI_ROTATE_DOWN,
+    [RIGHT]: PIXI_ROTATE_UP,
+} as const;
 
 // SCENE
 
@@ -59,6 +78,7 @@ export const ST_ROAD_SLEEP = 7;
 export const ST_ROAD_AWAKE = 8;
 export const ST_SMILE = 9;
 export const ST_SMILE_IN = 10;
+export const ST_SPEED = 11;
 export const ST_EMPTY = 'q';
 
 export const CONTENT_SPRITES = {
