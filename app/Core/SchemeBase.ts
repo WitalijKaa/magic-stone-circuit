@@ -180,7 +180,6 @@ export abstract class SchemeBase {
     protected abstract buildRoadTick() : void;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
-    protected abstract setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void;
     public abstract putSmile(logic: string) : void;
 
     // LIFE CYCLE
@@ -614,7 +613,6 @@ export abstract class SchemeBase {
     public cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             this.cancelRoadColorPathBySide(side, poss);
-            //this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
         });
     }
 
@@ -659,13 +657,13 @@ export abstract class SchemeBase {
 
     // COLORS
 
-    coloringCellCache(poss: IPoss) : Array<ColorCellCache> {
+    public coloringCellCache(poss: IPoss) : Array<ColorCellCache> {
         let name = this.cellName(poss);
         if (!this.cacheColorings[name]) { this.cacheColorings[name] = []; }
         return this.cacheColorings[name];
     }
 
-    removeColoringCellCache(poss: IPoss) {
+    public removeColoringCellCache(poss: IPoss) {
         let name = this.cellName(poss);
         if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
         if (this.activeCacheColorings[name]) { delete this.activeCacheColorings[name]; }
@@ -768,7 +766,7 @@ export abstract class SchemeBase {
         }
         else if (cell.speed) {
             showInConsole =
-                'SPEED ' + (cell.speed.color ? COLOR_DEV[cell.speed.color] + ' ' : ' ') + cell.speed.to;
+                'SPEED ' + (cell.speed.color ? COLOR_DEV[cell.speed.color] + ' ' : '') + cell.speed.to;
         }
         console.log(
             'devCellEcho',

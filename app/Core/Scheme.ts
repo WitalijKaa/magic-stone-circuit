@@ -51,7 +51,7 @@ export class Scheme extends SchemeBase {
     /** SPEEDers **/
     public putSpeed(poss: IPoss) { this.cSpeed.put(poss); }
     public removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
-    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorItByTick(poss); }
+    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorAroundByTick(poss); }
 
     /** TRIGGERs **/
     public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }
@@ -1026,8 +1026,9 @@ export class Scheme extends SchemeBase {
         let nextCellPoss: IPoss = HH[toDir](poss);
 
         if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
-            this.transferColorToNextCellExceptToRoad(null, fromDir, nextCellPoss);
+            this.setColorToSemiconductorByRoad(null, fromDir, nextCellPoss);
         }
+        this.cSpeed.colorIt(null, fromDir, nextCellPoss);
         this.eraseColorOnRoadPath(road, pathType);
         this.cancelColorOnRoadFromSide(nextCheckRun, fromDir, nextCellPoss);
 

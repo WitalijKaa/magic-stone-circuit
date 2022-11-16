@@ -5,7 +5,6 @@ import {OPPOSITE_SIDE, ROAD_PATH_HEAVY, SIDES_TURN_90, SIDES_TURN_BY_CLOCK} from
 import {ContentColor} from "../Types/ColorTypes";
 import {CellRoad, CellRoadPathType} from "../Types/CellRoad";
 import * as CONF from "../../config/game";
-import {HH} from "../HH";
 
 export class SpeedComponent {
 
@@ -43,14 +42,24 @@ export class SpeedComponent {
 
     public colorIt(color: ContentColor, fromDir: DirSide, poss: IPoss) {
         let cell = this.scheme.findCellOfSpeed(poss);
-        if (!cell || OPPOSITE_SIDE[fromDir] != cell.speed.to || color == cell.speed.color) { return; }
+        if (!cell ||
+            color == cell.speed.color ||
+            (color && OPPOSITE_SIDE[fromDir] != cell.speed.to) ||
+            (!color && OPPOSITE_SIDE[fromDir] != cell.speed.to && fromDir != cell.speed.to))
+        {
+            return;
+        }
 
         cell.speed.color = color;
+        this.scheme.removeColoringCellCache(poss);
         this.setColorToRoadFromSide(null, cell.cellPosition[cell.speed.to], cell.speed.color, CONF.OPPOSITE_SIDE[cell.speed.to]);
+        if (!color && fromDir == cell.speed.to) {
+            this.scheme.cancelRoadColorPathBySide(CONF.OPPOSITE_SIDE[fromDir], poss);
+        }
         this.scheme.refreshVisibleCell(poss);
     }
 
-    public colorItByTick(poss: IPoss) {
+    public colorAroundByTick(poss: IPoss) {
         let cell = this.scheme.findCellOfSpeed(poss);
         if (!cell || !cell.speed.color) { return; }
 
@@ -70,8 +79,12 @@ export class SpeedComponent {
 
         let nextSides = this.setColorToPathsOfRoadAndGetNextSides(color, cell.road, fromDir);
         nextSides.map((toDir: DirSide) => {
-            this.setColorToRoadFromSide(checkRun, cell!.cellPosition[toDir], color, CONF.OPPOSITE_SIDE[toDir]);
-            if (!color) { this.scheme.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], cell!.cellPosition[toDir]) }
+            let nextPosition = cell!.cellPosition[toDir];
+            this.setColorToRoadFromSide(checkRun, nextPosition, color, CONF.OPPOSITE_SIDE[toDir]);
+            if (!color) {
+                this.scheme.removeColoringCellCache(nextPosition);
+                this.scheme.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextPosition)
+            }
         });
         if (color) { this.scheme.transferColorToNextCellsExceptToRoadByCache(cell, nextSides, color); }
         this.scheme.refreshVisibleCell(poss);
