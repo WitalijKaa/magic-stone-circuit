@@ -25,6 +25,7 @@ export class CellSpeed {
             }
             if (textureName != this.lastTextureName) {
                 this.content.changeTexture(TT[textureName]);
+                this.lastTextureName = textureName;
             }
 
             if (this.lastDir != this.cell.schemeCell.speed.to) {

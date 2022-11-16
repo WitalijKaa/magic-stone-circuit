@@ -1,5 +1,5 @@
 import * as CONF from "../config/game";
-import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
+import {SIDES, UP, RIGHT, DOWN, LEFT, SIDES_TURN_90} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {ROAD_PATH_UP, ROAD_PATH_RIGHT, ROAD_PATH_DOWN, ROAD_PATH_LEFT, ROAD_PATH_HEAVY} from "../config/game"
 import {CellScheme} from "./CellScheme";
@@ -255,6 +255,14 @@ export abstract class SchemeBase {
                         method: 'colorItAroundByTrigger',
                         params: [this.contentCells[cellName]],
                         cacheDirections: [RIGHT],
+                    });
+                }
+                else if (cell.speed && cell.speed.color) {
+                    this.coloringCellCache(this.contentCells[cellName]).push({
+                        type: CONF.ST_SPEED,
+                        method: 'colorItAroundBySpeed',
+                        params: [this.contentCells[cellName]],
+                        cacheDirections: [cell.speed.to],
                     });
                 }
             }
@@ -618,15 +626,6 @@ export abstract class SchemeBase {
         });
     }
 
-    protected cancelColorsAroundByRoadPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
-        SIDES.map((toDir: DirSide) => {
-            if (this.isColoredRoadFlowsOutToDirection(toDir, poss)) {
-                this.setColorToSemiconductorByRoad(null, CONF.OPPOSITE_SIDE[toDir], HH[toDir](poss));
-                this.cSmile.setColorToSmileByRoad(null, CONF.OPPOSITE_SIDE[toDir], HH[toDir](poss));
-            }
-        });
-    }
-
     public cancelRoadColorPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, side, poss); }
     protected cancelRoadColorFlowsOutPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, true, true, false, side, poss); }
 
@@ -646,7 +645,7 @@ export abstract class SchemeBase {
         this.cancelColorOnRoadFromSide(null, CONF.OPPOSITE_SIDE[side], sideCell);
     }
 
-    protected verifyThatCheckRunForRoadCancelColorIsOk(road: CellRoad, checkRun: number | null) : number | false {
+    public verifyThatCheckRunForRoadCancelColorIsOk(road: CellRoad, checkRun: number | null) : number | false {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
@@ -766,6 +765,10 @@ export abstract class SchemeBase {
         else if (cell.trigger) {
             showInConsole =
                 'TRIGGER ' + (cell.trigger.color ? COLOR_DEV[cell.trigger.color] : '');
+        }
+        else if (cell.speed) {
+            showInConsole =
+                'SPEED ' + (cell.speed.color ? COLOR_DEV[cell.speed.color] + ' ' : ' ') + cell.speed.to;
         }
         console.log(
             'devCellEcho',
