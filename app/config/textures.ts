@@ -88,6 +88,8 @@ const TEXTURES = {
     speedR: 'resources/----/FR.png',
     speedI: 'resources/----/FI.png',
     speedO: 'resources/----/FO.png',
+    border: 'resources/----/border.png',
+    borderCorner: 'resources/----/border_corner.png',
     switcher: 'resources/----/road_switcher.png',
     smile: 'resources/----/smile.png',
 }

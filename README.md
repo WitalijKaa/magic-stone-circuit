@@ -27,7 +27,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 9: correct reset of color. --Done 1-9
 - Task 10: restrict to put objects where they should not be. --В
 - Task 11: cancel of cached actions should be targeted. --D
-- Task 12: energy starts coloring roads, not stones. Switchers.
+- Task 12: energy starts coloring roads, not stones. Switchers. --C
 - Task 13: smiles consume energy. --D
 - Task 14: put roads by start-end. --D
 - Task 15: add variations on putting roads.
@@ -35,10 +35,10 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 17: save current scheme to local storage. --D
 - Task 18: save local storage to file, load from file.
 - Task 19: save blueprints to local storage, add them to menu.
-- Task 20: help and learn-how-to guide. !
+- Task 20: help and learn-how-to guide. --D
 - Task 21: lock tick on any timeout changes. --C
 - Task 22: variations on road-cell switch. --D
-- Task 23: one-way energy filter.
+- Task 23: one-way energy filter. --C
 - Task 24: turn semiconductors; disable big semiconductors. --D
 - Task 25: special colors while road building.
 - Task 26: delete LIGHT HEAVY road types; implement directions types. --D
@@ -56,5 +56,9 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 38: wait for next vacation and update code very little... :( --D
 - Task 39: trigger --D
 - Task 40: scale --D
-- Task 41: color flow speeders.
+- Task 41: color flow speeders. --D
 - Task 42: fast move using arrows.
+- Task 43: patterns packed to fast-animated-logic-blocks.
+- Task 44: ghosts to play with them.
+- Task 45: clock generator
+- Task 46: monitor cell with remote light on.

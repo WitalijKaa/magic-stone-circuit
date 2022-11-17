@@ -23,6 +23,9 @@ export interface ICellScheme extends IPoss {
 
     getColorOfPath(road: CellRoad, sideOfPath: DirSide, flowFromDir: DirSide) : number | null;
 
+    get isSpeedToUpOrDown() : boolean;
+    get isSpeedToLeftOrRight() : boolean;
+
     get up() : CellScheme | null;
     get right() : CellScheme | null;
     get down() : CellScheme | null;

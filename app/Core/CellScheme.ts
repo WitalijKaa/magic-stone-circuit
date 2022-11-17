@@ -1,5 +1,5 @@
 import * as CONF from "../config/game";
-import {SIDES, UP, RIGHT, DOWN, LEFT} from "../config/game"
+import {SIDES, UP, RIGHT, DOWN, LEFT, SIDES_UP_DOWN} from "../config/game"
 import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/game"
 import {ROAD_PATH_UP, ROAD_PATH_RIGHT, ROAD_PATH_DOWN, ROAD_PATH_LEFT, ROAD_PATH_HEAVY} from "../config/game"
 import {Cell} from "./Cell";
@@ -165,6 +165,13 @@ export class CellScheme implements ICellScheme {
         let sideCell = this.scheme.findCellOfSemiconductor(this.cellPosition[side]);
         if (!sideCell) { return false; }
         return HH.isSemiconductorCanBeConnectedToSide(sideCell, side);
+    }
+
+    public get isSpeedToUpOrDown() : boolean {
+        return !!this.speed && SIDES_UP_DOWN.includes(this.speed.to)
+    }
+    public get isSpeedToLeftOrRight() : boolean {
+        return !!this.speed && !this.isSpeedToUpOrDown;
     }
 
     public get countSidePathsOnly () : number {

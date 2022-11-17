@@ -80,6 +80,7 @@ export const ST_SMILE = 9;
 export const ST_SMILE_IN = 10;
 export const ST_SPEED = 11;
 export const ST_EMPTY = 'q';
+export const ST_BORDER = 'b';
 
 export const CONTENT_SPRITES = {
     [ST_STONE_VIOLET]: TT.stoneV,

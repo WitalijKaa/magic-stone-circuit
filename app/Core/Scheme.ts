@@ -20,32 +20,30 @@ import {TriggerComponent} from "./Components/TriggerComponent";
 import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
+import {PatternComponent} from "./Components/PatternComponent";
 
 export class Scheme extends SchemeBase {
 
-    protected initComponents() {
-        this.cSmile = new SmileComponent(this);
-        this.cLevel = new LevelComponent(this);
-        this.cTrigger = new TriggerComponent(this);
-        this.cSpeed = new SpeedComponent(this);
-    }
+    public beforeAnyInput() { this.switcherMode = false; } // todo kill
 
-    public beforeAnyInput() {
-        this.switcherMode = false;
-    }
-
-    cancelProcesses() : void {
+    public cancelProcesses() : void {
         this.cancelToBuildRoad();
+        this.cPattern.cancel();
     }
 
-    public setVisualCenter() : void { this.visibleGrid.setCenter(); }
+    public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
+    public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
 
-    public setContentCell(poss: IPoss) {
-        this.contentCells[this.cellName(poss)] = poss;
-    }
-
-    public removeContentCell(poss: IPoss) {
-        delete(this.contentCells[this.cellName(poss)]);
+    protected actionAlphaTick() : boolean {
+        if (this.isRoadBuildMode) {
+            this.buildRoadTick();
+            return true;
+        }
+        else if (this.cPattern.isActionAlpha) {
+            this.cPattern.update(this.activeCursor);
+            return true;
+        }
+        return false;
     }
 
     /** SPEEDers **/
@@ -57,6 +55,11 @@ export class Scheme extends SchemeBase {
     public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }
     public removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
     public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
+
+    /** PATTERNs **/
+
+    public putPatternBorder(poss: IPoss) { this.cPattern.put(poss); }
+    public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
 
     /** STONEs **/
 
@@ -1189,4 +1192,14 @@ export class Scheme extends SchemeBase {
 
     public scaleIncrease() { this.visibleGrid.changeScale(-1); }
     public scaleDecrease() { this.visibleGrid.changeScale(1); }
+
+    public setVisualCenter() : void { this.visibleGrid.setCenter(); }
+
+    protected initComponents() {
+        this.cPattern = new PatternComponent(this);
+        this.cSmile = new SmileComponent(this);
+        this.cLevel = new LevelComponent(this);
+        this.cTrigger = new TriggerComponent(this);
+        this.cSpeed = new SpeedComponent(this);
+    }
 }

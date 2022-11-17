@@ -15,6 +15,7 @@ import {CellSemiconductor} from "./CellSemiconductor";
 import {CellSmile} from "./CellSmile";
 import {CellTrigger} from "./CellTrigger";
 import {CellSpeed} from "./CellSpeed";
+import {CellBorder} from "./CellBorder";
 
 export class CellGrid extends CellAbstract {
 
@@ -23,6 +24,7 @@ export class CellGrid extends CellAbstract {
     private cellSemiconductor: CellSemiconductor;
     private cellTrigger: CellTrigger;
     private cellSpeed: CellSpeed;
+    private cellBorder: CellBorder;
     private cellSmile: CellSmile;
 
     constructor(position: Cell, grid: SchemeGrid) {
@@ -34,6 +36,7 @@ export class CellGrid extends CellAbstract {
         this.cellTrigger = new CellTrigger(this);
         this.cellSpeed = new CellSpeed(this);
         this.cellSmile = new CellSmile(this);
+        this.cellBorder = new CellBorder(this);
 
         this.on('click', () => { this.handleClick() });
         this.on('tap', () => { this.handleClick(true) });
@@ -43,7 +46,7 @@ export class CellGrid extends CellAbstract {
 
     public static get defaultTexture () : string { return TT.cell; }
 
-    handleClick(tapMode: boolean = false) {
+    handleClick(tapMode: boolean = false) { console.log(this.grid.controlPen)
         if (tapMode) {
             this.grid.hidePointerZone();
         }
@@ -93,6 +96,9 @@ export class CellGrid extends CellAbstract {
                 this.scheme.removeTrigger(this.schemePosition);
                 this.scheme.removeSpeed(this.schemePosition);
             }
+            else if (CONF.ST_BORDER == this.grid.controlPen) {
+                this.scheme.putPatternBorder(this.schemePosition);
+            }
         }
     }
     handleRightClick() {
@@ -100,7 +106,7 @@ export class CellGrid extends CellAbstract {
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
-    get schemePosition() : IPoss { return { x: this.grid.dragX + this.gridX, y: this.grid.dragY + this.gridY }; }
+    public get schemePosition() : IPoss { return { x: this.grid.dragX + this.gridX, y: this.grid.dragY + this.gridY }; }
 
     get scheme() { return this.grid.scheme; }
     get schemeCell() : null | CellScheme { return this.grid.scheme.findCell(this.schemePosition) }
@@ -112,5 +118,6 @@ export class CellGrid extends CellAbstract {
         this.cellSemiconductor.updateVisibleSemiconductor();
         this.cellTrigger.updateVisibleTrigger();
         this.cellSpeed.updateVisibleSpeed();
+        this.cellBorder.updateVisibleBorder();
     }
 }

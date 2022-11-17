@@ -25,6 +25,7 @@ import {TriggerComponent} from "./Components/TriggerComponent";
 import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
+import {PatternComponent} from "./Components/PatternComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -48,6 +49,7 @@ const COLOR_DEV = {
 
 export abstract class SchemeBase {
 
+    protected cPattern!: PatternComponent;
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
     protected cTrigger!: TriggerComponent;
@@ -176,8 +178,7 @@ export abstract class SchemeBase {
     // ABSTRACT
 
     protected abstract initComponents() : void;
-    public abstract get isRoadBuildMode() : boolean;
-    protected abstract buildRoadTick() : void;
+    protected abstract actionAlphaTick() : boolean;
     protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     public abstract putSmile(logic: string) : void;
@@ -187,10 +188,9 @@ export abstract class SchemeBase {
     public updateTickInit() : void { this.updateTick(); }
 
     private updateTick() : void {
-        if (this.isRoadBuildMode) {
-            this.buildRoadTick();
-        }
-        else {
+
+        if (!this.actionAlphaTick())
+        {
             let roadColoringProcess = false;
 
             this.activeCacheColorings = this.cacheColorings;
@@ -414,6 +414,10 @@ export abstract class SchemeBase {
     }
 
     protected cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
+
+    public possEquals(possA: IPoss, possB: IPoss) : boolean {
+        return possA.x == possB.x && possA.y == possB.y;
+    }
 
     // CURSOR
 
