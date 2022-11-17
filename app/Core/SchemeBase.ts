@@ -79,7 +79,11 @@ export abstract class SchemeBase {
     }
 
     private _saveToStorageCallback: () => void = () => {};
-    public setSaveToStorageMethod(saveToStorage: () => void) : void { this._saveToStorageCallback = saveToStorage; }
+    public setSaveToStorageMethod(saveCallable: () => void) : void { this._saveToStorageCallback = saveCallable; }
+
+    private _savePatternCallback: (name: string, pattern: SchemeCopy) => void = () => {};
+    public setSavePatternMethod(saveCallable: (name: string, pattern: SchemeCopy) => void) : void { this._savePatternCallback = saveCallable; }
+    public savePattern(name: string, pattern: SchemeCopy) { return this._savePatternCallback(name, pattern); }
 
     public afterChange() : void {
         this._saveToStorageCallback();

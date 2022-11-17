@@ -35,6 +35,7 @@ if (pixiAppContainer)
         pixiApp.stage.addChild(schemeGrid.containerFront);
 
         scheme.setSaveToStorageMethod(schemeStorage.createSaveCallback());
+        scheme.setSavePatternMethod(schemeStorage.createSavePatternCallback());
         scheme.loadScheme(schemeStorage.load(scheme.scheme));
 
         let $name = document.getElementById('scheme-name');

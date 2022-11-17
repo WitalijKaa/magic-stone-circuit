@@ -2,7 +2,7 @@ import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
 
 export class SchemeFormatConverter {
 
-    public static toShortFormat(scheme: SchemeStructure) : SchemeCopy {
+    public static toShortFormat(scheme: SchemeStructure, isHugeScheme: boolean = true) : SchemeCopy {
         let schemeCopy: SchemeCopy = {};
 
         for (let row in scheme) {
@@ -10,8 +10,8 @@ export class SchemeFormatConverter {
                 let schemeCell = scheme[row][column];
                 if (!schemeCell) { continue; }
 
-                let rr = +row - 800000000 + 100;
-                let cc = +column - 800000000 + 100;
+                let rr = isHugeScheme ? +row - 800000000 + 100 : +row;
+                let cc = isHugeScheme ? +column - 800000000 + 100 : column;
                 if (!schemeCopy[rr]) { schemeCopy[rr] = {}; }
 
                 if ('road' in schemeCell && schemeCell.road) {

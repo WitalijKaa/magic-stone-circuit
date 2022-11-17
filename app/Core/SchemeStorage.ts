@@ -20,8 +20,18 @@ export class SchemeStorage {
         this.saveToDisk('__schema__' + name, SchemeFormatConverter.toShortFormat(this.getNamedScheme(name)))
     }
 
+    public savePattern(name: string, pattern: SchemeCopy) {
+        name = name.trim();
+        if (!name) { return; }
+        this.saveToDisk('__pattern__' + name, pattern);
+    }
+
     public createSaveCallback(name: string = DEFAULT_SCHEME_NAME) : () => void {
         return this.save.bind(this, name);
+    }
+
+    public createSavePatternCallback() : (name: string, pattern: SchemeCopy) => void {
+        return this.savePattern.bind(this);
     }
 
     public load(scheme: SchemeInstanceStructure, name: string = DEFAULT_SCHEME_NAME) : SchemeCopy {
