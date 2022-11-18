@@ -20,7 +20,7 @@ export class CellSmile {
         }
         else if (this.isSmileDrawn) {
             this.cell.twiceSize = false;
-            this.cell.changeTexture(CellGrid.defaultTexture);
+            this.cell.changeTexture(this.cell.defaultTexture);
             this.cell.setColor(null);
             this.isSmileDrawn = false;
         }

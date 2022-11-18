@@ -1,4 +1,14 @@
-import {SchemeCopy, SchemeStructure} from "./Types/Scheme";
+import {SchemeCellStructure, SchemeCopy, SchemeCopyCell, SchemeStructure} from "./Types/Scheme";
+import {IPoss} from "./IPoss";
+import * as CONF from "../config/game";
+import {RoadSavePathsArray} from "./Types/CellRoad";
+import {CellScheme} from "./CellScheme";
+import {SchemeBase} from "./SchemeBase";
+import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
+import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
+import {ICellWithContent} from "./Interfaces/ICellWithContent";
+import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
+import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 
 export class SchemeFormatConverter {
 
@@ -46,19 +56,33 @@ export class SchemeFormatConverter {
         return schemeCopy;
     }
 
-    public static toGhostFormat(pattern: SchemeCopy) : SchemeStructure {
-        let xMax = 0;
-        let yMax = 0;
+    public static toGhostFormat(poss: IPoss, schemeCell: SchemeCopyCell) : SchemeCellStructure {
+        let model = new CellScheme(poss.x, poss.y, {} as SchemeBase);
+        if ('r' in schemeCell) {
+            let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
+            schemeCell.r.p.split('').map((ix) => {
+                paths[+ix] = true;
+            })
 
-        for (const row in pattern) {
-            if (+row > xMax) { xMax = +row; }
-            for (const col in pattern[row]) {
-                if (+col > yMax) { yMax = +col; }
-            }
+            SchemeBase.initCellAsRoad(model, schemeCell.r.t, paths);
+            return model as ICellWithRoad;
         }
-
-        console.log(xMax, yMax);
-
-        return {};
+        if ('s' in schemeCell) {
+            SchemeBase.initCellAsSemiconductor(model, schemeCell.s.d, schemeCell.s.t);
+            return model as ICellWithSemiconductor;
+        }
+        if ('c' in schemeCell) {
+            SchemeBase.initCellAsStone(model, { type: schemeCell.c.t, range: [] });
+            return model as ICellWithContent;
+        }
+        if ('t' in schemeCell) {
+            SchemeBase.initCellAsTrigger(model);
+            return model as ICellWithTrigger;
+        }
+        if ('f' in schemeCell) {
+            SchemeBase.initCellAsSpeed(model, schemeCell.f.t);
+            return model as ICellWithSpeed;
+        }
+        return null;
     }
 }

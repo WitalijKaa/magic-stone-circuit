@@ -4,18 +4,24 @@ import {SpriteModel} from "../SpriteModel";
 import {COLOR_IX_STR} from "../../config/game";
 import {DirSide} from "../../Core/Types/DirectionSide";
 import * as CONF from "../../config/game";
+import {ICellWithSpeed} from "../../Core/Interfaces/ICellWithSpeed";
+import {CellSpeed as SpeedType} from "../../Core/Types/CellSpeed";
+import {CellGhost} from "./CellGhost";
 
 export class CellSpeed {
 
-    constructor(private cell: CellGrid) { }
+    private ghost: null | ICellWithSpeed = null;
 
     private content: null | SpriteModel = null;
     private lastDir: DirSide = 'Right';
     private lastTextureName!: string;
 
-    public updateVisibleSpeed() : void {
-        if (this.cell.schemeCell?.speed) {
-            let textureName = this.cell.schemeCell.speed.color ? 'speed' + COLOR_IX_STR[this.cell.schemeCell.speed.color] : 'speed';
+    constructor(private cell: CellGrid | CellGhost) { }
+
+    public update() : void {
+        let schemeCell = this.schemeCell;
+        if (schemeCell) {
+            let textureName = schemeCell.color ? 'speed' + COLOR_IX_STR[schemeCell.color] : 'speed';
 
             if (!this.content) {
                 this.content = new SpriteModel(TT[textureName]);
@@ -28,8 +34,8 @@ export class CellSpeed {
                 this.lastTextureName = textureName;
             }
 
-            if (this.lastDir != this.cell.schemeCell.speed.to) {
-                this.lastDir = this.cell.schemeCell.speed.to;
+            if (this.lastDir != schemeCell.to) {
+                this.lastDir = schemeCell.to;
                 this.content.model.angle = CONF.ROTATE_FOR_ORIGINAL_RIGHT[this.lastDir];
             }
         }
@@ -39,4 +45,13 @@ export class CellSpeed {
             this.content = null;
         }
     }
+
+    private get schemeCell() : null | SpeedType {
+        if (!this.ghost) { return this.cell.schemeCell ? this.cell.schemeCell.speed : null; }
+        return this.ghost.speed;
+    }
+
+    public set asGhost(cell: ICellWithSpeed) { this.ghost = cell; }
+
+    public killGhost() : void { this.content?.destroy(); }
 }

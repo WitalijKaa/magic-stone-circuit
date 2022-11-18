@@ -97,7 +97,7 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.remove('el--hidden')
             }
-            document.getElementById('b-l')!.classList.add('el--hidden');
+            document.getElementById('btn-levels')!.classList.add('el--hidden');
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadScheme(scheme, schemeStorage, $elSpan.innerText);
         })
@@ -221,7 +221,7 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.remove('el--hidden')
             }
-            document.getElementById('b-l')!.classList.add('el--hidden');
+            document.getElementById('btn-levels')!.classList.add('el--hidden');
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             if ('JUST FIND CENTER' == $elSpan.innerText) {
                 scheme.setVisualCenter();

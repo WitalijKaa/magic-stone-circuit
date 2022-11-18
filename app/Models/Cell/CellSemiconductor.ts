@@ -2,9 +2,11 @@ import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
 import {CellSemiconductor as SchemeSemi, CellSemiconductorType} from "../../Core/Types/CellSemiconductor";
 import {TT} from "../../config/textures";
-import { ST_ROAD_AWAKE, ST_ROAD_SLEEP } from "../../config/game";
+import {ST_ROAD_AWAKE, ST_ROAD_SLEEP} from "../../config/game";
 import {SpriteModel} from "../SpriteModel";
 import {ContentColor} from "../../Core/Types/ColorTypes";
+import {ICellWithSemiconductor} from "../../Core/Interfaces/ICellWithSemiconductor";
+import {CellGhost} from "./CellGhost";
 
 type SpriteType = 'Awake' | 'Charge' | 'Flow';
 
@@ -19,6 +21,8 @@ const ADDITIONAL_SPRITES = ['Awake', 'Charge'];
 
 export class CellSemiconductor {
 
+    private ghost: null | ICellWithSemiconductor = null;
+
     private semiconductorDrawn: CellSemiconductorType | null = null;
     private Awake!: SpriteModel;
     private Charge!: SpriteModel;
@@ -28,10 +32,10 @@ export class CellSemiconductor {
     private tAwake: number = 0;
     private tCharge: number = 0;
 
-    constructor(private cell: CellGrid) { }
+    constructor(private cell: CellGrid | CellGhost) { }
 
-    public updateVisibleSemiconductor() : void {
-        let semi = this.cell.schemeCell?.semiconductor
+    public update() : void {
+        let semi = this.schemeCell;
         if (semi) {
             this.showFlow(semi);
             for (let spriteType of ADDITIONAL_SPRITES) {
@@ -40,16 +44,20 @@ export class CellSemiconductor {
             this.semiconductorDrawn = semi.type;
         }
         else if (this.semiconductorDrawn) {
-            for (let spriteType of ADDITIONAL_SPRITES) {
-                if (this[spriteType]) {
-                    this[spriteType].destroy();
-                }
-                this[spriteType] = null;
-            }
-            if (!this.cell.schemeCell?.content) {
-                this.cell.changeTexture(CellGrid.defaultTexture);
-            }
+            this.destroySemiconductor();
             this.semiconductorDrawn = null;
+        }
+    }
+
+    private destroySemiconductor() : void {
+        for (let spriteType of ADDITIONAL_SPRITES) {
+            if (this[spriteType]) {
+                this[spriteType].destroy();
+            }
+            this[spriteType] = null;
+        }
+        if (this.isEmptyHere) {
+            this.cell.changeTexture(this.cell.defaultTexture);
         }
     }
 
@@ -84,4 +92,18 @@ export class CellSemiconductor {
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
     }
+
+    private get isEmptyHere() : boolean {
+        if (!this.ghost) { return !this.cell.schemeCell?.content; }
+        return true;
+    }
+
+    private get schemeCell() : null | SchemeSemi {
+        if (!this.ghost) { return this.cell.schemeCell ? this.cell.schemeCell.semiconductor : null; }
+        return this.ghost.semiconductor;
+    }
+
+    public set asGhost(cell: ICellWithSemiconductor) { this.ghost = cell; }
+
+    public killGhost() : void { this.destroySemiconductor(); }
 }

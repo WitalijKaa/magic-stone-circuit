@@ -16,6 +16,7 @@ import {CellSmile} from "./CellSmile";
 import {CellTrigger} from "./CellTrigger";
 import {CellSpeed} from "./CellSpeed";
 import {CellBorder} from "./CellBorder";
+import {CellGhost} from "./CellGhost";
 
 export class CellGrid extends CellAbstract {
 
@@ -26,6 +27,7 @@ export class CellGrid extends CellAbstract {
     private cellSpeed: CellSpeed;
     private cellBorder: CellBorder;
     private cellSmile: CellSmile;
+    private cellGhost: CellGhost;
 
     constructor(position: Cell, grid: SchemeGrid) {
         super(position, grid, SpriteModel.from(TT.cell));
@@ -37,6 +39,7 @@ export class CellGrid extends CellAbstract {
         this.cellSpeed = new CellSpeed(this);
         this.cellSmile = new CellSmile(this);
         this.cellBorder = new CellBorder(this);
+        this.cellGhost = new CellGhost(this);
 
         this.on('click', () => { this.handleClick() });
         this.on('tap', () => { this.handleClick(true) });
@@ -44,7 +47,7 @@ export class CellGrid extends CellAbstract {
         new MouseOver(this, this, { [MouseOver.MOUSE_OVER]: 'handleMouseOver' });
     }
 
-    public static get defaultTexture () : string { return TT.cell; }
+    public get defaultTexture () : string { return TT.cell; }
 
     handleClick(tapMode: boolean = false) {
         if (tapMode) {
@@ -113,11 +116,12 @@ export class CellGrid extends CellAbstract {
 
     refreshVisibleAll() {
         this.cellSmile.updateVisibleSprites();
-        this.cellContent.updateVisibleStone();
-        this.cellRoad.updateVisibleRoad();
-        this.cellSemiconductor.updateVisibleSemiconductor();
-        this.cellTrigger.updateVisibleTrigger();
-        this.cellSpeed.updateVisibleSpeed();
+        this.cellContent.update();
+        this.cellRoad.update();
+        this.cellSemiconductor.update();
+        this.cellTrigger.update();
+        this.cellSpeed.update();
         this.cellBorder.updateVisibleBorder();
+        this.cellGhost.update();
     }
 }

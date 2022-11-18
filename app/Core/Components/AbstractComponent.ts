@@ -13,6 +13,7 @@ export abstract class AbstractComponent {
     protected possEquals(possA: IPoss, possB: IPoss) : boolean { return this.scheme.possEquals(possA, possB); }
     protected possNotEquals(possA: IPoss, possB: IPoss) : boolean { return !this.scheme.possEquals(possA, possB); }
 
+    protected refreshVisibleAll() : void { this.scheme.visibleGrid.refreshAllCells(); }
     protected refreshVisibleCell(poss: IPoss) : void { this.scheme.refreshVisibleCell(poss); }
 
     public get isRoadBuildMode() : boolean { return this.scheme.isRoadBuildMode; }

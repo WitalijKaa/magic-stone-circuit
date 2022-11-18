@@ -1,6 +1,6 @@
 import {IPoss} from "../IPoss";
 import {AbstractComponent} from "./AbstractComponent";
-import {SchemeCellStructure, SchemeStructure} from "../Types/Scheme";
+import {SchemeCellStructure, SchemeCopy, SchemeCopyCell, SchemeStructure} from "../Types/Scheme";
 import {SchemeFormatConverter} from "../SchemeFormatConverter";
 
 export class PatternComponent extends AbstractComponent {
@@ -11,9 +11,28 @@ export class PatternComponent extends AbstractComponent {
     private end!: IPoss;
 
     private prevVisibility: boolean = false;
-    private prevMove!: IPoss;
+    private prevPoss!: IPoss;
 
-    public get isActionOn() : boolean { return this.mode; }
+    private ghostPattern: SchemeCopy | null = null;
+    private ghostStart: IPoss | null = null;
+
+    public set patternLoaded(pattern: SchemeCopy) { this.ghostPattern = pattern; this.ghostStart = null;}
+
+    public get isActionCreateOn() : boolean { return this.mode; }
+
+    public showGhosts(poss: IPoss) : boolean {
+        if (!this.ghostPattern) { return false; }
+        if (!this.ghostStart) {
+            this.ghostStart = { x: poss.x, y: poss.y };
+        }
+        else {
+            if (this.ghostStart.x != poss.x || this.ghostStart.y != poss.y) {
+                this.ghostStart = { x: poss.x, y: poss.y };
+                this.refreshVisibleAll();
+            }
+        }
+        return true;
+    }
 
     public cellBorderType(poss: IPoss) : null | boolean { // false -> corner, true -> line
         if (!this.mode || !this.isBorderVisible) { return null; }
@@ -30,6 +49,16 @@ export class PatternComponent extends AbstractComponent {
         return null;
     }
 
+    public findGhost(poss: IPoss) : null | SchemeCopyCell {
+        if (!this.ghostPattern || !this.ghostStart) { return null; }
+        let x = poss.x - this.ghostStart.x;
+        let y = poss.y - this.ghostStart.y;
+        if (this.ghostPattern[x] && this.ghostPattern[x][y]) {
+            return this.ghostPattern[x][y];
+        }
+        return null;
+    }
+
     public put(poss: IPoss) : void {
         if (!this.mode) {
             if (!this.findCell(poss)) {
@@ -41,7 +70,7 @@ export class PatternComponent extends AbstractComponent {
             }
         }
         else {
-            this.prevMove = this.end;
+            this.prevPoss = this.end;
             this.end = { x: poss.x, y: poss.y };
             this.mode = false;
             if (this.isBorderVisible) {
@@ -59,7 +88,7 @@ export class PatternComponent extends AbstractComponent {
         if (!this.mode || this.end.x == poss.x && this.end.y == poss.y) {
             return;
         }
-        this.prevMove = this.end;
+        this.prevPoss = this.end;
         this.end = { x: poss.x, y: poss.y };
         this.isBorderVisible = this.checkIfBordersVisible();
         this.refreshBordersVisibility();
@@ -96,7 +125,7 @@ export class PatternComponent extends AbstractComponent {
             if (this.isBorderVisible) { this.refreshCurrentBorderVisibility(); }
             else { this.refreshPreviousBorderVisibility(); }
         }
-        else if (this.isBorderVisible && this.possNotEquals(this.prevMove, this.end)) {
+        else if (this.isBorderVisible && this.possNotEquals(this.prevPoss, this.end)) {
             this.refreshPreviousBorderVisibility();
             this.refreshCurrentBorderVisibility();
         }
@@ -128,25 +157,25 @@ export class PatternComponent extends AbstractComponent {
 
     private refreshPreviousBorderVisibility() : void {
         if (null === this.cellBorderType(this.start)) { this.refreshVisibleCell(this.start); }
-        if (null === this.cellBorderType(this.prevMove)) { this.refreshVisibleCell(this.prevMove); }
-        if (null === this.cellBorderType({ x: this.prevMove.x, y: this.start.y })) { this.refreshVisibleCell({ x: this.prevMove.x, y: this.start.y }); }
-        if (null === this.cellBorderType({ x: this.start.x, y: this.prevMove.y })) { this.refreshVisibleCell({ x: this.start.x, y: this.prevMove.y }); }
+        if (null === this.cellBorderType(this.prevPoss)) { this.refreshVisibleCell(this.prevPoss); }
+        if (null === this.cellBorderType({ x: this.prevPoss.x, y: this.start.y })) { this.refreshVisibleCell({ x: this.prevPoss.x, y: this.start.y }); }
+        if (null === this.cellBorderType({ x: this.start.x, y: this.prevPoss.y })) { this.refreshVisibleCell({ x: this.start.x, y: this.prevPoss.y }); }
 
-        if (this.start.x != this.prevMove.x) {
-            let step = this.prevMove.x > this.start.x ? 1 : -1;
-            for (let x = this.start.x + step; Math.abs(x) != Math.abs(this.prevMove.x); x += step) {
+        if (this.start.x != this.prevPoss.x) {
+            let step = this.prevPoss.x > this.start.x ? 1 : -1;
+            for (let x = this.start.x + step; Math.abs(x) != Math.abs(this.prevPoss.x); x += step) {
                 let poss = { x: x, y: this.start.y };
                 if (null === this.cellBorderType(poss)) { this.refreshVisibleCell(poss); }
-                poss = { x: x, y: this.prevMove.y };
+                poss = { x: x, y: this.prevPoss.y };
                 if (null === this.cellBorderType(poss)) { this.refreshVisibleCell(poss); }
             }
         }
-        if (this.start.y != this.prevMove.y) {
-            let step = this.prevMove.y > this.start.y ? 1 : -1;
-            for (let y = this.start.y + step; Math.abs(y) != Math.abs(this.prevMove.y); y += step) {
+        if (this.start.y != this.prevPoss.y) {
+            let step = this.prevPoss.y > this.start.y ? 1 : -1;
+            for (let y = this.start.y + step; Math.abs(y) != Math.abs(this.prevPoss.y); y += step) {
                 let poss = { x: this.start.x, y: y };
                 if (null === this.cellBorderType(poss)) { this.refreshVisibleCell(poss); }
-                poss = { x: this.prevMove.x, y: y };
+                poss = { x: this.prevPoss.x, y: y };
                 if (null === this.cellBorderType(poss)) { this.refreshVisibleCell(poss); }
             }
         }

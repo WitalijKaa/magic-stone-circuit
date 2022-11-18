@@ -28,6 +28,7 @@ const TEXTURES = {
     stoneI: 'resources/----/SI.png',
     stoneO: 'resources/----/SO.png',
     cell: 'resources/----/cell.png',
+    ghost: 'resources/----/cell.png',
     roadL: 'resources/----/R_left.png',
     roadR: 'resources/----/R_right.png',
     roadH: 'resources/----/R_heavy.png',

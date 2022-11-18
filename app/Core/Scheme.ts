@@ -22,7 +22,6 @@ import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
 import {SchemeCopy} from "./Types/Scheme";
-import {SchemeFormatConverter} from "./SchemeFormatConverter";
 
 export class Scheme extends SchemeBase {
 
@@ -37,7 +36,7 @@ export class Scheme extends SchemeBase {
     public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
 
     public isActionAlphaOn() : boolean {
-        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionOn;
+        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionCreateOn;
     }
 
     protected actionAlphaTick() : boolean {
@@ -45,8 +44,11 @@ export class Scheme extends SchemeBase {
             this.buildRoadTick();
             return true;
         }
-        else if (this.cPattern.isActionOn) {
+        else if (this.cPattern.isActionCreateOn) {
             this.cPattern.update(this.activeCursor);
+            return true;
+        }
+        else if (this.cPattern.showGhosts(this.activeCursor)) {
             return true;
         }
         return false;
@@ -66,10 +68,8 @@ export class Scheme extends SchemeBase {
 
     public putPatternBorder(poss: IPoss) { this.cPattern.put(poss); }
     public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
-
-    public loadPattern(patternShort: SchemeCopy) {
-        let pattern = SchemeFormatConverter.toGhostFormat(patternShort);
-    }
+    public loadPattern(patternShort: SchemeCopy) { this.cPattern.patternLoaded = patternShort; }
+    public findGhost(poss: IPoss) { return this.cPattern.findGhost(poss); }
 
     /** STONEs **/
 

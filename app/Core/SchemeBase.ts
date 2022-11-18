@@ -15,7 +15,7 @@ import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {CellStone, CellStoneType} from "./Types/CellStone";
-import {SchemeCopy, SchemeInstanceStructure, SchemeStructure} from "./Types/Scheme";
+import {SchemeCopy, SchemeInstanceStructure} from "./Types/Scheme";
 import {IVisibleGrid} from "./Interfaces/IVisibleGrid";
 import {Cell} from "./Cell";
 import {SmileComponent} from "./Components/SmileComponent";
@@ -296,18 +296,29 @@ export abstract class SchemeBase {
         return !this.scheme[poss.x] || !this.scheme[poss.x][poss.y]
     }
 
+    public static initCellAsEmpty(model: CellScheme) : void {
+        model.content = null;
+        model.road = null;
+        model.semiconductor = null;
+        model.trigger = null;
+        model.speed = null;
+        model.smile = null;
+    }
+
     protected getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
     protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
         let model = this.getCell(poss);
-        model.road = null;
-        model.semiconductor = null;
-        model.content = stone;
+        SchemeBase.initCellAsStone(model, stone);
         return model as ICellWithContent;
     }
     public findCellOfContent(poss: IPoss) : null | ICellWithContent {
         return this.findCellOf('content', poss) as null | ICellWithContent;
+    }
+    public static initCellAsStone(model: CellScheme, stone: CellStone) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.content = stone;
     }
 
     protected getCellForRoad(poss: IPoss) : null | ICellWithRoad {
@@ -319,34 +330,34 @@ export abstract class SchemeBase {
     }
     protected getCellForRoadForced(poss: IPoss, type: CellRoadType = ROAD_LIGHT, paths: RoadPathsArray = [...CONF.ALL_PATHS_EMPTY]) : ICellWithRoad {
         let model = this.getCell(poss);
-        model.content = null;
-        model.semiconductor = null;
-        if (model && !model.road) {
-            model.road = { type: type, paths: paths, checkRun: 0 };
-        }
+        SchemeBase.initCellAsRoad(model, type, paths);
         return model as ICellWithRoad;
     }
     public findCellOfRoad(poss: IPoss) : null | ICellWithRoad {
         return this.findCellOf('road', poss) as null | ICellWithRoad;
     }
+    public static initCellAsRoad(model: CellScheme, type: CellRoadType = ROAD_LIGHT, paths: RoadPathsArray = [...CONF.ALL_PATHS_EMPTY]) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.road = { type: type, paths: paths, checkRun: 0 };
+    }
 
     protected getCellForSemiconductorForced(poss: IPoss, dir: CellSemiconductorDirection, type: CellSemiconductorType) : ICellWithSemiconductor {
         let model = this.getCell(poss);
-        model.content = null;
-        model.road = null;
-        if (model) {
-            model.semiconductor = { direction: dir, type: type, colorAwake: null, colorFlow: null, colorCharge: null, from: null, checkRun: 0 };
-        }
+        SchemeBase.initCellAsSemiconductor(model, dir, type);
         return model as ICellWithSemiconductor;
     }
     public findCellOfSemiconductor(poss: IPoss) : null | ICellWithSemiconductor {
         return this.findCellOf('semiconductor', poss) as null | ICellWithSemiconductor;
     }
+    public static initCellAsSemiconductor(model: CellScheme, dir: CellSemiconductorDirection, type: CellSemiconductorType) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.semiconductor = { direction: dir, type: type, colorAwake: null, colorFlow: null, colorCharge: null, from: null, checkRun: 0 };
+    }
 
     public createCellForTrigger(poss: IPoss) : boolean {
         let cell = this.getCellForTrigger(poss);
         if (cell) {
-            cell.trigger = { color: null };
+            SchemeBase.initCellAsTrigger(cell);
             return true;
         }
         return false;
@@ -357,11 +368,15 @@ export abstract class SchemeBase {
     public findCellOfTrigger(poss: IPoss) : null | ICellWithTrigger {
         return this.findCellOf('trigger', poss) as null | ICellWithTrigger;
     }
+    public static initCellAsTrigger(model: CellScheme) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.trigger = { color: null };
+    }
 
     public createCellForSpeed(poss: IPoss, toSide: DirSide) : boolean {
         let cell = this.getCellForSpeed(poss);
         if (cell) {
-            cell.speed = { to: toSide, color: null };
+            SchemeBase.initCellAsSpeed(cell, toSide);
             return true;
         }
         return false;
@@ -371,6 +386,10 @@ export abstract class SchemeBase {
     }
     public findCellOfSpeed(poss: IPoss) : null | ICellWithSpeed {
         return this.findCellOf('speed', poss) as null | ICellWithSpeed;
+    }
+    public static initCellAsSpeed(model: CellScheme, toSide: DirSide) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.speed = { to: toSide, color: null };
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {

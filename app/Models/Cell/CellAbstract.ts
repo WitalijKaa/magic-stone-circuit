@@ -30,4 +30,7 @@ export class CellAbstract extends SpriteModel {
 
     get gridX() { return this.gridPosition.x; }
     get gridY() { return this.gridPosition.y; }
+
+    public get visiblePosition() : Cell { return new Cell(this.gridPosition.x, this.gridPosition.y); }
+    public get visibleGrid() : SchemeGrid { return this.grid; }
 }

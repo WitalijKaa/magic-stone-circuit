@@ -16,11 +16,10 @@ export type SchemeCellStructure = null | ICellWithContent | ICellWithRoad | ICel
 export type SchemeStructure = { [keyX: number]: { [keyY: number]: SchemeCellStructure } };
 export type SchemeInstanceStructure = { [keyX: number]: { [keyY: number]: null | CellScheme } };
 
-export type SchemeCopy = { [keyX: number]: { [keyY: number]:
-    { c: CellStoneCopy } |
+export type SchemeCopyCell = { c: CellStoneCopy } |
     { r: { t: CellRoadType, p: string } } |
     { s: { t: CellSemiconductorType, d: CellSemiconductorDirection } } |
     { t: CellTriggerCopy } |
     { f: CellSpeedCopy } |
-    { i: CellSmileCopy }
-} }
+    { i: CellSmileCopy };
+export type SchemeCopy = { [keyX: number]: { [keyY: number]: SchemeCopyCell } }
