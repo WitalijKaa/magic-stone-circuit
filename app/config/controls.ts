@@ -10,27 +10,19 @@ export const CONTROL_KEYS = {
     '2': CONF.ST_STONE_RED,
     '3': CONF.ST_STONE_INDIGO,
     '4': CONF.ST_STONE_ORANGE,
-    '5': CONF.ST_ROAD,
-    '6': CONF.ST_ROAD_SLEEP,
-    '7': CONF.ST_ROAD_AWAKE,
-    '8': CONF.ST_EMPTY,
-    '9': CONF.ST_TRIGGER,
+    '5': CONF.ST_ROAD_SLEEP,
+    '6': CONF.ST_ROAD_AWAKE,
+    '7': CONF.ST_TRIGGER,
+    '8': CONF.ST_SPEED,
+    '9': CONF.ST_BORDER,
+    '`': CONF.ST_ROAD,
+    '~': CONF.ST_ROAD,
+    'ё': CONF.ST_ROAD,
+    'Ё': CONF.ST_ROAD,
     'q': CONF.ST_EMPTY,
     'Q': CONF.ST_EMPTY,
     'й': CONF.ST_EMPTY,
     'Й': CONF.ST_EMPTY,
-    'b': CONF.ST_BORDER,
-    'B': CONF.ST_BORDER,
-    'и': CONF.ST_BORDER,
-    'И': CONF.ST_BORDER,
-    'f': CONF.ST_SPEED,
-    'F': CONF.ST_SPEED,
-    'а': CONF.ST_SPEED,
-    'А': CONF.ST_SPEED,
-    'p': CONF.ST_STONE_VIOLET,
-    'P': CONF.ST_STONE_VIOLET,
-    'o': CONF.ST_STONE_INDIGO,
-    'O': CONF.ST_STONE_INDIGO,
 }
 
 export const CONTROL_EVENTS_KEYS = {
@@ -44,11 +36,11 @@ export const CONTROL_EVENTS_KEYS = {
     '+': 'speedUp',
     '-': 'speedDown',
     '_': 'speedDown',
-    'p': 'setVioletSwitcher',
-    'P': 'setVioletSwitcher',
-    'o': 'setIndigoSwitcher',
-    'O': 'setIndigoSwitcher',
-    'l': 'putSmile',
+    // 'p': 'setVioletSwitcher',
+    // 'P': 'setVioletSwitcher',
+    // 'o': 'setIndigoSwitcher',
+    // 'O': 'setIndigoSwitcher',
+    // 'l': 'putSmile',
     'a': 'checkLevel',
     'A': 'checkLevel',
     'ф': 'checkLevel',
@@ -67,7 +59,8 @@ export const CONTROL_EVENTS_KEYS = {
     'Я': 'scaleDecrease',
 }
 
-export const SWITCH_TO_OTHER_SCHEME = ['d', 'D', 'в', 'В'];
+export const OPEN_MODAL_MENU = ['d', 'D', 'в', 'В'];
+export const OPEN_MODAL_PATTERNS_MENU = ['p', 'P', 'з', 'З'];
 
 export function findButtonCode($imgBtnElem: HTMLElement) : string {
     let code;
@@ -111,6 +104,23 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     }
 }
 
+export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
+    document.getElementById('modal-pattern-wrapper')!.classList.remove('el--hidden');
+
+    let menuHtml = '';
+    schemeStorage.getPatternNames().map((name: string) => {
+        menuHtml += '<span>' + name + '</span>';
+    })
+    document.getElementById('saved-patterns')!.innerHTML = menuHtml;
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#saved-patterns span')) {
+        $elSpan.addEventListener('click', () => {
+            document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
+            scheme.loadPattern(schemeStorage.loadPattern($elSpan.innerText));
+        })
+    }
+}
+
 export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) : void {
     if (!name || "NEW SCHEME" == name) { name = prompt('name of Scheme...'); }
     if (!name || "NEW SCHEME" == name) { return; }
@@ -143,6 +153,9 @@ export function loadLevel(scheme: Scheme, levelCode: string) {
 }
 
 export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, schemeGrid: SchemeGrid) : void {
+
+    /** KEY PRESS */
+
     document.addEventListener('keypress', (event) => {
         scheme.beforeAnyInput();
         if (CONTROL_KEYS.hasOwnProperty(event.key)) {
@@ -150,14 +163,36 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
             viewControlPen(schemeGrid.controlPen);
         }
         schemeGrid.controlEvent = event.key;
-        if (SWITCH_TO_OTHER_SCHEME.includes(event.key)) {
-            openModal(scheme, schemeStorage);
-        }
+        if (OPEN_MODAL_MENU.includes(event.key)) { openModal(scheme, schemeStorage); }
+        else if (OPEN_MODAL_PATTERNS_MENU.includes(event.key)) { openPatternsModal(scheme, schemeStorage); }
     });
 
+    /** CLICK */
+
+    let $buttons = document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>;
+    for (let $btn of $buttons) {
+        let $subscriber = $btn;
+        $btn.addEventListener('click', () => {
+            scheme.beforeAnyInput();
+            let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
+            if (pen) {
+                schemeGrid.controlPen = pen;
+                viewControlPen(pen);
+            }
+            schemeGrid.controlEvent = pen;
+            if (OPEN_MODAL_MENU.includes(pen)) { openModal(scheme, schemeStorage); }
+            if (OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); }
+        })
+    }
+
+    /** MODALs */
+
     document.addEventListener('keydown', (event) => {
-        if(event.key === "Escape" && !document.getElementById('modal-wrapper')!.classList.contains('el--hidden')) {
+        if (event.key === "Escape" && !document.getElementById('modal-wrapper')!.classList.contains('el--hidden')) {
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+        }
+        if (event.key === "Escape" && !document.getElementById('modal-pattern-wrapper')!.classList.contains('el--hidden')) {
+            document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
         }
     });
 
@@ -167,22 +202,11 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
         }
     });
 
-    let $buttons = document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>;
-    for (let $btn of $buttons) {
-        let $subscriber = $btn;
-        $btn.addEventListener('click', () => {
-            scheme.beforeAnyInput();
-            let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
-            if (CONTROL_KEYS.hasOwnProperty(pen)) {
-                schemeGrid.controlPen = pen;
-                viewControlPen(pen);
-            }
-            schemeGrid.controlEvent = pen;
-            if (SWITCH_TO_OTHER_SCHEME.includes(pen)) {
-                openModal(scheme, schemeStorage);
-            }
-        })
-    }
+    document.getElementById('modal-pattern-wrapper')!.addEventListener('click', () => {
+        if(!document.getElementById('modal-pattern-wrapper')!.classList.contains('el--hidden')) {
+            document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
+        }
+    });
 }
 
 export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {

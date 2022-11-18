@@ -46,4 +46,19 @@ export class SchemeFormatConverter {
         return schemeCopy;
     }
 
+    public static toGhostFormat(pattern: SchemeCopy) : SchemeStructure {
+        let xMax = 0;
+        let yMax = 0;
+
+        for (const row in pattern) {
+            if (+row > xMax) { xMax = +row; }
+            for (const col in pattern[row]) {
+                if (+col > yMax) { yMax = +col; }
+            }
+        }
+
+        console.log(xMax, yMax);
+
+        return {};
+    }
 }

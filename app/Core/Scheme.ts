@@ -21,6 +21,8 @@ import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
+import {SchemeCopy} from "./Types/Scheme";
+import {SchemeFormatConverter} from "./SchemeFormatConverter";
 
 export class Scheme extends SchemeBase {
 
@@ -34,12 +36,16 @@ export class Scheme extends SchemeBase {
     public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
     public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
 
+    public isActionAlphaOn() : boolean {
+        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionOn;
+    }
+
     protected actionAlphaTick() : boolean {
         if (this.isRoadBuildMode) {
             this.buildRoadTick();
             return true;
         }
-        else if (this.cPattern.isActionAlpha) {
+        else if (this.cPattern.isActionOn) {
             this.cPattern.update(this.activeCursor);
             return true;
         }
@@ -60,6 +66,10 @@ export class Scheme extends SchemeBase {
 
     public putPatternBorder(poss: IPoss) { this.cPattern.put(poss); }
     public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
+
+    public loadPattern(patternShort: SchemeCopy) {
+        let pattern = SchemeFormatConverter.toGhostFormat(patternShort);
+    }
 
     /** STONEs **/
 
@@ -123,7 +133,7 @@ export class Scheme extends SchemeBase {
     /** ROADs **/
 
     public putRoadSmart(poss: IPoss) {
-        if (this.isRoadBuildMode || !this.inputAllowed) { return; }
+        if (this.isActionAlphaOn()) { return; }
 
         if (false === this.setSmartPathsForRoad(poss)) {
             this.removeRoad(poss);

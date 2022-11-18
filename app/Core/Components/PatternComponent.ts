@@ -13,7 +13,7 @@ export class PatternComponent extends AbstractComponent {
     private prevVisibility: boolean = false;
     private prevMove!: IPoss;
 
-    public get isActionAlpha() : boolean { return this.mode; }
+    public get isActionOn() : boolean { return this.mode; }
 
     public cellBorderType(poss: IPoss) : null | boolean { // false -> corner, true -> line
         if (!this.mode || !this.isBorderVisible) { return null; }
@@ -93,12 +93,8 @@ export class PatternComponent extends AbstractComponent {
 
     private refreshBordersVisibility() : void {
         if (this.prevVisibility != this.isBorderVisible) {
-            if (this.isBorderVisible) {
-                this.refreshCurrentBorderVisibility();
-            }
-            else {
-                this.refreshPreviousBorderVisibility();
-            }
+            if (this.isBorderVisible) { this.refreshCurrentBorderVisibility(); }
+            else { this.refreshPreviousBorderVisibility(); }
         }
         else if (this.isBorderVisible && this.possNotEquals(this.prevMove, this.end)) {
             this.refreshPreviousBorderVisibility();
@@ -131,6 +127,7 @@ export class PatternComponent extends AbstractComponent {
     }
 
     private refreshPreviousBorderVisibility() : void {
+        if (null === this.cellBorderType(this.start)) { this.refreshVisibleCell(this.start); }
         if (null === this.cellBorderType(this.prevMove)) { this.refreshVisibleCell(this.prevMove); }
         if (null === this.cellBorderType({ x: this.prevMove.x, y: this.start.y })) { this.refreshVisibleCell({ x: this.prevMove.x, y: this.start.y }); }
         if (null === this.cellBorderType({ x: this.start.x, y: this.prevMove.y })) { this.refreshVisibleCell({ x: this.start.x, y: this.prevMove.y }); }

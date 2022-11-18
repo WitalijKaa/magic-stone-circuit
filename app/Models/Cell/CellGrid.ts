@@ -46,7 +46,7 @@ export class CellGrid extends CellAbstract {
 
     public static get defaultTexture () : string { return TT.cell; }
 
-    handleClick(tapMode: boolean = false) { console.log(this.grid.controlPen)
+    handleClick(tapMode: boolean = false) {
         if (tapMode) {
             this.grid.hidePointerZone();
         }

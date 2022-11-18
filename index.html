@@ -13,56 +13,68 @@
     <div class="side-menu">
         <div id="current-btn" class="side-menu__current"></div>
         <div class="side-menu__buttons">
-            <div class="img-btn" id="b-1">
-                <img class="img-btn__image" src="/resources/stone_violet.png" data-tip="1">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/stone_violet.png" data-tip="1">
                 <label class="img-btn__tip el--texted">1</label>
             </div>
-            <div class="img-btn" id="b-2">
-                <img class="img-btn__image" src="/resources/stone_red.png" data-tip="2">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/stone_red.png" data-tip="2">
                 <label class="img-btn__tip el--texted">2</label>
             </div>
-            <div class="img-btn" id="b-3">
-                <img class="img-btn__image" src="/resources/stone_indigo.png" data-tip="3">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/stone_indigo.png" data-tip="3">
                 <label class="img-btn__tip el--texted">3</label>
             </div>
-            <div class="img-btn" id="b-4">
-                <img class="img-btn__image" src="/resources/stone_orange.png" data-tip="4">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/stone_orange.png" data-tip="4">
                 <label class="img-btn__tip el--texted">4</label>
             </div>
-            <div class="img-btn" id="b-6">
+            <div class="img-btn">
                 <img class="img-btn__image" src="/resources/btn_road.png" data-tip="6">
-                <label class="img-btn__tip el--texted">5</label>
+                <label class="img-btn__tip el--texted">~</label>
                 <label class="img-btn__tip img-btn__tip--right el--texted">+R</label>
             </div>
-            <div class="img-btn" id="b-7">
+            <div class="img-btn">
                 <img class="img-btn__image" src="/resources/btn_semi_side.png" data-tip="7">
+                <label class="img-btn__tip el--texted">5</label>
+            </div>
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/btn_semi_center.png" data-tip="8">
                 <label class="img-btn__tip el--texted">6</label>
             </div>
-            <div class="img-btn" id="b-8">
-                <img class="img-btn__image" src="/resources/btn_semi_center.png" data-tip="8">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/trigger_null.png" data-tip="5">
                 <label class="img-btn__tip el--texted">7</label>
             </div>
-            <div class="img-btn" id="b-9">
-                <img class="img-btn__image" src="/resources/trigger_null.png" data-tip="5">
-                <label class="img-btn__tip el--texted">9</label>
-            </div>
-            <div class="img-btn" id="b-x">
-                <img class="img-btn__image" src="/resources/btn_delete.png" data-tip="q">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/speed.png" data-tip="11">
                 <label class="img-btn__tip el--texted">8</label>
             </div>
-            <div class="img-btn" id="b-p">
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/border.png" data-tip="b">
+                <label class="img-btn__tip el--texted">9</label>
+            </div>
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/menu/border.png" data-tip="p">
+                <label class="img-btn__tip el--texted">P</label>
+            </div>
+            <div class="img-btn">
+                <img class="img-btn__image" src="/resources/btn_delete.png" data-tip="q">
+                <label class="img-btn__tip el--texted">q</label>
+            </div>
+            <div class="img-btn">
                 <img class="img-btn__image" src="/resources/btn_speed_up.png" data-tip="+">
                 <label class="img-btn__tip el--texted">+</label>
             </div>
-            <div class="img-btn" id="b-m">
+            <div class="img-btn">
                 <img class="img-btn__image" src="/resources/btn_speed_down.png" data-tip="-">
                 <label class="img-btn__tip el--texted">-</label>
             </div>
-            <div class="img-btn el--hidden" id="b-l">
+            <div class="img-btn el--hidden">
                 <img class="img-btn__image" src="/resources/level.png" data-tip="a">
                 <label class="img-btn__tip el--texted">a</label>
             </div>
-            <div class="img-btn" id="b-d">
+            <div class="img-btn">
                 <img class="img-btn__image" src="/resources/btn_storage.png" data-tip="d">
                 <label class="img-btn__tip el--texted">d</label>
             </div>
@@ -91,6 +103,12 @@
             <div id="menu-schemes" class="saved-links saved-links--levels saved-links--addition"></div>
             <div class="header">Levels</div>
             <div id="levels" class="saved-links saved-links--levels"></div>
+        </div>
+    </div>
+    <div id="modal-pattern-wrapper" class="modal-wrapper el--hidden">
+        <div onclick="event.stopPropagation()" class="modal-container">
+            <div class="header" style="margin-bottom: 10px;">Personal Patterns</div>
+            <div id="saved-patterns" class="saved-links"></div>
         </div>
     </div>
     <div class="notice"><div id="notice" class="notice-container">Ha Ha</div></div>

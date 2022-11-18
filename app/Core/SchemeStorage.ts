@@ -26,6 +26,10 @@ export class SchemeStorage {
         this.saveToDisk('__pattern__' + name, pattern);
     }
 
+    public loadPattern(name: string) : SchemeCopy {
+        return this.getFromDisk('__pattern__' + name);
+    }
+
     public createSaveCallback(name: string = DEFAULT_SCHEME_NAME) : () => void {
         return this.save.bind(this, name);
     }
@@ -50,11 +54,20 @@ export class SchemeStorage {
     }
 
     public getSchemesNames() : Array<string> {
+        let names = this.getNamesByKey('__schema__');
+        return names.filter((name) => { return DEFAULT_SCHEME_NAME != name; })
+    }
+
+    public getPatternNames() : Array<string> {
+        return this.getNamesByKey('__pattern__');
+    }
+
+    public getNamesByKey(key: string) : Array<string> {
         let names: Array<string> = [];
+        let keyLength = key.length;
         for (let name in window.localStorage) {
-            if ('__schema__' == name.substr(0, 10)) {
-                if (DEFAULT_SCHEME_NAME == name.substr(10)) { continue; }
-                names.push(name.substr(10));
+            if (key == name.substr(0, keyLength)) {
+                names.push(name.substr(keyLength));
             }
         }
         return names.sort();
