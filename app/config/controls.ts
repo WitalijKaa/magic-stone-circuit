@@ -257,7 +257,7 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
             }
             schemeGrid.controlEvent = pen;
             if (PEN_MAIN_MENU == pen || OPEN_MODAL_MENU.includes(pen)) { openModal(scheme, schemeStorage); }
-            if (PEN_PUT_PATTERN == pen || OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); }
+            if (PEN_PUT_PATTERN == pen || OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); schemeGrid.controlPen = pen; }
         })
     }
 
