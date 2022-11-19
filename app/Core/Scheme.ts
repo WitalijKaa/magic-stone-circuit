@@ -65,6 +65,7 @@ export class Scheme extends SchemeBase {
     /** PATTERNs **/
 
     public putPattern() : void { this.cPattern.put(); }
+    public cancelPutPattern() : void { this.cPattern.cancelCreate(); }
     public createPattern(poss: IPoss) : void { this.cPattern.create(poss); }
     public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
     public loadPattern(patternCopy: SchemeCopy) : void { this.cPattern.patternLoaded = patternCopy; this.cPattern.showGhosts(this.activeCursor); }

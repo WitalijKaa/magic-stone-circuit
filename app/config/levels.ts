@@ -1,10 +1,8 @@
 import * as CONF from "./game";
 
-const BUTTON_DELETE = 'x';
-const BUTTON_SPEED_UP = 'p';
-const BUTTON_SPEED_DOWN = 'm';
-const BUTTON_DISK = 'd';
-const BUTTON_LEVEL_CHECK = 'l';
+const BUTTON_DELETE = 'btn-delete';
+const BUTTON_DISK = 'btn-storage';
+const BUTTON_LEVEL_CHECK = 'btn-check-levels';
 
 export const LEVELS = {
 

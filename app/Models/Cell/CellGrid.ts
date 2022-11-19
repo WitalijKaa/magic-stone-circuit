@@ -109,6 +109,7 @@ export class CellGrid extends CellAbstract {
     }
     handleRightClick() {
         this.scheme.putRoadSmart(this.schemePosition);
+        this.scheme.cancelPutPattern();
         this.scheme.hidePattern();
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }

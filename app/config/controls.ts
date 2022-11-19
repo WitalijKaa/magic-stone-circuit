@@ -1,7 +1,7 @@
 import * as CONF from "./game";
 import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
-import {DEFAULT_SCHEME_NAME, PEN_PUT_PATTERN} from "./game";
+import {DEFAULT_SCHEME_NAME, PEN_MAIN_MENU, PEN_PUT_PATTERN} from "./game";
 import {LEVELS} from "./levels";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 
@@ -75,12 +75,14 @@ export function findButtonCode($imgBtnElem: HTMLElement) : string {
     return code;
 }
 
-export function viewControlPen(pen: string) : void {
-    let $el = document.querySelector('[data-tip="' + pen + '"]') as HTMLMediaElement;
+export function viewControlPen(pen: string) : boolean {
+    let $el = document.querySelector('[data-tip="' + pen + '"]:not([data-dont-show-as-selected])') as HTMLMediaElement;
     let $btn = document.getElementById('current-btn');
     if ($el && $btn) {
         $btn.style.backgroundImage = "url('" + $el.currentSrc + "')";
+        return true;
     }
+    return false;
 }
 
 export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
@@ -250,12 +252,11 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
         $btn.addEventListener('click', () => {
             scheme.beforeAnyInput();
             let pen: any = +findButtonCode($subscriber) ? +findButtonCode($subscriber) : findButtonCode($subscriber);
-            if (pen) {
+            if (pen && viewControlPen(pen)) {
                 schemeGrid.controlPen = pen;
-                viewControlPen(pen);
             }
             schemeGrid.controlEvent = pen;
-            if (OPEN_MODAL_MENU.includes(pen)) { openModal(scheme, schemeStorage); }
+            if (PEN_MAIN_MENU == pen || OPEN_MODAL_MENU.includes(pen)) { openModal(scheme, schemeStorage); }
             if (PEN_PUT_PATTERN == pen || OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); }
         })
     }
@@ -310,8 +311,11 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.add('el--hidden')
             }
-            level.buttons.map((btnNick) => {
-                document.getElementById('b-' + btnNick)!.classList.remove('el--hidden')
+            level.buttons.map((btnID) => {
+                if ('btn-' != btnID.toString().substr(0, 4)) {
+                    btnID = 'btn-type-' + btnID;
+                }
+                document.getElementById(btnID)!.classList.remove('el--hidden')
             })
 
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
@@ -324,7 +328,7 @@ function closeModalMenu() {
     for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
         $btn.classList.remove('el--hidden')
     }
-    document.getElementById('btn-levels')!.classList.add('el--hidden');
+    document.getElementById('btn-check-levels')!.classList.add('el--hidden');
     document.getElementById('modal-wrapper')!.classList.add('el--hidden');
 }
 

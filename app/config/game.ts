@@ -81,6 +81,7 @@ export const ST_SPEED = 11;
 export const ST_EMPTY = 'q';
 export const ST_BORDER = 'b';
 
+export const PEN_MAIN_MENU = 'diskette-menu'
 export const PEN_PUT_PATTERN = 'put-pattern'
 
 export const TRIGGER_SPRITES = {
