@@ -8,7 +8,7 @@ import {SchemeStorage} from "./Core/SchemeStorage";
 import {SchemeGrid} from "./Models/Scheme/SchemeGrid";
 import {TextureProvider} from "./Core/TextureProvider";
 import {SpriteModel} from "./Models/SpriteModel";
-import { addPenHandlers, createModal, viewControlPen } from "./config/controls";
+import {addPenHandlers, createModal, createPatternsModal, viewControlPen} from "./config/controls";
 import { mainContainerResize } from "./config/appFunctions";
 import {Scheme} from "./Core/Scheme";
 import { DEFAULT_SCHEME_NAME } from "./config/game";
@@ -45,6 +45,7 @@ if (pixiAppContainer)
         viewControlPen(schemeGrid.controlPen);
         addPenHandlers(scheme, schemeStorage, schemeGrid);
         createModal(scheme, schemeStorage);
+        createPatternsModal();
     });
 }
 else {

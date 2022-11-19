@@ -47,7 +47,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 29: TypeScript. --D
 - Task 30: game levels and save scheme menu. --D
 - Task 31: nice message about win. --D
-- Task 32: delete scheme.
+- Task 32: delete scheme. --D
 - Task 33: more levels.
 - Task 34: improve modal. --D
 - Task 35: languages serbian ukrainian belorussian russian and english.

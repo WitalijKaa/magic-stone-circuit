@@ -1,7 +1,7 @@
 import * as CONF from "./game";
 import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
-import {DEFAULT_SCHEME_NAME, PEN_PUT_PATTERN, RESET_SCHEME_NAME} from "./game";
+import {DEFAULT_SCHEME_NAME, PEN_PUT_PATTERN} from "./game";
 import {LEVELS} from "./levels";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 
@@ -84,6 +84,8 @@ export function viewControlPen(pen: string) : void {
 }
 
 export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
+    // @ts-ignore
+    window.deleteModalMode = false;
     document.getElementById('modal-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
@@ -94,17 +96,19 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
         $elSpan.addEventListener('click', () => {
-            for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
-                $btn.classList.remove('el--hidden')
-            }
-            document.getElementById('btn-levels')!.classList.add('el--hidden');
-            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
-            loadScheme(scheme, schemeStorage, $elSpan.innerText);
+            clickScheme(scheme, schemeStorage, $elSpan.innerText);
         })
     }
 }
 
 export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
+    if (!schemeStorage.getPatternNames().length) {
+        alert('Have no saved patterns... :(');
+        return;
+    }
+
+    // @ts-ignore
+    window.deleteModalMode = false;
     document.getElementById('modal-pattern-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
@@ -115,32 +119,102 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#saved-patterns span')) {
         $elSpan.addEventListener('click', () => {
-            document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
-            scheme.loadPattern(schemeStorage.loadPattern($elSpan.innerText));
+            // @ts-ignore
+            if (!window.deleteModalMode) {
+                scheme.loadPattern(schemeStorage.loadPattern($elSpan.innerText));
+            }
+            else if (schemeStorage.deletePattern($elSpan.innerText)) {
+                // @ts-ignore
+                for (let $elSpan of document.querySelectorAll('#saved-patterns span')) {
+                    if ($elSpan.textContent == $elSpan.innerText) {
+                        $elSpan.remove();
+                        break;
+                    }
+                }
+
+                if (!document.querySelectorAll('#saved-patterns span').length) {
+                    document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
+                }
+            }
         })
     }
 }
 
-export function loadScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) : void {
-    if (!name || "NEW SCHEME" == name) { name = prompt('name of Scheme...'); }
-    if (!name || "NEW SCHEME" == name) { return; }
+function clickMenuSpecialFunction(scheme: Scheme, schemeStorage: SchemeStorage, name: string) : void {
+    let setDeleteStyle = () => {
+        // @ts-ignore
+        if (window.deleteModalMode && !document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
+            document.getElementById('modal-wrapper')!.classList.add('mode--delete');
+        }
+        // @ts-ignore
+        else if (!window.deleteModalMode && document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
+            document.getElementById('modal-wrapper')!.classList.remove('mode--delete');
+        }
+    };
 
-    let freshScheme = scheme.resetScheme();
+    if ('DELETE SCHEME' == name) {
+        // @ts-ignore
+        window.deleteModalMode = !window.deleteModalMode;
+        setDeleteStyle();
+        return;
+    }
+    else {
+        // @ts-ignore
+        window.deleteModalMode = false;
+        setDeleteStyle();
+    }
 
-    if (RESET_SCHEME_NAME == name.toLowerCase()) {
+    if ('NEW SCHEME' == name) {
+        let newSchemeName = prompt('name of Scheme...');
+        clickScheme(scheme, schemeStorage, newSchemeName);
+    }
+
+    if ('JUST FIND CENTER' == name) {
+        scheme.setVisualCenter();
+    }
+
+    if ('RESET' == name) {
+        let freshScheme = scheme.resetScheme();
         scheme.setSaveToStorageMethod(schemeStorage.createSaveCallback());
         schemeStorage.resetScheme();
         schemeStorage.save();
         scheme.loadScheme(schemeStorage.load(freshScheme));
         name = DEFAULT_SCHEME_NAME;
+        let $name = document.getElementById('scheme-name');
+        if ($name) { $name.innerText = name; }
     }
-    else {
-        scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
-        scheme.loadScheme(schemeStorage.load(freshScheme, name));
+    closeModalMenu();
+}
+
+export function clickScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) : void {
+    if (!name || "NEW SCHEME" == name) { return; }
+
+    // @ts-ignore
+    if (window.deleteModalMode) {
+        deleteScheme(schemeStorage, name)
+        return;
     }
+
+    let freshScheme = scheme.resetScheme();
+
+    scheme.setSaveToStorageMethod(schemeStorage.save.bind(schemeStorage, name));
+    scheme.loadScheme(schemeStorage.load(freshScheme, name));
 
     let $name = document.getElementById('scheme-name');
     if ($name) { $name.innerText = name; }
+    closeModalMenu();
+}
+
+export function deleteScheme(schemeStorage: SchemeStorage, name: string) : void {
+    schemeStorage.delete(name);
+
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#saved-schemes span')) {
+        if ($elSpan.textContent == name) {
+            $elSpan.remove();
+            break;
+        }
+    }
 }
 
 export function loadLevel(scheme: Scheme, levelCode: string) {
@@ -214,21 +288,12 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
     menuHtml += '<span>RESET</span>';
     menuHtml += '<span>NEW SCHEME</span>';
     menuHtml += '<span>JUST FIND CENTER</span>';
+    menuHtml += '<span>DELETE SCHEME</span>';
     document.getElementById('menu-of-saved-schemes')!.innerHTML = menuHtml;
     // @ts-ignore
     for (let $elSpan of document.querySelectorAll('#menu-of-saved-schemes span')) {
         $elSpan.addEventListener('click', () => {
-            for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
-                $btn.classList.remove('el--hidden')
-            }
-            document.getElementById('btn-levels')!.classList.add('el--hidden');
-            document.getElementById('modal-wrapper')!.classList.add('el--hidden');
-            if ('JUST FIND CENTER' == $elSpan.innerText) {
-                scheme.setVisualCenter();
-            }
-            else {
-                loadScheme(scheme, schemeStorage, $elSpan.innerText);
-            }
+            clickMenuSpecialFunction(scheme, schemeStorage, $elSpan.innerText);
         })
     }
 
@@ -250,6 +315,48 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
 
             document.getElementById('modal-wrapper')!.classList.add('el--hidden');
             loadLevel(scheme, this.dataset.code);
+        })
+    }
+}
+
+function closeModalMenu() {
+    for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
+        $btn.classList.remove('el--hidden')
+    }
+    document.getElementById('btn-levels')!.classList.add('el--hidden');
+    document.getElementById('modal-wrapper')!.classList.add('el--hidden');
+}
+
+export function createPatternsModal() : void {
+    let menuHtml = '';
+    menuHtml += '<span>DELETE PATTERN</span>';
+    document.getElementById('menu-of-saved-patterns')!.innerHTML = menuHtml;
+    // @ts-ignore
+    for (let $elSpan of document.querySelectorAll('#menu-of-saved-patterns span')) {
+        $elSpan.addEventListener('click', () => {
+
+            let setDeleteStyle = () => {
+                // @ts-ignore
+                if (window.deleteModalMode && !document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
+                    document.getElementById('modal-pattern-wrapper')!.classList.add('mode--delete');
+                }
+                // @ts-ignore
+                else if (!window.deleteModalMode && document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
+                    document.getElementById('modal-pattern-wrapper')!.classList.remove('mode--delete');
+                }
+            };
+
+            if ('DELETE PATTERN' == $elSpan.innerText) {
+                // @ts-ignore
+                window.deleteModalMode = !window.deleteModalMode;
+                setDeleteStyle();
+                return;
+            }
+            else {
+                // @ts-ignore
+                window.deleteModalMode = false;
+                setDeleteStyle();
+            }
         })
     }
 }

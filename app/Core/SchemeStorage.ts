@@ -20,10 +20,18 @@ export class SchemeStorage {
         this.saveToDisk('__schema__' + name, SchemeFormatConverter.toShortFormat(this.getNamedScheme(name)))
     }
 
+    public delete(name: string) : boolean {
+        return this.removeFromDisk('__schema__' + name);
+    }
+
     public savePattern(name: string, pattern: SchemeCopy) {
         name = name.trim();
         if (!name) { return; }
         this.saveToDisk('__pattern__' + name, pattern);
+    }
+
+    public deletePattern(name: string) : boolean {
+        return this.removeFromDisk('__pattern__' + name);
     }
 
     public loadPattern(name: string) : SchemeCopy {
@@ -51,6 +59,13 @@ export class SchemeStorage {
         let item = window.localStorage.getItem(key);
         if (!item) { return {}; }
         return JSON.parse(item) as SchemeCopy;
+    }
+
+    private removeFromDisk(key: string) : boolean {
+        let item = window.localStorage.getItem(key);
+        if (!item) { return false; }
+        window.localStorage.removeItem(key);
+        return true;
     }
 
     public getSchemesNames() : Array<string> {

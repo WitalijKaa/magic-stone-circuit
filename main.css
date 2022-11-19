@@ -121,6 +121,9 @@ html, body {
 .saved-links span:hover {
     background-size: 100% 2px, 0 2px;
 }
+.mode--delete .saved-links--items span {
+    cursor: no-drop;
+}
 
 .saved-links--whats {
     padding-top: 0;
