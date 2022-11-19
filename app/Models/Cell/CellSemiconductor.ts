@@ -68,7 +68,7 @@ export class CellSemiconductor {
             this.flowRotate != CONF.ROAD_COMMON_ROTATE[schemeSemi.direction])
         {
             this.flowRotate = CONF.ROAD_COMMON_ROTATE[schemeSemi.direction];
-            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi.colorFlow)] + (this.flowRotate ? 'Turn' : '')]);
+            this.cell.changeTexture(TT[TYPE_TO_VAR[schemeSemi.type] + 'Flow' + (this.ghost ? 'Ghost' : '') + COLOR_TO_VAR[this.colorToVarConstIx(schemeSemi.colorFlow)] + (this.flowRotate ? 'Turn' : '')]);
         }
         this.tFlow = this.colorToVarConstIx(schemeSemi.colorFlow);
     }

@@ -122,6 +122,7 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
             // @ts-ignore
             if (!window.deleteModalMode) {
                 scheme.loadPattern(schemeStorage.loadPattern($elSpan.innerText));
+                document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
             }
             else if (schemeStorage.deletePattern($elSpan.innerText)) {
                 // @ts-ignore

@@ -1,3 +1,4 @@
+import {Sprite} from '@pixi/sprite';
 import {CellGrid} from "./CellGrid";
 import {SchemeFormatConverter} from "../../Core/SchemeFormatConverter";
 import {SchemeCellStructure} from "../../Core/Types/Scheme";
@@ -8,20 +9,17 @@ import {CellTrigger} from "./CellTrigger";
 import {CellSpeed} from "./CellSpeed";
 import {SpriteModel} from "../SpriteModel";
 import {TT} from "../../config/textures";
-import {CellAbstract} from "./CellAbstract";
 import {ICellWithContent} from "../../Core/Interfaces/ICellWithContent";
 import {ICellWithRoad} from "../../Core/Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "../../Core/Interfaces/ICellWithSemiconductor";
 import {ICellWithTrigger} from "../../Core/Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "../../Core/Interfaces/ICellWithSpeed";
 
-export class CellGhost extends CellAbstract {
-
-    constructor(private cell: CellGrid) {
-        super(cell.visiblePosition, cell.visibleGrid, SpriteModel.from(TT.ghost));
-    }
+export class CellGhost extends SpriteModel {
 
     private ghost: null | CellContent | CellRoad | CellSemiconductor | CellTrigger | CellSpeed = null;
+
+    constructor(private cell: CellGrid) { super(); }
 
     public update() : void {
         let ghost = this.cell.scheme.findGhost(this.cell.schemePosition);
@@ -29,6 +27,7 @@ export class CellGhost extends CellAbstract {
         if (ghost) { ghostCell = SchemeFormatConverter.toGhostFormat(this.cell.schemePosition, ghost); }
 
         if (ghostCell) {
+            this.init();
             if (this.ghost) { this.ghost.killGhost(); this.ghost = null; }
 
             if ('content' in ghostCell && ghostCell.content) {
@@ -63,4 +62,12 @@ export class CellGhost extends CellAbstract {
     public get defaultTexture () : string { return TT.ghost; }
 
     public get schemeCell() : null { return null; }
+
+    private doneInit: boolean = false;
+    private init() : void {
+        if (this.doneInit) { return; }
+        this.model = Sprite.from(this.defaultTexture)
+        this.model.alpha = 0.8;
+        this.doneInit = true;
+    }
 }

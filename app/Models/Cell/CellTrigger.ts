@@ -18,7 +18,7 @@ export class CellTrigger {
         if (schemeCell) {
             let color = schemeCell.color;
             if (!color) {
-                this.cell.changeTexture(TT.trigger);
+                this.cell.changeTexture(this.ghost ? TT.ghostTrigger : TT.trigger);
             }
             else {
                 this.cell.changeTexture(CONF.TRIGGER_SPRITES[color]);

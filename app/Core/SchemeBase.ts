@@ -135,11 +135,11 @@ export abstract class SchemeBase {
                     toAwake.push([poss, schemeCell.c.t])
                 }
                 else if ('t' in schemeCell) {
-                    this.createCellForTrigger(poss);
+                    this.placeCellTriggerForced(poss);
                     this.setContentCell(poss);
                 }
                 else if ('f' in schemeCell) {
-                    this.createCellForSpeed(poss, schemeCell.f.t);
+                    this.placeCellSpeedForced(poss, schemeCell.f.t);
                     this.setContentCell(poss);
                 }
                 else if ('i' in schemeCell) {
@@ -169,7 +169,7 @@ export abstract class SchemeBase {
 
     // SPEED
 
-    private _coloringSpeedMs: number = 100;
+    private _coloringSpeedMs: number = 60;
     private get coloringSpeedMs() : number {
         if (this.cLevel.isLevelMode) { return 25; }
         return this._coloringSpeedMs;
@@ -359,6 +359,7 @@ export abstract class SchemeBase {
         model.semiconductor = { direction: dir, type: type, colorAwake: null, colorFlow: null, colorCharge: null, from: null, checkRun: 0 };
     }
 
+    private placeCellTriggerForced(poss: IPoss) : void { SchemeBase.initCellAsTrigger(this.getCell(poss)); }
     public createCellForTrigger(poss: IPoss) : boolean {
         let cell = this.getCellForTrigger(poss);
         if (cell) {
@@ -378,6 +379,7 @@ export abstract class SchemeBase {
         model.trigger = { color: null };
     }
 
+    private placeCellSpeedForced(poss: IPoss, toSide: DirSide) : void { SchemeBase.initCellAsSpeed(this.getCell(poss), toSide); }
     public createCellForSpeed(poss: IPoss, toSide: DirSide) : boolean {
         let cell = this.getCellForSpeed(poss);
         if (cell) {

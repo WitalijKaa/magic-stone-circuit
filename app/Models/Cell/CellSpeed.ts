@@ -21,7 +21,8 @@ export class CellSpeed {
     public update() : void {
         let schemeCell = this.schemeCell;
         if (schemeCell) {
-            let textureName = schemeCell.color ? 'speed' + COLOR_IX_STR[schemeCell.color] : 'speed';
+            let textureName = schemeCell.color ? 'speed' + COLOR_IX_STR[schemeCell.color] :
+                (this.ghost ? 'ghostSpeed' : 'speed');
 
             if (!this.content) {
                 this.content = new SpriteModel(TT[textureName]);

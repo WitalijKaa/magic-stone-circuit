@@ -6,20 +6,19 @@ import {SchemeContainer} from "./Scheme/SchemeContainer";
 
 export class SpriteModel extends DisplayModel {
 
-    public model: Sprite;
+    public model!: Sprite;
 
     private isPivotCenter: boolean = false;
     private isNormalSize: boolean = true;
     protected sizeOffset: number = 0;
 
-    constructor(texture: string | Sprite) {
+    constructor(texture: null | string | Sprite = null) {
         super();
+        if (!texture) { return; }
         if ('string' == typeof texture) {
             this.model = Sprite.from(texture);
         }
-        else {
-            this.model = texture;
-        }
+        else { this.model = texture; }
     }
 
     private static textureProvider

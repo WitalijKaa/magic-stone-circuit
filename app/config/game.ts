@@ -83,13 +83,6 @@ export const ST_BORDER = 'b';
 
 export const PEN_PUT_PATTERN = 'put-pattern'
 
-export const CONTENT_SPRITES = {
-    [ST_STONE_VIOLET]: TT.stoneV,
-    [ST_STONE_RED]: TT.stoneR,
-    [ST_STONE_INDIGO]: TT.stoneI,
-    [ST_STONE_ORANGE]: TT.stoneO,
-};
-
 export const TRIGGER_SPRITES = {
     [COLOR_VIOLET_ROAD]: TT.triggerV,
     [COLOR_RED_ROAD]: TT.triggerR,

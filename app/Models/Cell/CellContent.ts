@@ -1,10 +1,22 @@
-import * as CONF from "../../config/game";
 import {CellGrid} from "./CellGrid";
 import {TT} from "../../config/textures";
-import {STONE_TYPE_TO_ROAD_COLOR} from "../../config/game";
+import {ST_STONE_INDIGO, ST_STONE_ORANGE, ST_STONE_RED, ST_STONE_VIOLET, STONE_TYPE_TO_ROAD_COLOR} from "../../config/game";
 import {ICellWithContent} from "../../Core/Interfaces/ICellWithContent";
 import {CellStoneType} from "../../Core/Types/CellStone";
 import {CellGhost} from "./CellGhost";
+
+const CONTENT_SPRITES = {
+    [ST_STONE_VIOLET]: TT.stoneV,
+    [ST_STONE_RED]: TT.stoneR,
+    [ST_STONE_INDIGO]: TT.stoneI,
+    [ST_STONE_ORANGE]: TT.stoneO,
+};
+const CONTENT_SPRITES_GHOSTS = {
+    [ST_STONE_VIOLET]: TT.ghostStoneV,
+    [ST_STONE_RED]: TT.ghostStoneR,
+    [ST_STONE_INDIGO]: TT.ghostStoneI,
+    [ST_STONE_ORANGE]: TT.ghostStoneO,
+};
 
 export class CellContent {
 
@@ -22,7 +34,7 @@ export class CellContent {
 
         if (this.schemeCell) {
             if (!this.isSwitcher) {
-                this.cell.changeTexture(CONF.CONTENT_SPRITES[this.schemeCell]);
+                this.cell.changeTexture(this.stoneTexture);
             }
             else {
                 this.cell.changeTexture(TT.switcher);
@@ -35,6 +47,13 @@ export class CellContent {
             this.cell.changeTexture(this.cell.defaultTexture);
             this.isStoneDrawn = false;
         }
+    }
+
+    private get stoneTexture(): string {
+        if (!this.ghost) {
+            return CONTENT_SPRITES[this.schemeCell!];
+        }
+        return CONTENT_SPRITES_GHOSTS[this.schemeCell!]
     }
 
     private get isSwitcher() : boolean {
