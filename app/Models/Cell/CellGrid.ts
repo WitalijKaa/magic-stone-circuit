@@ -100,12 +100,16 @@ export class CellGrid extends CellAbstract {
                 this.scheme.removeSpeed(this.schemePosition);
             }
             else if (CONF.ST_BORDER == this.grid.controlPen) {
-                this.scheme.putPatternBorder(this.schemePosition);
+                this.scheme.createPattern(this.schemePosition);
+            }
+            else if (CONF.PEN_PUT_PATTERN == this.grid.controlPen) {
+                this.scheme.putPattern();
             }
         }
     }
     handleRightClick() {
         this.scheme.putRoadSmart(this.schemePosition);
+        this.scheme.hidePattern();
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 

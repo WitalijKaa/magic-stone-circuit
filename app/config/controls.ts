@@ -1,7 +1,7 @@
 import * as CONF from "./game";
 import {Scheme} from "../Core/Scheme";
 import {SchemeStorage} from "../Core/SchemeStorage";
-import {DEFAULT_SCHEME_NAME, RESET_SCHEME_NAME} from "./game";
+import {DEFAULT_SCHEME_NAME, PEN_PUT_PATTERN, RESET_SCHEME_NAME} from "./game";
 import {LEVELS} from "./levels";
 import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 
@@ -181,7 +181,7 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
             }
             schemeGrid.controlEvent = pen;
             if (OPEN_MODAL_MENU.includes(pen)) { openModal(scheme, schemeStorage); }
-            if (OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); }
+            if (PEN_PUT_PATTERN == pen || OPEN_MODAL_PATTERNS_MENU.includes(pen)) { openPatternsModal(scheme, schemeStorage); }
         })
     }
 
@@ -214,9 +214,9 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
     menuHtml += '<span>RESET</span>';
     menuHtml += '<span>NEW SCHEME</span>';
     menuHtml += '<span>JUST FIND CENTER</span>';
-    document.getElementById('menu-schemes')!.innerHTML = menuHtml;
+    document.getElementById('menu-of-saved-schemes')!.innerHTML = menuHtml;
     // @ts-ignore
-    for (let $elSpan of document.querySelectorAll('#menu-schemes span')) {
+    for (let $elSpan of document.querySelectorAll('#menu-of-saved-schemes span')) {
         $elSpan.addEventListener('click', () => {
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.remove('el--hidden')

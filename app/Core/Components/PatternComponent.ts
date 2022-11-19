@@ -19,19 +19,21 @@ export class PatternComponent extends AbstractComponent {
     public set patternLoaded(pattern: SchemeCopy) { this.ghostPattern = pattern; this.ghostStart = null;}
 
     public get isActionCreateOn() : boolean { return this.mode; }
+    public get isActionPutOn() : boolean { return !!this.ghostPattern; }
 
     public showGhosts(poss: IPoss) : boolean {
         if (!this.ghostPattern) { return false; }
-        if (!this.ghostStart) {
+        if (!this.ghostStart || (this.ghostStart.x != poss.x || this.ghostStart.y != poss.y)) {
             this.ghostStart = { x: poss.x, y: poss.y };
-        }
-        else {
-            if (this.ghostStart.x != poss.x || this.ghostStart.y != poss.y) {
-                this.ghostStart = { x: poss.x, y: poss.y };
-                this.refreshVisibleAll();
-            }
+            this.refreshVisibleAll();
         }
         return true;
+    }
+
+    public hideGhosts() : void {
+        if (!this.ghostPattern) { return; }
+        this.ghostPattern = null;
+        this.refreshVisibleAll();
     }
 
     public cellBorderType(poss: IPoss) : null | boolean { // false -> corner, true -> line
@@ -59,7 +61,7 @@ export class PatternComponent extends AbstractComponent {
         return null;
     }
 
-    public put(poss: IPoss) : void {
+    public create(poss: IPoss) : void {
         if (!this.mode) {
             if (!this.findCell(poss)) {
                 this.end = this.start = { x: poss.x, y: poss.y };
@@ -79,7 +81,7 @@ export class PatternComponent extends AbstractComponent {
                 this.refreshBordersVisibility();
             }
             if (!this.findCell(poss) && this.start.x != this.end.x && this.start.y != this.end.y && this.checkIfBordersVisible()) {
-                this.create();
+                this.save();
             }
         }
     }
@@ -181,7 +183,7 @@ export class PatternComponent extends AbstractComponent {
         }
     }
 
-    private create() : void {
+    private save() : void {
         let name = prompt('Enter pattern name please.');
         if (!name || !name.trim()) { return; }
         let pattern: SchemeStructure = {};
@@ -205,7 +207,13 @@ export class PatternComponent extends AbstractComponent {
         this.scheme.savePattern(name, copy);
     }
 
-    public cancel() : void {
+    public put() : void {
+        if (!this.ghostPattern) { return; }
+        this.loadScheme(this.ghostPattern, this.ghostStart!);
+        this.hideGhosts();
+    }
+
+    public cancelCreate() : void {
         this.mode = false;
         this.prevVisibility = false;
         this.refreshBordersVisibility();

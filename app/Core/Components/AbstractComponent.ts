@@ -1,6 +1,7 @@
 import {Scheme} from "../Scheme";
 import {IPoss} from "../IPoss";
 import {CellScheme} from "../CellScheme";
+import {SchemeCopy} from "../Types/Scheme";
 
 export abstract class AbstractComponent {
 
@@ -20,5 +21,10 @@ export abstract class AbstractComponent {
 
     protected belongsToLine(dot: number, start: number, end: number) : boolean {
         return (end > start && dot >= start && dot <= end) || (end < start && dot <= start && dot >= end);
+    }
+
+    protected loadScheme(schemeCopy: SchemeCopy, poss: IPoss) : void {
+        this.scheme.loadScheme(schemeCopy, poss.x, poss.y);
+        this.scheme.afterChange();
     }
 }

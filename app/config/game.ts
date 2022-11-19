@@ -82,6 +82,8 @@ export const ST_SPEED = 11;
 export const ST_EMPTY = 'q';
 export const ST_BORDER = 'b';
 
+export const PEN_PUT_PATTERN = 'put-pattern'
+
 export const CONTENT_SPRITES = {
     [ST_STONE_VIOLET]: TT.stoneV,
     [ST_STONE_RED]: TT.stoneR,

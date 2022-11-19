@@ -60,7 +60,10 @@ export abstract class SchemeBase {
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
 
-    protected contentCells: { [key: string]: IPoss } = {};
+    private contentCells: { [key: string]: IPoss } = {};
+    public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
+    public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
+
     protected cacheColorings: { [key: string]: Array<ColorCellCache> } = {};
     protected activeCacheColorings: { [key: string]: Array<ColorCellCache> } = {};
     protected coloringAwaitTick = false;
@@ -98,15 +101,14 @@ export abstract class SchemeBase {
         return this.scheme;
     }
 
-    public loadScheme(source: SchemeCopy) {
-        // todo use class SchemeFormatConverter
+    public loadScheme(source: SchemeCopy, xOffset: number = 800000000 - 100, yOffset: number = 800000000 - 100) {
         this.cLevel.isLevelMode = false;
         let toAwake: Array<[IPoss, CellStoneType]> = [];
         for (let row in source) {
             for (let column in source[row]) {
                 let schemeCell = source[row][column];
                 if (!schemeCell) { continue; }
-                let poss = { x: +row + 800000000 - 100, y: +column + 800000000 - 100 };
+                let poss = { x: +row + xOffset, y: +column + yOffset };
 
                 if ('r' in schemeCell) {
                     let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
@@ -114,12 +116,14 @@ export abstract class SchemeBase {
                         paths[+ix] = true;
                     })
                     this.getCellForRoadForced(poss, schemeCell.r.t, paths);
+                    this.removeContentCell(poss);
                 }
                 else if ('s' in schemeCell) {
                     this.getCellForSemiconductorForced(poss, schemeCell.s.d, schemeCell.s.t);
                     if (CONF.ST_ROAD_SLEEP == schemeCell.s.t) {
-                        this.contentCells[this.cellName(poss)] = poss;
+                        this.setContentCell(poss);
                     }
+                    else { this.removeContentCell(poss); }
                 }
                 else if ('c' in schemeCell) {
                     let range = [] as Array<CellStoneType>;
@@ -127,20 +131,21 @@ export abstract class SchemeBase {
                         range = schemeCell.c.r;
                     }
                     this.getCellForStoneForced(poss, { type: schemeCell.c.t, range: range });
-                    this.contentCells[this.cellName(poss)] = poss;
+                    this.setContentCell(poss);
                     toAwake.push([poss, schemeCell.c.t])
                 }
                 else if ('t' in schemeCell) {
                     this.createCellForTrigger(poss);
-                    this.contentCells[this.cellName(poss)] = poss;
+                    this.setContentCell(poss);
                 }
                 else if ('f' in schemeCell) {
                     this.createCellForSpeed(poss, schemeCell.f.t);
-                    this.contentCells[this.cellName(poss)] = poss;
+                    this.setContentCell(poss);
                 }
                 else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
                     this.putSmile(schemeCell.i.l);
+                    this.removeContentCell(poss);
                 }
             }
         }

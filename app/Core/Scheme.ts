@@ -21,7 +21,7 @@ import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
-import {SchemeCopy} from "./Types/Scheme";
+import {SchemeCopy, SchemeCopyCell} from "./Types/Scheme";
 
 export class Scheme extends SchemeBase {
 
@@ -29,14 +29,12 @@ export class Scheme extends SchemeBase {
 
     public cancelProcesses() : void {
         this.cancelToBuildRoad();
-        this.cPattern.cancel();
+        this.cPattern.cancelCreate();
+        this.cPattern.hideGhosts();
     }
 
-    public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
-    public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
-
     public isActionAlphaOn() : boolean {
-        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionCreateOn;
+        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionCreateOn || this.cPattern.isActionPutOn;
     }
 
     protected actionAlphaTick() : boolean {
@@ -66,10 +64,12 @@ export class Scheme extends SchemeBase {
 
     /** PATTERNs **/
 
-    public putPatternBorder(poss: IPoss) { this.cPattern.put(poss); }
+    public putPattern() : void { this.cPattern.put(); }
+    public createPattern(poss: IPoss) : void { this.cPattern.create(poss); }
     public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
-    public loadPattern(patternShort: SchemeCopy) { this.cPattern.patternLoaded = patternShort; }
-    public findGhost(poss: IPoss) { return this.cPattern.findGhost(poss); }
+    public loadPattern(patternCopy: SchemeCopy) : void { this.cPattern.patternLoaded = patternCopy; this.cPattern.showGhosts(this.activeCursor); }
+    public hidePattern() : void { this.cPattern.hideGhosts(); }
+    public findGhost(poss: IPoss) : null | SchemeCopyCell { return this.cPattern.findGhost(poss); }
 
     /** STONEs **/
 
@@ -95,7 +95,7 @@ export class Scheme extends SchemeBase {
 
         this.cancelColorPathsForAnyRoadAround(poss);
         cell.content = { type: stoneType, range: this.switcherMode ? [...this.switcherMode] : [] };
-        this.contentCells[this.cellName(poss)] = poss;
+        this.setContentCell(poss);
         this.setAwakeColorAroundForAwakeSemi(poss, stoneType);
 
         this.refreshVisibleCell(poss);
@@ -107,7 +107,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
 
         this.cancelColorPathsForAnyRoadAround(poss);
-        delete(this.contentCells[this.cellName(poss)]);
+        this.removeContentCell(poss);
         this.killCell(poss);
         this.setAwakeColorAroundForAwakeSemi(poss, null);
 
@@ -696,7 +696,7 @@ export class Scheme extends SchemeBase {
         });
 
         this.killCell(cell);
-        delete(this.contentCells[this.cellName(cell)]);
+        this.removeContentCell(cell);
     }
 
     private putSleepSemiconductor(poss: IPoss) : void {
@@ -718,7 +718,7 @@ export class Scheme extends SchemeBase {
         }
 
         cellSemi = this.getCellForSemiconductorForced(poss, direction, CONF.ST_ROAD_SLEEP);
-        this.contentCells[this.cellName(poss)] = poss;
+        this.setContentCell(poss);
         this.setColorToNewSemiconductor(cellSemi);
     }
 
