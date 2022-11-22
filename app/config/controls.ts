@@ -88,6 +88,7 @@ export function viewControlPen(pen: string) : boolean {
 export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     // @ts-ignore
     window.deleteModalMode = false;
+    setPointerStyleAtMenuModal();
     document.getElementById('modal-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
@@ -111,6 +112,7 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
 
     // @ts-ignore
     window.deleteModalMode = false;
+    setPointerStyleAtPatternsModal();
     document.getElementById('modal-pattern-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
@@ -127,14 +129,7 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
                 document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
             }
             else if (schemeStorage.deletePattern($elSpan.innerText)) {
-                // @ts-ignore
-                for (let $elSpan of document.querySelectorAll('#saved-patterns span')) {
-                    if ($elSpan.textContent == $elSpan.innerText) {
-                        $elSpan.remove();
-                        break;
-                    }
-                }
-
+                $elSpan.remove();
                 if (!document.querySelectorAll('#saved-patterns span').length) {
                     document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
                 }
@@ -143,28 +138,29 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
     }
 }
 
+function setPointerStyleAtMenuModal() {
+    // @ts-ignore
+    if (window.deleteModalMode && !document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
+        document.getElementById('modal-wrapper')!.classList.add('mode--delete');
+    }
+    // @ts-ignore
+    else if (!window.deleteModalMode && document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
+        document.getElementById('modal-wrapper')!.classList.remove('mode--delete');
+    }
+};
+
 function clickMenuSpecialFunction(scheme: Scheme, schemeStorage: SchemeStorage, name: string) : void {
-    let setDeleteStyle = () => {
-        // @ts-ignore
-        if (window.deleteModalMode && !document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
-            document.getElementById('modal-wrapper')!.classList.add('mode--delete');
-        }
-        // @ts-ignore
-        else if (!window.deleteModalMode && document.getElementById('modal-wrapper')!.classList.contains('mode--delete')) {
-            document.getElementById('modal-wrapper')!.classList.remove('mode--delete');
-        }
-    };
 
     if ('DELETE SCHEME' == name) {
         // @ts-ignore
         window.deleteModalMode = !window.deleteModalMode;
-        setDeleteStyle();
+        setPointerStyleAtMenuModal();
         return;
     }
     else {
         // @ts-ignore
         window.deleteModalMode = false;
-        setDeleteStyle();
+        setPointerStyleAtMenuModal();
     }
 
     if ('NEW SCHEME' == name) {
@@ -332,6 +328,17 @@ function closeModalMenu() {
     document.getElementById('modal-wrapper')!.classList.add('el--hidden');
 }
 
+function setPointerStyleAtPatternsModal() {
+    // @ts-ignore
+    if (window.deleteModalMode && !document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
+        document.getElementById('modal-pattern-wrapper')!.classList.add('mode--delete');
+    }
+    // @ts-ignore
+    else if (!window.deleteModalMode && document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
+        document.getElementById('modal-pattern-wrapper')!.classList.remove('mode--delete');
+    }
+};
+
 export function createPatternsModal() : void {
     let menuHtml = '';
     menuHtml += '<span>DELETE PATTERN</span>';
@@ -340,27 +347,16 @@ export function createPatternsModal() : void {
     for (let $elSpan of document.querySelectorAll('#menu-of-saved-patterns span')) {
         $elSpan.addEventListener('click', () => {
 
-            let setDeleteStyle = () => {
-                // @ts-ignore
-                if (window.deleteModalMode && !document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
-                    document.getElementById('modal-pattern-wrapper')!.classList.add('mode--delete');
-                }
-                // @ts-ignore
-                else if (!window.deleteModalMode && document.getElementById('modal-pattern-wrapper')!.classList.contains('mode--delete')) {
-                    document.getElementById('modal-pattern-wrapper')!.classList.remove('mode--delete');
-                }
-            };
-
             if ('DELETE PATTERN' == $elSpan.innerText) {
                 // @ts-ignore
                 window.deleteModalMode = !window.deleteModalMode;
-                setDeleteStyle();
+                setPointerStyleAtPatternsModal();
                 return;
             }
             else {
                 // @ts-ignore
                 window.deleteModalMode = false;
-                setDeleteStyle();
+                setPointerStyleAtPatternsModal();
             }
         })
     }

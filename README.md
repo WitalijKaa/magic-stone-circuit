@@ -34,7 +34,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 16: big menu at left. --D
 - Task 17: save current scheme to local storage. --D
 - Task 18: save local storage to file, load from file.
-- Task 19: save blueprints to local storage, add them to menu.
+- Task 19: save blueprints to local storage, add them to menu. --D
 - Task 20: help and learn-how-to guide. --D
 - Task 21: lock tick on any timeout changes. --C
 - Task 22: variations on road-cell switch. --D
@@ -62,3 +62,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 44: ghosts to play with them.
 - Task 45: clock generator
 - Task 46: monitor cell with remote light on.
+- Task 47: big problem with async colorings.
+- Task 48: better performance for patters, rotate etc.
+- Task 49: delete section in frame.
+- Task 50: delete road by path.
