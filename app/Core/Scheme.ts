@@ -22,6 +22,7 @@ import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
 import {SchemeCopy, SchemeCopyCell} from "./Types/Scheme";
+import {DeleteComponent} from "./Components/DeleteComponent";
 
 export class Scheme extends SchemeBase {
 
@@ -31,10 +32,15 @@ export class Scheme extends SchemeBase {
         this.cancelToBuildRoad();
         this.cPattern.cancelCreate();
         this.cPattern.hideGhosts();
+        this.cDelete.cancelFrame();
     }
 
     public isActionAlphaOn() : boolean {
-        return this.isRoadBuildMode || !this.inputAllowed || this.cPattern.isActionCreateOn || this.cPattern.isActionPutOn;
+        return this.isRoadBuildMode ||
+            !this.inputAllowed ||
+            this.cPattern.isActionCreateOn ||
+            this.cPattern.isActionPutOn ||
+            this.cDelete.isActionOn;
     }
 
     protected actionAlphaTick() : boolean {
@@ -46,10 +52,28 @@ export class Scheme extends SchemeBase {
             this.cPattern.update(this.activeCursor);
             return true;
         }
-        else if (this.cPattern.showGhosts(this.activeCursor)) {
-            return true;
-        }
+        else if (this.cPattern.showGhosts(this.activeCursor)) { return true; }
+        else if (this.cDelete.updateFrame(this.activeCursor)) { return true; }
         return false;
+    }
+
+    /** BORDERs **/
+
+    public getBorderType(poss: IPoss) : null | boolean {
+        let border = this.cPattern.cellBorderType(poss);
+        if (null === border) { border = this.cDelete.cellBorderType(poss); }
+        return border;
+    }
+
+    /** DELETEs **/
+
+    public actionDelete(poss: IPoss) : void {
+        if (!this.cDelete.isActionOn) {
+            this.cDelete.createFrame(poss);
+        }
+        else {
+            this.cDelete.frameDelete();
+        }
     }
 
     /** SPEEDers **/
@@ -67,7 +91,6 @@ export class Scheme extends SchemeBase {
     public putPattern() : void { this.cPattern.put(); }
     public cancelPutPattern() : void { this.cPattern.cancelCreate(); }
     public createPattern(poss: IPoss) : void { this.cPattern.create(poss); }
-    public getBorderType(poss: IPoss) : null | boolean { return this.cPattern.cellBorderType(poss); }
     public loadPattern(patternCopy: SchemeCopy) : void { this.cPattern.patternLoaded = patternCopy; this.cPattern.showGhosts(this.activeCursor); }
     public hidePattern() : void { this.cPattern.hideGhosts(); }
     public findGhost(poss: IPoss) : null | SchemeCopyCell { return this.cPattern.findGhost(poss); }
@@ -1207,6 +1230,7 @@ export class Scheme extends SchemeBase {
     public setVisualCenter() : void { this.visibleGrid.setCenter(); }
 
     protected initComponents() {
+        this.cDelete = new DeleteComponent(this);
         this.cPattern = new PatternComponent(this);
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);

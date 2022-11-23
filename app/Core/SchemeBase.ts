@@ -26,6 +26,7 @@ import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 import {PatternComponent} from "./Components/PatternComponent";
+import {DeleteComponent} from "./Components/DeleteComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -49,6 +50,7 @@ const COLOR_DEV = {
 
 export abstract class SchemeBase {
 
+    protected cDelete!: DeleteComponent;
     protected cPattern!: PatternComponent;
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;

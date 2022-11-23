@@ -108,9 +108,15 @@ export class CellGrid extends CellAbstract {
         }
     }
     handleRightClick() {
-        this.scheme.putRoadSmart(this.schemePosition);
         this.scheme.cancelPutPattern();
         this.scheme.hidePattern();
+
+        if (CONF.ST_EMPTY == this.grid.controlPen) {
+            this.scheme.actionDelete(this.schemePosition);
+        }
+        else {
+            this.scheme.putRoadSmart(this.schemePosition);
+        }
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 
