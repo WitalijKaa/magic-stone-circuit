@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build": "webpack build --progress",
     "dev": "webpack build --watch --progress --mode=development"
   },
   "devDependencies": {

@@ -26,7 +26,9 @@ export class CellTrigger {
             this.isDrawn = true;
         }
         else if (this.isDrawn) {
-            this.cell.changeTexture(this.cell.defaultTexture);
+            if (this.isEmptyHere) {
+                this.cell.changeTexture(this.cell.defaultTexture);
+            }
             this.isDrawn = false;
         }
     }
@@ -39,5 +41,10 @@ export class CellTrigger {
     public set asGhost(cell: ICellWithTrigger) { this.ghost = cell; }
 
     public killGhost() : void { this.cell.changeTexture(this.cell.defaultTexture); }
+
+    private get isEmptyHere() : boolean {
+        if (!this.ghost) { return !this.cell.schemeCell?.content && !this.cell.schemeCell?.semiconductor; }
+        return true;
+    }
 
 }
