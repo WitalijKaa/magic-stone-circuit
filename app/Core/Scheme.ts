@@ -4,7 +4,16 @@ import {ROAD_LIGHT, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN} from "../config/g
 import {SchemeBase} from "./SchemeBase";
 import {IPoss} from "./IPoss";
 import {CellStoneType} from "./Types/CellStone";
-import {CellRoad, CellRoadPathType, CellRoadType, RoadChangeHistory, RoadChangeHistoryCell, RoadSavePathsArray, RoadPathsArray} from "./Types/CellRoad";
+import {
+    CellRoad,
+    CellRoadPathType,
+    CellRoadType,
+    RoadChangeHistory,
+    RoadChangeHistoryCell,
+    RoadSavePathsArray,
+    RoadPathsArray,
+    CellPath
+} from "./Types/CellRoad";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {Axis, BuildRoadWays} from "./Types/BuildRoadWays";
 import {GridZone} from "./Types/GridCursor";
@@ -22,11 +31,14 @@ import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
 import {SchemeCopy, SchemeCopyCell} from "./Types/Scheme";
+import {StoneComponent} from "./Components/StoneComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
 import {ColorCellCache} from "./Types/ColorCellCache";
 
 export class Scheme extends SchemeBase {
+
+    public get isGameBlock() : boolean { return this.cUpdate.gameBlock; }
 
     public beforeAnyInput() { this.switcherMode = false; } // todo kill
 
@@ -101,6 +113,8 @@ export class Scheme extends SchemeBase {
 
     /** STONEs **/
 
+    public putStone(stoneType: CellStoneType, poss: IPoss) : void { this.cStone.put(stoneType, poss);}
+
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
         let prevCell = this.findCellOfContent(poss);
         if (prevCell) {
@@ -121,8 +135,8 @@ export class Scheme extends SchemeBase {
             return;
         }
 
-        this.cancelColorPathsForAnyRoadAround(poss);
-        cell.content = { type: stoneType, range: this.switcherMode ? [...this.switcherMode] : [] };
+        this.cancelColorFromAnyRoadPathAroundCell(poss);
+        cell.content = { type: stoneType };
         this.setContentCell(poss);
         this.setAwakeColorAroundForAwakeSemi(poss, stoneType);
 
@@ -134,7 +148,7 @@ export class Scheme extends SchemeBase {
         let cell = this.findCellOfContent(poss);
         if (!cell) { return; }
 
-        this.cancelColorPathsForAnyRoadAround(poss);
+        this.cancelColorFromAnyRoadPathAroundCell(poss);
         this.removeContentCell(poss);
         this.killCell(poss);
         this.setAwakeColorAroundForAwakeSemi(poss, null);
@@ -766,7 +780,7 @@ export class Scheme extends SchemeBase {
             SIDES.map((side) => {
                 if (this.turnSleepSemiconductorHere(side, poss)) {
                     this.refreshVisibleCell(HH[side](poss));
-                    this.cancelColorPathsForAnyRoadAround(HH[side](poss));
+                    this.cancelColorFromAnyRoadPathAroundCell(HH[side](poss));
                 }
             })
         }
@@ -869,7 +883,7 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    protected setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void {
+    public setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
 
@@ -928,7 +942,7 @@ export class Scheme extends SchemeBase {
         return false;
     }
 
-    private setFlowColorToSemiconductor(color: ContentColor, fromDir: DirSide, poss: IPoss): void {
+    public setFlowColorToSemiconductor(color: ContentColor, fromDir: DirSide, poss: IPoss): void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell) { return; }
         let semi = cell.semiconductor;
@@ -975,13 +989,13 @@ export class Scheme extends SchemeBase {
             }
             else {
                 if (this.isAnyRoadAtSides(cell, [toDir])) {
-                    this.cancelColorOnRoadFromSide(null, semi.from, cell.cellPosition[toDir]);
+                    this.eraseColorOnRoadPathFromSide(null, semi.from, cell.cellPosition[toDir]);
                 }
             }
         }
     }
 
-    private setColorToRoadBySleepSemiconductor(forced: boolean, poss: IPoss) : void {
+    public setColorToRoadBySleepSemiconductor(forced: boolean, poss: IPoss) : void {
         let cell = this.findCellOfSemiconductor(poss);
         if (!cell || !cell.isSleepSemiconductor || (!forced && !cell.semiconductor.colorFlow) || !cell.semiconductor.from) { return; }
 
@@ -995,43 +1009,21 @@ export class Scheme extends SchemeBase {
             // else if (sideRoadCell.isRoadPathFromSide(cell.semiconductor.from)) {
             //     let colorFlowsOut = sideRoadCell.getColorOfPath(sideRoadCell.road, cell.semiconductor.from, cell.semiconductor.from);
             //     if (!colorFlowsOut || colorFlowsOut != cell.semiconductor.colorFlow) {
-            //         this.cancelColorOnRoadFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
+            //         this.eraseColorOnRoadPathFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
             //         this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from, sideRoadCell.poss);
             //     }
             // }
         }
         else {
             if (sideRoadCell.isRoadPathFromSide(cell.semiconductor.from)) {
-                this.cancelColorOnRoadFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
+                this.eraseColorOnRoadPathFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
             }
         }
     }
 
-    /** COLOR **/
+    /** COLORs remove from roads **/
 
-    public transferColorToNextCellExceptToRoad(color: null | number, fromDir: DirSide, poss: IPoss) {
-        this.setColorToSemiconductorByRoad(color, fromDir, poss);
-        if (color) { this.cTrigger.colorIt(color, fromDir, poss); }
-        this.cSpeed.colorIt(color, fromDir, poss);
-        this.cSmile.setColorToSmileByRoad(color, fromDir, poss);
-    }
-
-    public transferColorToNextCellsExceptToRoadByCache(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
-        this.cacheColorAdd(cell, {
-            type: CONF.ST_SPEED,
-            method: 'transferColorToNextCellsExceptToRoadByCacheExec',
-            params: [cell, nextSides, color],
-            cacheDirections: nextSides,
-        });
-    }
-
-    protected transferColorToNextCellsExceptToRoadByCacheExec(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
-        nextSides.map((toDir: DirSide) => {
-            this.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir])
-        });
-    }
-
-    protected cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss) : void {
+    protected eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss) : void {
         let cell = this.findCellOfRoad(poss);
         if (!cell || !cell.isRoadPathFromSide(fromDir)) { return; }
         let road = cell.road;
@@ -1071,10 +1063,105 @@ export class Scheme extends SchemeBase {
         }
         this.cSpeed.colorIt(null, fromDir, nextCellPoss);
         this.eraseColorOnRoadPath(road, pathType);
-        this.cancelColorOnRoadFromSide(nextCheckRun, fromDir, nextCellPoss);
+        this.eraseColorOnRoadPathFromSide(nextCheckRun, fromDir, nextCellPoss);
 
         this.cacheColorToDirRemove(toDir, poss);
         this.cacheColorToDirRemove(fromDir, poss);
+    }
+
+    /** COLOR **/
+
+    public setColorToRoad(color: number, fromDir: DirSide, poss: IPoss) {
+        let cell = this.findCellOfRoad(poss);
+        if (!cell) { return; }
+        let pathFrom = CONF.SIDE_TO_ROAD_PATH[fromDir];
+
+        if (this.canPathSetColor(cell.road, pathFrom)) {
+            cell.road.paths[pathFrom] = { color: color, from: fromDir };
+            this.moveColorToNextPaths(cell, color, this.findNextPathsToSetColor(cell.road, pathFrom));
+        }
+        this.refreshVisibleCell(poss);
+    }
+
+    private findNextPathsToSetColor(road: CellRoad, pathFrom: number) : Array<number> {
+        let pathsIXs : Array<number> = [];
+        if (true === road.paths[4]) {
+            pathsIXs.push(4);
+            if (pathFrom != 0 && true === road.paths[0]) { pathsIXs.push(0); }
+            if (pathFrom != 1 && true === road.paths[1]) { pathsIXs.push(1); }
+            if (pathFrom != 2 && true === road.paths[2]) { pathsIXs.push(2); }
+            if (pathFrom != 3 && true === road.paths[3]) { pathsIXs.push(3); }
+        }
+        else if (!road.paths[4]) {
+            let oppositePath = CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[pathFrom]]];
+            if (true === road.paths[oppositePath]) { pathsIXs.push(oppositePath); }
+            else if (!road.paths[oppositePath]) {
+                let sides = CONF.SIDES_TURN_90[CONF.ROAD_PATH_TO_SIDE[pathFrom]];
+                if (true === road.paths[CONF.SIDE_TO_ROAD_PATH[sides[0]]]) { pathsIXs.push(CONF.SIDE_TO_ROAD_PATH[sides[0]]); }
+                if (true === road.paths[CONF.SIDE_TO_ROAD_PATH[sides[1]]]) { pathsIXs.push(CONF.SIDE_TO_ROAD_PATH[sides[1]]); }
+            }
+        }
+        return pathsIXs;
+    }
+
+    private moveColorToNextPaths(cell: ICellWithRoad, color: number, paths: Array<number>) {
+        paths.map((path) => {
+            this.cacheColorAdd(cell.poss, {
+                type: CONF.ST_ROAD,
+                method: 'execMoveColorToNextPath',
+                params: [cell.poss, color, path],
+                cacheDirections: [CONF.ROAD_PATH_TO_SIDE[path], CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]]],
+            });
+        });
+    }
+
+    public execMoveColorToNextPath(poss: IPoss, color: number, path: CellRoadPathType) {
+        let cell = this.findCellOfRoad(poss);
+        if (!cell || !this.canPathSetColor(cell.road, path)) { return; }
+
+        if (4 == path) {
+            cell.road.paths[path] = { color: color, from: LEFT };
+            this.refreshVisibleCell(poss);
+            return;
+        }
+
+        cell.road.paths[path] = { color: color, from: CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]] };
+        this.refreshVisibleCell(poss);
+
+        this.cacheColorAdd(poss, {
+            type: CONF.ST_ROAD,
+            method: 'moveColorToNextCell',
+            params: [poss, CONF.ROAD_PATH_TO_SIDE[path], color],
+            cacheDirections: [CONF.ROAD_PATH_TO_SIDE[path], CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]]],
+        });
+    }
+
+    public moveColorToNextCell(poss: IPoss, toDir: DirSide, color: number) {
+        let nextCellPoss = HH[toDir](poss)
+        this.setColorToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextCellPoss);
+        this.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextCellPoss)
+    }
+
+    public transferColorToNextCellExceptToRoad(color: null | number, fromDir: DirSide, poss: IPoss) {
+        this.setColorToSemiconductorByRoad(color, fromDir, poss);
+        if (color) { this.cTrigger.colorIt(color, fromDir, poss); }
+        this.cSpeed.colorIt(color, fromDir, poss);
+        this.cSmile.setColorToSmileByRoad(color, fromDir, poss);
+    }
+
+    public transferColorToNextCellsExceptToRoadByCache(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
+        this.cacheColorAdd(cell, {
+            type: CONF.ST_SPEED,
+            method: 'transferColorToNextCellsExceptToRoadByCacheExec',
+            params: [cell, nextSides, color],
+            cacheDirections: nextSides,
+        });
+    }
+
+    public transferColorToNextCellsExceptToRoadByCacheExec(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
+        nextSides.map((toDir: DirSide) => {
+            this.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir])
+        });
     }
 
     private cancelColorOnDefineRoadPath(poss: IPoss, pathType: CellRoadPathType) : void {
@@ -1083,7 +1170,7 @@ export class Scheme extends SchemeBase {
             let sidePoss: IPoss = Cell[toDir](poss);
             let toDirCell = this.findCellOfRoad(sidePoss);
             if (toDirCell && toDirCell.road.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[toDir]]]) {
-                this.cancelColorOnRoadFromSide(null, CONF.OPPOSITE_SIDE[toDir], sidePoss);
+                this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[toDir], sidePoss);
             }
         }
     }
@@ -1096,125 +1183,21 @@ export class Scheme extends SchemeBase {
         });
     }
 
-    setColorToRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) {
-        let cell = this.findCellOfRoad(poss);
-        if (!cell) { return; }
-        let pathFrom = CONF.SIDE_TO_ROAD_PATH[fromDir];
-
-        if (color) {
-            if (this.canPathSetColor(cell.road, pathFrom)) {
-                cell.road.paths[pathFrom] = { color: color, from: fromDir };
-                this.moveColorToNextPaths(
-                    poss,
-                    color,
-                    this.disabledDirsToMoveColor(cell.road, fromDir)
-                );
-            }
-        }
-        else {
-            if (cell.road.paths[pathFrom]) {
-                cell.road.paths[pathFrom] = true;
-            }
-        }
-
-        this.refreshVisibleCell(poss);
-    }
-
-    disabledDirsToMoveColor(road: CellRoad, fromDir: DirSide) : Array<DirSide> {
-        let disabled = [fromDir];
-        if (ROAD_HEAVY != road.type && road.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[fromDir]]]) {
-            if (fromDir == LEFT || fromDir == RIGHT) {
-                disabled.push(UP);
-                disabled.push(DOWN);
-            }
-            else {
-                disabled.push(LEFT);
-                disabled.push(RIGHT);
-            }
-        }
-        return disabled;
-    }
-
-    moveColorToNextPaths(poss: IPoss, color, disabledDirs: Array<DirSide>) {
-        let cell = this.findCellOfRoad(poss);
-        if (!cell) { return; }
-
-        let cacheDirections: Array<DirSide> = [];
-        SIDES.map((side) => {
-            if (disabledDirs.includes(side)) { return; }
-            cacheDirections.push(side);
-        });
-
-        this.cacheColorAdd(poss, {
-            type: CONF.ST_ROAD,
-            method: 'execMoveColorToNextPaths',
-            params: [poss, color, disabledDirs],
-            cacheDirections: cacheDirections,
-        });
-    }
-
-    execMoveColorToNextPaths(poss: IPoss, color, disabledDirs) {
-        let cell = this.findCellOfRoad(poss);
-        if (!cell) { return; }
-        let road = cell.road;
-
-        let nextSides: Array<DirSide> = [];
-
-        SIDES.map((toDir) => {
-            if (disabledDirs.includes(toDir)) { return; }
-            let pathTo = CONF.SIDE_TO_ROAD_PATH[toDir];
-            if (this.canPathSetColor(road, pathTo)) {
-                road.paths[pathTo] = { color: color, from: CONF.OPPOSITE_SIDE[toDir] };
-                nextSides.push(toDir);
-            }
-        });
-        this.refreshVisibleCell(poss);
-
-        this.cacheColorAdd(poss, {
-            type: CONF.ST_ROAD,
-            method: 'moveColorToHeavy',
-            params: [road, color, poss],
-            cacheDirections: [...SIDES],
-        });
-
-        this.cacheColorAdd(poss, {
-            type: CONF.ST_ROAD,
-            method: 'moveColorToNextCells',
-            params: [cell, nextSides, color],
-            cacheDirections: nextSides,
-        });
-    }
-
-    moveColorToHeavy(road, color, poss: IPoss) {
-        if (this.canPathSetColor(road, CONF.ROAD_PATH_HEAVY)) {
-            road.paths[CONF.ROAD_PATH_HEAVY] = { color: color };
-            this.refreshVisibleCell(poss);
-        }
-    }
-
-    moveColorToNextCells(cell: ICellWithRoad, nextSides: Array<DirSide>, color: number) {
-        nextSides.map((toDir: DirSide) => {
-            let nextCellPoss = cell.cellPosition[toDir];
-            this.setColorToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextCellPoss);
-            this.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextCellPoss)
-        });
-    }
-
     /** TRICKs **/
 
     public anyClick(poss: IPoss) : void {
-        let cell = this.findCellOfContent(poss);
-        if (!cell || !cell.content.range.length) { return; }
-        let ix = cell.content.range.indexOf(cell.content.type);
-        if (ix == -1) { return; }
+        // let cell = this.findCellOfContent(poss);
+        // if (!cell || !cell.content.range.length) { return; }
+        // let ix = cell.content.range.indexOf(cell.content.type);
+        // if (ix == -1) { return; }
 
-        this.cancelColorPathsForAnyRoadAround(poss);
-        this.setAwakeColorAroundForAwakeSemi(poss, null);
-        cell.content.type = cell.content.range[(ix == cell.content.range.length - 1) ? 0 : ix + 1];
-        this.setAwakeColorAroundForAwakeSemi(poss, cell.content.type);
+        // this.cancelColorFromAnyRoadPathAroundCell(poss);
+        // this.setAwakeColorAroundForAwakeSemi(poss, null);
+        // cell.content.type = cell.content.range[(ix == cell.content.range.length - 1) ? 0 : ix + 1];
+        // this.setAwakeColorAroundForAwakeSemi(poss, cell.content.type);
 
-        this.refreshVisibleCell(poss);
-        this.afterChange();
+        // this.refreshVisibleCell(poss);
+        // this.afterChange();
     }
 
     private switcherMode: false | Array<CellStoneType> = false;
@@ -1243,6 +1226,7 @@ export class Scheme extends SchemeBase {
         this.cPattern = new PatternComponent(this);
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
+        this.cStone = new StoneComponent(this);
         this.cTrigger = new TriggerComponent(this);
         this.cSpeed = new SpeedComponent(this);
     }

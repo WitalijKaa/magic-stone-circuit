@@ -24,6 +24,7 @@ import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {TriggerComponent} from "./Components/TriggerComponent";
 import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
+import {StoneComponent} from "./Components/StoneComponent";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 import {PatternComponent} from "./Components/PatternComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
@@ -56,6 +57,7 @@ export abstract class SchemeBase {
     protected cPattern!: PatternComponent;
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
+    protected cStone!: StoneComponent;
     protected cTrigger!: TriggerComponent;
     protected cSpeed!: SpeedComponent;
 
@@ -84,9 +86,7 @@ export abstract class SchemeBase {
     public setSavePatternMethod(saveCallable: (name: string, pattern: SchemeCopy) => void) : void { this._savePatternCallback = saveCallable; }
     public savePattern(name: string, pattern: SchemeCopy) { return this._savePatternCallback(name, pattern); }
 
-    public afterChange() : void {
-        this._saveToStorageCallback();
-    }
+    public afterChange() : void { this._saveToStorageCallback(); }
 
     public resetScheme() : SchemeInstanceStructure {
         this.scheme = {};
@@ -122,10 +122,10 @@ export abstract class SchemeBase {
                 }
                 else if ('c' in schemeCell) {
                     let range = [] as Array<CellStoneType>;
-                    if (schemeCell.c.r) {
-                        range = schemeCell.c.r;
-                    }
-                    this.getCellForStoneForced(poss, { type: schemeCell.c.t, range: range });
+                    // if (schemeCell.c.r) {
+                    //     range = schemeCell.c.r;
+                    // }
+                    this.getCellForStoneForced(poss, { type: schemeCell.c.t /*, range: range */ });
                     this.setContentCell(poss);
                     toAwake.push([poss, schemeCell.c.t])
                 }
@@ -174,9 +174,10 @@ export abstract class SchemeBase {
 
     // ABSTRACT
 
+    public abstract get isGameBlock() : boolean;
     protected abstract initComponents() : void;
     protected abstract actionAlphaTick() : boolean;
-    protected abstract cancelColorOnRoadFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
+    protected abstract eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     public abstract putSmile(logic: string) : void;
 
@@ -220,12 +221,18 @@ export abstract class SchemeBase {
     protected getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
+    public getCellForStone(poss: IPoss) : null | CellScheme {
+        return this.getCellFor('content', poss);
+    }
     protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
         let model = this.getCell(poss);
         SchemeBase.initCellAsStone(model, stone);
         return model as ICellWithContent;
     }
     public findCellOfContent(poss: IPoss) : null | ICellWithContent {
+        return this.findCellOf('content', poss) as null | ICellWithContent;
+    }
+    public findCellOfStone(poss: IPoss) : null | ICellWithContent {
         return this.findCellOf('content', poss) as null | ICellWithContent;
     }
     public static initCellAsStone(model: CellScheme, stone: CellStone) : void {
@@ -544,6 +551,18 @@ export abstract class SchemeBase {
             return !cell || !cell.isAwakeSemiconductor || !this.countStonesAround(cell);
         });
     }
+    
+    // COLORs remove from roads
+
+    public cancelColorFromAnyRoadPathAroundCell(poss: IPoss) : void {
+        SIDES.map((side: DirSide) => {
+            this.cancelColorFromRoadPathAroundCellBySide(side, poss);
+        });
+    }
+
+    public cancelColorFromRoadPathAroundCellBySide(side: DirSide, poss: IPoss) : void {
+        this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
+    }
 
     // COLORs cancel
 
@@ -551,48 +570,39 @@ export abstract class SchemeBase {
         if (road.paths[pathType]) { road.paths[pathType] = true; }
     }
 
-    public cancelColorPathsForAnyRoadAround(poss: IPoss) : void {
-        SIDES.map((side: DirSide) => {
-            this.cancelRoadColorPathBySide(side, poss);
-        });
-    }
-
     protected cancelColorPathsRoadsAroundByPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
         SIDES.map((side: DirSide) => {
             if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
-                this.cancelRoadColorPathBySide(side, poss);
+                this.cancelColorFromRoadPathAroundCellBySide(side, poss);
             }
         });
     }
 
-    public cancelRoadColorPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, false, false, false, side, poss); }
-    protected cancelRoadColorFlowsOutPathBySide(side: DirSide, poss: IPoss) : void { this.cancelColorPathBySideByParams(false, true, true, false, side, poss); }
+    protected cancelRoadColorFlowsOutPathBySide(side: DirSide, poss: IPoss) : void { this.coreCancelColorOnPathExec(false, true, true, false, side, poss); }
 
-    private cancelColorPathBySideByParams(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, side: DirSide, poss: IPoss) : void {
-        let sideCell = this.findCellOfRoad(HH[side](poss));
+    private coreCancelColorOnPathExec(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, side: DirSide, poss: IPoss) : void {
+        let cell = this.findCellOfRoad(HH[side](poss));
         let sideFrom = CONF.OPPOSITE_SIDE[side];
-        if (!sideCell || !sideCell.isRoadPathFromSide(sideFrom)) { return; }
+        if (!cell || !cell.isRoadPathFromSide(sideFrom)) { return; }
 
         if (hasToFlowIn || hasToFlowOut) { hasToBeColored = true; }
         if (hasToBeColored && hasToBeUncolored) { hasToBeColored = false; hasToBeUncolored = false; hasToFlowIn = false; hasToFlowOut = false; }
 
-        if (hasToBeColored && !sideCell.isColoredRoadPathFromSide(sideFrom)) { return; }
-        if (hasToBeUncolored && !sideCell.isUncoloredRoadPathFromSide(sideFrom)) { return; }
-        if (hasToFlowIn && !sideCell.isColoredRoadPathAtSideFlowToThatSide(sideFrom)) { return; }
-        if (hasToFlowOut && !sideCell.isColoredRoadPathAtSideFlowFromThatSide(sideFrom)) { return; }
+        if (hasToBeColored && !cell.isColoredRoadPathFromSide(sideFrom)) { return; }
+        if (hasToBeUncolored && !cell.isUncoloredRoadPathFromSide(sideFrom)) { return; }
+        if (hasToFlowIn && !cell.isColoredRoadPathAtSideFlowToThatSide(sideFrom)) { return; }
+        if (hasToFlowOut && !cell.isColoredRoadPathAtSideFlowFromThatSide(sideFrom)) { return; }
 
-        this.cancelColorOnRoadFromSide(null, CONF.OPPOSITE_SIDE[side], sideCell);
+        this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], cell);
     }
 
     public verifyThatCheckRunForRoadCancelColorIsOk(road: CellRoad, checkRun: number | null) : number | false {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
-        else if (checkRun + 1 == road.checkRun) { return false; }
+        else if (checkRun == road.checkRun) { return false; }
 
-        if (road.checkRun == checkRun) { road.checkRun = checkRun + 1; } // allow twice to cancel color on a cell
-        else { road.checkRun = checkRun; }
-
+        road.checkRun = checkRun;
         return checkRun;
     }
 
@@ -661,10 +671,10 @@ export abstract class SchemeBase {
         }
         else if (cell.content) {
             showInConsole =
-                'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]] +
-                (!cell.content.range.length ? '' :
-                ' ## ' +
-                cell.content.range.map(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
+                'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]];// +
+                // (!cell.content.range.length ? '' :
+                // ' ## ' +
+                // cell.content.range.map(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
         }
         else if (cell.trigger) {
             showInConsole =

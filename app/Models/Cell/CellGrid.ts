@@ -75,10 +75,10 @@ export class CellGrid extends CellAbstract {
             if (HH.isStone(this.grid.controlPen)) {
                 this.scheme.anyClick(this.schemePosition);
 
-                let cell = this.scheme.findCellOfContent(this.schemePosition);
-                if (cell && cell.content.range.length) { return; }
+                // let cell = this.scheme.findCellOfContent(this.schemePosition);
+                // if (cell && cell.content.range.length) { return; }
 
-                this.scheme.putContent(this.grid.controlPen, this.schemePosition);
+                this.scheme.putStone(this.grid.controlPen, this.schemePosition);
             }
             else if (HH.isSemiconductor(this.grid.controlPen)) {
                 this.scheme.anyClick(this.schemePosition);

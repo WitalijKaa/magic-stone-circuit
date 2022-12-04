@@ -14,8 +14,8 @@ export class TriggerComponent {
             this.scheme.refreshVisibleCell(poss);
             this.scheme.afterChange();
             this.scheme.setContentCell(poss);
-            this.scheme.cancelRoadColorPathBySide(CONF.LEFT, poss);
-            this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
+            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.LEFT, poss);
+            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
         }
     }
 
@@ -23,7 +23,8 @@ export class TriggerComponent {
         let cell = this.scheme.findCellOfTrigger(poss);
         if (!cell) { return; }
 
-        this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
+        this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
+        this.scheme.cacheColorRemove(poss);
         this.scheme.removeContentCell(poss);
         this.scheme.killCell(poss);
         this.scheme.refreshVisibleCell(poss);
@@ -36,7 +37,8 @@ export class TriggerComponent {
         if (!cell) { return; }
 
         if (cell.trigger.color != color) {
-            this.scheme.cancelRoadColorPathBySide(CONF.RIGHT, poss);
+            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
+            this.scheme.cacheColorRemove(poss);
         }
         
         cell.trigger.color = color;

@@ -48,7 +48,7 @@ export class CellScheme implements ICellScheme {
     }
 
     get isSwitcher() : boolean {
-        return !!(this.content && this.content.range.length);
+        return false;//!!(this.content && this.content.range.length);
     }
 
     get x() : number { return this.cellPosition.x; }

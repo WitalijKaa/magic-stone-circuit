@@ -18,13 +18,13 @@ export class SpeedComponent extends AbstractComponent {
             cell.speed.color = null;
             this.scheme.refreshVisibleCell(poss);
             this.scheme.afterChange();
-            this.scheme.cancelColorPathsForAnyRoadAround(poss);
+            this.scheme.cancelColorFromAnyRoadPathAroundCell(poss);
         }
         else if (this.scheme.createCellForSpeed(poss, this.currentPutDir)) {
             this.scheme.setContentCell(poss);
             this.scheme.refreshVisibleCell(poss);
             this.scheme.afterChange();
-            this.scheme.cancelColorPathsForAnyRoadAround(poss);
+            this.scheme.cancelColorFromAnyRoadPathAroundCell(poss);
         }
     }
 
@@ -32,7 +32,7 @@ export class SpeedComponent extends AbstractComponent {
         let cell = this.scheme.findCellOfSpeed(poss);
         if (!cell) { return; }
 
-        this.scheme.cancelColorPathsForAnyRoadAround(poss);
+        this.scheme.cancelColorFromAnyRoadPathAroundCell(poss);
         this.scheme.removeContentCell(poss);
         this.scheme.killCell(poss);
         this.scheme.refreshVisibleCell(poss);
@@ -53,7 +53,7 @@ export class SpeedComponent extends AbstractComponent {
         this.cacheColorRemove(poss);
         this.setColorToRoadFromSide(null, cell.cellPosition[cell.speed.to], cell.speed.color, CONF.OPPOSITE_SIDE[cell.speed.to]);
         if (!color && fromDir == cell.speed.to) {
-            this.scheme.cancelRoadColorPathBySide(CONF.OPPOSITE_SIDE[fromDir], poss);
+            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.OPPOSITE_SIDE[fromDir], poss);
         }
         this.scheme.refreshVisibleCell(poss);
     }

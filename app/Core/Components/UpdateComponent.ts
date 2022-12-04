@@ -14,6 +14,8 @@ export class UpdateComponent extends AbstractComponent {
     public gameBlock: boolean = false;
     private cacheMoveBlock: boolean = false;
     private cacheEditBlock: boolean = false;
+    private cacheAwaitAddBlock: number = 0;
+    private cacheAwaitRemoveBlock: number = 0;
 
     // SPEED
 
@@ -39,24 +41,26 @@ export class UpdateComponent extends AbstractComponent {
 
     public cacheAddAct(poss: IPoss, cache: ColorCellCache) : void {
         if (this.cacheEditBlock) {
-            setTimeout(() => { this.cacheAddAct(poss, cache) }, 1);
+            this.cacheAwaitAddBlock++;
+            setTimeout(() => { this.cacheAwaitAddBlock--; this.cacheAddAct(poss, cache) }, 1);
             return;
         }
 
         this.cacheEditBlock = true;
         let cacheActs = this.gameBlock ? this.updateActsNext : this.updateActs;
         if (this.cacheMoveBlock) { cacheActs = this.updateActs; }
-        if (this.gameBlock) {
-            let name = HH.cellName(poss);
-            if (!cacheActs[name]) { cacheActs[name] = []; }
-            cacheActs[name].push(cache);
-        }
+
+        let name = HH.cellName(poss);
+        if (!cacheActs[name]) { cacheActs[name] = []; }
+        cacheActs[name].push(cache);
+
         this.cacheEditBlock = false;
     }
 
     public cacheRemoveAct(poss: IPoss) : void {
-        if (this.cacheEditBlock || this.gameBlock || this.cacheMoveBlock) {
-            setTimeout(() => { this.cacheRemoveAct(poss) }, 1);
+        if (this.cacheEditBlock || this.gameBlock || this.cacheMoveBlock || this.cacheAwaitAddBlock > 0) {
+            this.cacheAwaitRemoveBlock++;
+            setTimeout(() => { this.cacheAwaitRemoveBlock--; this.cacheRemoveAct(poss); }, 1);
             return;
         }
 
@@ -68,8 +72,9 @@ export class UpdateComponent extends AbstractComponent {
     }
 
     public cacheRemoveActOfColorToDir(toDir: DirSide, poss: IPoss) : void {
-        if (this.cacheEditBlock || this.gameBlock || this.cacheMoveBlock) {
-            setTimeout(() => { this.cacheRemoveActOfColorToDir(toDir, poss) }, 1);
+        if (this.cacheEditBlock || this.gameBlock || this.cacheMoveBlock || this.cacheAwaitAddBlock > 0) {
+            this.cacheAwaitRemoveBlock++;
+            setTimeout(() => { this.cacheAwaitRemoveBlock--; this.cacheRemoveActOfColorToDir(toDir, poss); }, 1);
             return;
         }
 
@@ -83,11 +88,11 @@ export class UpdateComponent extends AbstractComponent {
                 }
             }
         }
-        if (this.cacheMoveBlock[name]) {
-            for (let ix = this.cacheMoveBlock[name].length - 1; ix >= 0; ix--) {
-                let cache = this.cacheMoveBlock[name][ix];
+        if (this.updateActsNext[name]) {
+            for (let ix = this.updateActsNext[name].length - 1; ix >= 0; ix--) {
+                let cache = this.updateActsNext[name][ix];
                 if (cache.cacheDirections.includes((toDir))) {
-                    this.cacheMoveBlock[name].splice(ix, 1);
+                    this.updateActsNext[name].splice(ix, 1);
                 }
             }
         }
@@ -119,7 +124,7 @@ export class UpdateComponent extends AbstractComponent {
     private contentReUpdateNext: number = 4;
 
     public update() : void {
-        if (this.cacheEditBlock) {
+        if (this.cacheEditBlock || this.cacheAwaitAddBlock > 0 || this.cacheAwaitRemoveBlock > 0) {
             setTimeout(() => { this.update() }, 1);
             return;
         }

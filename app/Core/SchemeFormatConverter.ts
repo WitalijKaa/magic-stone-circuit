@@ -37,9 +37,9 @@ export class SchemeFormatConverter {
                 }
                 else if ('content' in schemeCell && schemeCell.content) {
                     schemeCopy[rr][cc] = { c: { t: schemeCell.content.type } };
-                    if (schemeCell.content.range && schemeCell.content.range.length) {
-                        schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
-                    }
+                    // if (schemeCell.content.range && schemeCell.content.range.length) {
+                    //     schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
+                    // }
                 }
                 else if ('trigger' in schemeCell && schemeCell.trigger) {
                     schemeCopy[rr][cc] = { t: 1 };
@@ -72,7 +72,7 @@ export class SchemeFormatConverter {
             return model as ICellWithSemiconductor;
         }
         if ('c' in schemeCell) {
-            SchemeBase.initCellAsStone(model, { type: schemeCell.c.t, range: [] });
+            SchemeBase.initCellAsStone(model, { type: schemeCell.c.t });
             return model as ICellWithContent;
         }
         if ('t' in schemeCell) {
