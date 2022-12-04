@@ -5,12 +5,11 @@ import {OPPOSITE_SIDE, ROAD_PATH_HEAVY, SIDES_TURN_90, SIDES_TURN_BY_CLOCK} from
 import {ContentColor} from "../Types/ColorTypes";
 import {CellRoad, CellRoadPathType} from "../Types/CellRoad";
 import * as CONF from "../../config/game";
+import {AbstractComponent} from "./AbstractComponent";
 
-export class SpeedComponent {
+export class SpeedComponent extends AbstractComponent {
 
     private currentPutDir: DirSide = 'Right';
-
-    constructor(private scheme: Scheme) { }
 
     public put(poss: IPoss) {
         let cell = this.scheme.findCellOfSpeed(poss);
@@ -51,7 +50,7 @@ export class SpeedComponent {
         }
 
         cell.speed.color = color;
-        this.scheme.removeColoringCellCache(poss);
+        this.cacheColorRemove(poss);
         this.setColorToRoadFromSide(null, cell.cellPosition[cell.speed.to], cell.speed.color, CONF.OPPOSITE_SIDE[cell.speed.to]);
         if (!color && fromDir == cell.speed.to) {
             this.scheme.cancelRoadColorPathBySide(CONF.OPPOSITE_SIDE[fromDir], poss);
@@ -82,7 +81,7 @@ export class SpeedComponent {
             let nextPosition = cell!.cellPosition[toDir];
             this.setColorToRoadFromSide(checkRun, nextPosition, color, CONF.OPPOSITE_SIDE[toDir]);
             if (!color) {
-                this.scheme.removeColoringCellCache(nextPosition);
+                this.cacheColorRemove(nextPosition);
                 this.scheme.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextPosition)
             }
         });

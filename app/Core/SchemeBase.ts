@@ -27,6 +27,7 @@ import {SpeedComponent} from "./Components/SpeedComponent";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 import {PatternComponent} from "./Components/PatternComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
+import {UpdateComponent} from "./Components/UpdateComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -50,6 +51,7 @@ const COLOR_DEV = {
 
 export abstract class SchemeBase {
 
+    protected cUpdate!: UpdateComponent;
     protected cDelete!: DeleteComponent;
     protected cPattern!: PatternComponent;
     protected cSmile!: SmileComponent;
@@ -61,14 +63,6 @@ export abstract class SchemeBase {
     visibleGrid!: IVisibleGrid;
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
-
-    private contentCells: { [key: string]: IPoss } = {};
-    public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
-    public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
-
-    protected cacheColorings: { [key: string]: Array<ColorCellCache> } = {};
-    protected activeCacheColorings: { [key: string]: Array<ColorCellCache> } = {};
-    protected coloringAwaitTick = false;
 
     private _checkRun: number = 1;
     public get checkRun() : number { return this._checkRun += 3; }
@@ -97,8 +91,7 @@ export abstract class SchemeBase {
     public resetScheme() : SchemeInstanceStructure {
         this.scheme = {};
         this.contentCells = {};
-        this.cacheColorings = {};
-        this.coloringAwaitTick = false;
+        this.cUpdate.cacheReset();
         this.visibleGrid.refreshAllCells();
         return this.scheme;
     }
@@ -169,22 +162,15 @@ export abstract class SchemeBase {
 
     public get sizeRadius() : number { return 800000000; }
 
-    // SPEED
+    // LIFE CYCLE
 
-    private _coloringSpeedMs: number = 60;
-    private get coloringSpeedMs() : number {
-        if (this.cLevel.isLevelMode) { return 25; }
-        return this._coloringSpeedMs;
-    }
+    public contentCells: { [key: string]: IPoss } = {};
+    public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
+    public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
 
-    public speedUp() {
-        this._coloringSpeedMs -= 20;
-        if (this._coloringSpeedMs < 40) { this._coloringSpeedMs = 30; }
-    }
-    public speedDown() {
-        this._coloringSpeedMs += 30;
-        if (this._coloringSpeedMs > 200) { this._coloringSpeedMs = 200; }
-    }
+    public updateTickInit() : void { this.cUpdate.update(); }
+    public speedUp() : void { this.cUpdate.speedUp(); }
+    public speedDown() : void { this.cUpdate.speedDown(); }
 
     // ABSTRACT
 
@@ -194,90 +180,9 @@ export abstract class SchemeBase {
     protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     public abstract putSmile(logic: string) : void;
 
-    // LIFE CYCLE
-
-    public updateTickInit() : void { this.updateTick(); }
-
-    private updateTick() : void {
-
-        if (!this.actionAlphaTick())
-        {
-            let roadColoringProcess = false;
-
-            this.activeCacheColorings = this.cacheColorings;
-            this.cacheColorings = {};
-
-            for (let cacheName in this.activeCacheColorings) {
-                for (let cache of this.activeCacheColorings[cacheName]) {
-                    if (cache.method == 'execMoveColorToNextPaths') {
-                        roadColoringProcess = true;
-                    }
-                    this[cache.method](...cache.params);
-                }
-            }
-            this.updateTickContent();
-
-            if (roadColoringProcess) {
-                this.updatePauseLastMoment = HH.timestamp();
-            }
-            else {
-                this.roadColoringFinalHandler();
-            }
-        }
-        setTimeout(() => { this.updateTick() }, this.coloringSpeedMs);
-    }
-
-    // UPDATE
-
-    private contentUpdateTickCountdown: number = 10;
-    protected coloringSpeedCountdownNext: [number, number] = [3, 5];
-
-    updateTickContent() {
-        this.coloringAwaitTick = false;
-        this.contentUpdateTickCountdown--;
-        if (this.contentUpdateTickCountdown < 1) {
-            this.contentUpdateTickCountdown = HH.rnd(...this.coloringSpeedCountdownNext);
-            this.coloringAwaitTick = true;
-
-            for (let cellName in this.contentCells) {
-                let cell = this.findCell(this.contentCells[cellName]);
-                if (!cell) { return; }
-
-                if (cell.content) {
-                    this.coloringCellCache(this.contentCells[cellName]).push({
-                        type: CONF.ST_STONE_VIOLET,
-                        method: 'setColorForRoadsAroundByStone',
-                        params: [this.contentCells[cellName]],
-                        cacheDirections: [...CONF.SIDES],
-                    });
-                }
-                else if (cell.semiconductor && CONF.ST_ROAD_SLEEP == cell.semiconductor.type) {
-                    this.coloringCellCache(this.contentCells[cellName]).push({
-                        type: CONF.ST_ROAD_SLEEP,
-                        method: 'setColorToRoadBySleepSemiconductor',
-                        params: [false, this.contentCells[cellName]],
-                        cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
-                    });
-                }
-                else if (cell.trigger && cell.trigger.color) {
-                    this.coloringCellCache(this.contentCells[cellName]).push({
-                        type: CONF.ST_TRIGGER,
-                        method: 'colorItAroundByTrigger',
-                        params: [this.contentCells[cellName]],
-                        cacheDirections: [RIGHT],
-                    });
-                }
-                else if (cell.speed && cell.speed.color) {
-                    this.coloringCellCache(this.contentCells[cellName]).push({
-                        type: CONF.ST_SPEED,
-                        method: 'colorItAroundBySpeed',
-                        params: [this.contentCells[cellName]],
-                        cacheDirections: [cell.speed.to],
-                    });
-                }
-            }
-        }
-    }
+    public abstract cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void;
+    public abstract cacheColorRemove(poss: IPoss) : void;
+    public abstract cacheColorToDirRemove(toDir: DirSide, poss: IPoss) : void;
 
     // UPDATE pause
 
@@ -693,42 +598,7 @@ export abstract class SchemeBase {
 
     // COLORS
 
-    public coloringCellCache(poss: IPoss) : Array<ColorCellCache> {
-        let name = this.cellName(poss);
-        if (!this.cacheColorings[name]) { this.cacheColorings[name] = []; }
-        return this.cacheColorings[name];
-    }
-
-    public removeColoringCellCache(poss: IPoss) {
-        let name = this.cellName(poss);
-        if (this.cacheColorings[name]) { delete this.cacheColorings[name]; }
-        if (this.activeCacheColorings[name]) { delete this.activeCacheColorings[name]; }
-    }
-
     canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
-
-    removeColoringCellCacheToDir(toDir, poss: IPoss) {
-        let name = this.cellName(poss);
-        if (this.cacheColorings[name]) {
-            for (let ix = this.cacheColorings[name].length - 1; ix >= 0; ix--) {
-                let cache = this.cacheColorings[name][ix];
-                if (cache.cacheDirections.includes((toDir))) {
-                    this.cacheColorings[name].splice(ix, 1);
-
-                    if (this.activeCacheColorings[name] && this.activeCacheColorings[name][ix]) {
-                        this.activeCacheColorings[name][ix] = {
-                            type: CONF.ST_STUB,
-                            method: 'emptyCacheAction',
-                            params: [],
-                            cacheDirections: [...CONF.SIDES],
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    emptyCacheAction() { }
 
     public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | ContentColor = null, skipStones: boolean = false) : boolean {
         SIDES.forEach((side: DirSide) => {

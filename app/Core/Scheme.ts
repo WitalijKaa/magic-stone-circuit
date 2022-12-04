@@ -23,6 +23,8 @@ import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
 import {SchemeCopy, SchemeCopyCell} from "./Types/Scheme";
 import {DeleteComponent} from "./Components/DeleteComponent";
+import {UpdateComponent} from "./Components/UpdateComponent";
+import {ColorCellCache} from "./Types/ColorCellCache";
 
 export class Scheme extends SchemeBase {
 
@@ -43,7 +45,7 @@ export class Scheme extends SchemeBase {
             this.cDelete.isActionOn;
     }
 
-    protected actionAlphaTick() : boolean {
+    public actionAlphaTick() : boolean {
         if (this.isRoadBuildMode) {
             this.buildRoadTick();
             return true;
@@ -56,6 +58,8 @@ export class Scheme extends SchemeBase {
         else if (this.cDelete.updateFrame(this.activeCursor)) { return true; }
         return false;
     }
+
+    public get isLevelMode() : boolean { return this.cLevel.isLevelMode; }
 
     /** BORDERs **/
 
@@ -162,7 +166,7 @@ export class Scheme extends SchemeBase {
         if (false === this.setSmartPathsForRoad(poss)) {
             this.removeRoad(poss);
         }
-        this.removeColoringCellCache(poss);
+        this.cacheColorRemove(poss);
         this.afterChange();
     }
 
@@ -174,7 +178,7 @@ export class Scheme extends SchemeBase {
         this.cancelColorsAroundByRoadPaths(cell.road.paths, poss);
 
         this.killCell(poss);
-        this.removeColoringCellCache(poss);
+        this.cacheColorRemove(poss);
         this.refreshVisibleCell(poss);
         this.afterChange();
     }
@@ -283,7 +287,7 @@ export class Scheme extends SchemeBase {
                     cell.road.type = roadCellMem.change.prev;
                     cell.road.paths = roadCellMem.change.prevPaths;
                     this.refreshVisibleCell(roadCellMem.position);
-                    this.removeColoringCellCache(cell);
+                    this.cacheColorRemove(cell);
                 }
             }
         })
@@ -805,7 +809,7 @@ export class Scheme extends SchemeBase {
         }
         this.refreshSemiconductorByColoredRoadsFlowsIn(cell);
         this.refreshVisibleCell(poss);
-        this.removeColoringCellCache(poss);
+        this.cacheColorRemove(poss);
 
         if (cell.isAwakeSemiconductor) {
             SIDES.map((side: DirSide) => {
@@ -826,7 +830,7 @@ export class Scheme extends SchemeBase {
                 }
                 else if (cell.isSleepSemiconductor) {
                     setTimeout(() => {
-                        this.coloringCellCache(cell.poss).push({
+                        this.cacheColorAdd(cell.poss, {
                             type: CONF.ST_ROAD_SLEEP,
                             method: 'setColorToSemiconductorByRoad',
                             params: [cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side), side, cell.poss],
@@ -854,7 +858,7 @@ export class Scheme extends SchemeBase {
         }
         this.refreshSemiconductorByColoredRoadsFlowsIn(cell);
         this.refreshVisibleCell(poss);
-        this.removeColoringCellCache(poss);
+        this.cacheColorRemove(poss);
 
         if (cell.isAwakeSemiconductor) {
             SIDES.map((side: DirSide) => {
@@ -938,7 +942,7 @@ export class Scheme extends SchemeBase {
         this.refreshVisibleCell(poss);
 
         if (!color) {
-            this.removeColoringCellCache(poss);
+            this.cacheColorRemove(poss);
         }
 
         let sides = SIDES;
@@ -947,7 +951,7 @@ export class Scheme extends SchemeBase {
         sides.map((toDir: DirSide) => {
             let possSide = cell!.cellPosition[toDir];
             if (color) {
-                this.coloringCellCache(possSide).push({
+                this.cacheColorAdd(possSide, {
                     type: CONF.ST_ROAD_SLEEP,
                     method: 'setFlowColorToSemiconductor',
                     params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
@@ -962,7 +966,7 @@ export class Scheme extends SchemeBase {
         if (cell.isSleepSemiconductor) {
             let toDir = CONF.OPPOSITE_SIDE[semi.from];
             if (color) {
-                this.coloringCellCache(poss).push({
+                this.cacheColorAdd(poss, {
                     type: CONF.ST_ROAD_SLEEP,
                     method: 'setColorToRoadBySleepSemiconductor',
                     params: [true, cell.poss],
@@ -1013,7 +1017,7 @@ export class Scheme extends SchemeBase {
     }
 
     public transferColorToNextCellsExceptToRoadByCache(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
-        this.coloringCellCache(cell).push({
+        this.cacheColorAdd(cell, {
             type: CONF.ST_SPEED,
             method: 'transferColorToNextCellsExceptToRoadByCacheExec',
             params: [cell, nextSides, color],
@@ -1039,8 +1043,8 @@ export class Scheme extends SchemeBase {
         let oppositePath: CellRoadPathType = CONF.SIDE_TO_ROAD_PATH[oppositeDir];
 
         this.eraseColorOnRoadPath(road, CONF.SIDE_TO_ROAD_PATH[fromDir]);
-        this.removeColoringCellCacheToDir(oppositeDir, poss);
-        this.removeColoringCellCacheToDir(fromDir, poss);
+        this.cacheColorToDirRemove(oppositeDir, poss);
+        this.cacheColorToDirRemove(fromDir, poss);
 
         this.eraseColorOnSecondRoadPath(poss, road, oppositeDir, nextCheckRun);
 
@@ -1069,8 +1073,8 @@ export class Scheme extends SchemeBase {
         this.eraseColorOnRoadPath(road, pathType);
         this.cancelColorOnRoadFromSide(nextCheckRun, fromDir, nextCellPoss);
 
-        this.removeColoringCellCacheToDir(toDir, poss);
-        this.removeColoringCellCacheToDir(fromDir, poss);
+        this.cacheColorToDirRemove(toDir, poss);
+        this.cacheColorToDirRemove(fromDir, poss);
     }
 
     private cancelColorOnDefineRoadPath(poss: IPoss, pathType: CellRoadPathType) : void {
@@ -1141,7 +1145,7 @@ export class Scheme extends SchemeBase {
             cacheDirections.push(side);
         });
 
-        this.coloringCellCache(poss).push({
+        this.cacheColorAdd(poss, {
             type: CONF.ST_ROAD,
             method: 'execMoveColorToNextPaths',
             params: [poss, color, disabledDirs],
@@ -1166,14 +1170,14 @@ export class Scheme extends SchemeBase {
         });
         this.refreshVisibleCell(poss);
 
-        this.coloringCellCache(poss).push({
+        this.cacheColorAdd(poss, {
             type: CONF.ST_ROAD,
             method: 'moveColorToHeavy',
             params: [road, color, poss],
             cacheDirections: [...SIDES],
         });
 
-        this.coloringCellCache(poss).push({
+        this.cacheColorAdd(poss, {
             type: CONF.ST_ROAD,
             method: 'moveColorToNextCells',
             params: [cell, nextSides, color],
@@ -1229,7 +1233,12 @@ export class Scheme extends SchemeBase {
 
     public setVisualCenter() : void { this.visibleGrid.setCenter(); }
 
+    public cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void { this.cUpdate.cacheAddAct(poss, cache); }
+    public cacheColorRemove(poss: IPoss) : void { this.cUpdate.cacheRemoveAct(poss); }
+    public cacheColorToDirRemove(toDir: DirSide, poss: IPoss) : void { this.cUpdate.cacheRemoveActOfColorToDir(toDir, poss); }
+
     protected initComponents() {
+        this.cUpdate = new UpdateComponent(this);
         this.cDelete = new DeleteComponent(this);
         this.cPattern = new PatternComponent(this);
         this.cSmile = new SmileComponent(this);

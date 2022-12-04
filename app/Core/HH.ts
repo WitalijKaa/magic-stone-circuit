@@ -48,4 +48,6 @@ export class HH {
         }
         return true;
     }
+
+    public static cellName (poss: IPoss) : string { return poss.x + '|' + poss.y; }
 }
