@@ -29,6 +29,8 @@ import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 import {PatternComponent} from "./Components/PatternComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
+import {SemiconductorComponent} from "./Components/SemiconductorComponent";
+import {ICellWithStone} from "./Interfaces/ICellWithStone";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -58,6 +60,7 @@ export abstract class SchemeBase {
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
     protected cStone!: StoneComponent;
+    protected cSemi!: SemiconductorComponent;
     protected cTrigger!: TriggerComponent;
     protected cSpeed!: SpeedComponent;
 
@@ -206,7 +209,10 @@ export abstract class SchemeBase {
     // CELL
 
     public isCellEmpty(poss: IPoss) : boolean {
-        return !this.scheme[poss.x] || !this.scheme[poss.x][poss.y]
+        let cell = (this.scheme[poss.x] && this.scheme[poss.x][poss.y]) ? this.scheme[poss.x][poss.y] : null;
+        if (!cell) { return true; }
+        return !cell.content && !cell.road && !cell.semiconductor && !cell.trigger && !cell.speed && !cell.smile;
+
     }
 
     public static initCellAsEmpty(model: CellScheme) : void {
@@ -221,14 +227,8 @@ export abstract class SchemeBase {
     protected getCellForContent(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
-    public getCellForStone(poss: IPoss) : null | CellScheme {
-        return this.getCellFor('content', poss);
-    }
-    public getCellForNewStone(poss: IPoss, stone: CellStone) : null | CellScheme {
-        let cell = this.getCellFor('content', poss);
-        if (!cell) { return null; }
-        cell.content = stone;
-        return cell;
+    public getCellForStone(poss: IPoss) : null | ICellWithStone {
+        return this.getCellFor('content', poss) as ICellWithStone;
     }
     protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
         let model = this.getCell(poss);
@@ -270,6 +270,9 @@ export abstract class SchemeBase {
         let model = this.getCell(poss);
         SchemeBase.initCellAsSemiconductor(model, dir, type);
         return model as ICellWithSemiconductor;
+    }
+    public getCellForSemiconductor(poss: IPoss) : null | ICellWithSemiconductor {
+        return this.getCellFor('semiconductor', poss) as ICellWithSemiconductor;
     }
     public findCellOfSemiconductor(poss: IPoss) : null | ICellWithSemiconductor {
         return this.findCellOf('semiconductor', poss) as null | ICellWithSemiconductor;
@@ -434,7 +437,7 @@ export abstract class SchemeBase {
 
     // ROADs
 
-    isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
+    protected isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
         let cell = this.findCellOfRoad(poss);
         if (!cell) { return false; }
         let pathType = CONF.SIDE_TO_ROAD_PATH[toDir];
@@ -442,8 +445,8 @@ export abstract class SchemeBase {
         return path && true !== path && path.from == CONF.OPPOSITE_SIDE[toDir];
     }
 
-    protected isAnyRoadAround(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss); }
-    protected isAnyRoadLeftOrRight(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss, [LEFT, RIGHT]); }
+    public isAnyRoadAround(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss); }
+    public isAnyRoadLeftOrRight(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss, [LEFT, RIGHT]); }
 
     protected isAnyRoadAtSides(poss: IPoss, sides: Array<DirSide> = SIDES) : boolean {
         for (let side of sides) {

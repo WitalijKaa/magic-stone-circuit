@@ -45,11 +45,7 @@ export class DeleteComponent extends AbstractComponent {
                 let cell = this.findCell({x: x, y: y}) as SchemeCellStructure;
                 if (cell) {
                     let poss = {x: x, y: y};
-                    this.scheme.removeContent(poss);
-                    this.scheme.removeRoad(poss);
-                    this.scheme.putSemiconductor(null, poss);
-                    this.scheme.removeTrigger(poss);
-                    this.scheme.removeSpeed(poss);
+                    this.scheme.removeCell(poss);
                 }
             }
         }

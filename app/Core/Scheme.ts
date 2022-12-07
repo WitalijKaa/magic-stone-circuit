@@ -32,6 +32,7 @@ import {ICellScheme} from "./Interfaces/ICellScheme";
 import {PatternComponent} from "./Components/PatternComponent";
 import {SchemeCopy, SchemeCopyCell} from "./Types/Scheme";
 import {StoneComponent} from "./Components/StoneComponent";
+import {SemiconductorComponent} from "./Components/SemiconductorComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
 import {ColorCellCache} from "./Types/ColorCellCache";
@@ -83,6 +84,14 @@ export class Scheme extends SchemeBase {
 
     /** DELETEs **/
 
+    public removeCell(poss: IPoss) : void {
+        this.removeContent(poss);
+        this.removeRoad(poss);
+        this.removeSemiconductor(poss);
+        this.removeTrigger(poss);
+        this.removeSpeed(poss);
+    }
+
     public actionDelete(poss: IPoss) : void {
         if (!this.cDelete.isActionOn) {
             this.cDelete.createFrame(poss);
@@ -94,7 +103,7 @@ export class Scheme extends SchemeBase {
 
     /** SPEEDers **/
     public putSpeed(poss: IPoss) { this.cSpeed.put(poss); }
-    public removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
+    private removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
     public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorAroundByTick(poss); }
 
     /** TRIGGERs **/
@@ -171,6 +180,11 @@ export class Scheme extends SchemeBase {
             this.setAwakeColorToSemiconductor(stoneType ? CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType] : null, HH[side](poss), true);
         });
     }
+
+    /** SEMICONDUCTORs **/
+
+    public putSemiconductor(scType: CellSemiconductorType, poss: IPoss) : void { this.cSemi.put(scType, poss); }
+    private removeSemiconductor(poss: IPoss) : void { this.cSemi.remove(poss); }
 
     /** ROADs **/
 
@@ -698,11 +712,11 @@ export class Scheme extends SchemeBase {
 
     private allowedAmountOfAwakesCluster: number = 2;
 
-    public putSemiconductor(scType: CellSemiconductorType | null, poss: IPoss) {
+    public putSemiconductor2(scType: CellSemiconductorType | null, poss: IPoss) {
         if (!scType) {
             let cell = this.findCellOfSemiconductor(poss);
             // if (cell?.semiconductor.colorCharge) { return; }
-            this.removeSemiconductor(cell);
+            ////////this.removeSemiconductor(cell);
         }
         else if (CONF.ST_ROAD_SLEEP == scType) {
             this.putSleepSemiconductor(poss);
@@ -714,7 +728,7 @@ export class Scheme extends SchemeBase {
         this.afterChange();
     }
 
-    private removeSemiconductor(cell: ICellWithSemiconductor | null) : void {
+    private removeSemiconductor2(cell: ICellWithSemiconductor | null) : void {
         if (!cell) { return; }
 
         SIDES.map((side: DirSide) => {
@@ -1226,6 +1240,7 @@ export class Scheme extends SchemeBase {
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
         this.cStone = new StoneComponent(this);
+        this.cSemi = new SemiconductorComponent(this);
         this.cTrigger = new TriggerComponent(this);
         this.cSpeed = new SpeedComponent(this);
     }

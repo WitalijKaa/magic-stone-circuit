@@ -93,11 +93,7 @@ export class CellGrid extends CellAbstract {
                 this.scheme.putSpeed(this.schemePosition);
             }
             else if (CONF.ST_EMPTY == this.grid.controlPen) {
-                this.scheme.removeContent(this.schemePosition);
-                this.scheme.removeRoad(this.schemePosition);
-                this.scheme.putSemiconductor(null, this.schemePosition);
-                this.scheme.removeTrigger(this.schemePosition);
-                this.scheme.removeSpeed(this.schemePosition);
+                this.scheme.removeCell(this.schemePosition);
             }
             else if (CONF.ST_BORDER == this.grid.controlPen) {
                 this.scheme.createPattern(this.schemePosition);
