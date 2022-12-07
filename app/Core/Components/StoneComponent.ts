@@ -1,12 +1,16 @@
 import {AbstractComponent} from "./AbstractComponent";
 import {IPoss} from "../IPoss";
 import * as CONF from "../../config/game";
-import {CellStoneType} from "../Types/CellStone";
+import {CellStone, CellStoneType} from "../Types/CellStone";
 import {HH} from "../HH";
 import {SIDES} from "../../config/game";
 import {DirSide} from "../Types/DirectionSide";
 
 export class StoneComponent extends AbstractComponent {
+
+    private static newCell(stoneType: CellStoneType) : CellStone {
+        return { type: stoneType };
+    }
 
     public put(stoneType: CellStoneType, poss: IPoss) {
         let prevStone = this.scheme.findCellOfStone(poss);
@@ -14,9 +18,8 @@ export class StoneComponent extends AbstractComponent {
             this.remove(poss);
         }
 
-        let cell = this.scheme.getCellForStone(poss);
+        let cell = this.scheme.getCellForNewStone(poss, StoneComponent.newCell(stoneType));
         if (!cell) { return; }
-        cell.content = { type: stoneType };
         this.scheme.setContentCell(poss);
 
         if (!prevStone) {
@@ -33,8 +36,8 @@ export class StoneComponent extends AbstractComponent {
         if (!cell) { return; }
 
         this.cancelColorForRoadsAround(poss);
-        this.cacheColorRemove(poss);
         this.scheme.removeContentCell(poss);
+        this.cacheColorRemove(poss);
         this.scheme.killCell(poss);
         // this.setAwakeColorAroundForAwakeSemi(poss, null);
 

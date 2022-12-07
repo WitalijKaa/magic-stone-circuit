@@ -3,6 +3,7 @@ import {DirSide} from "./DirectionSide";
 
 export type RoadPathsArray = [CellPath, CellPath, CellPath, CellPath, CellPath];
 export type RoadSavePathsArray = [boolean, boolean, boolean, boolean, boolean];
+export type RoadCheckRunArray = [number, number, number, number, number];
 
 export type CellPath = boolean | {
     color: number;
@@ -12,7 +13,7 @@ export type CellPath = boolean | {
 export type CellRoad = {
     type: CellRoadType;
     paths: RoadPathsArray;
-    checkRun: number;
+    checkRun: RoadCheckRunArray;
 }
 
 export type CellRoadType = 1 | 2 | 3 | 4;

@@ -73,7 +73,7 @@ export class SpeedComponent extends AbstractComponent {
         let cell = this.scheme.findCellOfRoad(poss);
         if (!cell || !cell.isRoadPathFromSide(fromDir)) { return; }
 
-        let nextCheckRun = this.scheme.verifyThatCheckRunForRoadCancelColorIsOk(cell.road, checkRun);
+        let nextCheckRun = false;//this.scheme.verifyCheckRunForRoadPath(cell.road, checkRun);
         if (false === nextCheckRun) { return; }
 
         let nextSides = this.setColorToPathsOfRoadAndGetNextSides(color, cell.road, fromDir);

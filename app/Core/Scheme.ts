@@ -1026,25 +1026,24 @@ export class Scheme extends SchemeBase {
     protected eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss) : void {
         let cell = this.findCellOfRoad(poss);
         if (!cell || !cell.isRoadPathFromSide(fromDir)) { return; }
-        let road = cell.road;
 
-        let nextCheckRun = this.verifyThatCheckRunForRoadCancelColorIsOk(road, checkRun);
+        let nextCheckRun = this.verifyCheckRunForRoadPath(cell, fromDir, checkRun);
         if (false === nextCheckRun) { return; }
 
         let oppositeDir: DirSide = CONF.OPPOSITE_SIDE[fromDir];
         let oppositePath: CellRoadPathType = CONF.SIDE_TO_ROAD_PATH[oppositeDir];
 
-        this.eraseColorOnRoadPath(road, CONF.SIDE_TO_ROAD_PATH[fromDir]);
+        this.eraseColorOnRoadPath(cell.road, CONF.SIDE_TO_ROAD_PATH[fromDir]);
         this.cacheColorToDirRemove(oppositeDir, poss);
         this.cacheColorToDirRemove(fromDir, poss);
 
-        this.eraseColorOnSecondRoadPath(poss, road, oppositeDir, nextCheckRun);
+        this.eraseColorOnSecondRoadPath(poss, cell.road, oppositeDir, nextCheckRun);
 
-        this.eraseColorOnRoadPath(road, CONF.ROAD_PATH_HEAVY);
+        this.eraseColorOnRoadPath(cell.road, CONF.ROAD_PATH_HEAVY);
 
-        if (!road.paths[oppositePath] || road.paths[CONF.ROAD_PATH_HEAVY]) {
+        if (!cell.road.paths[oppositePath] || cell.road.paths[CONF.ROAD_PATH_HEAVY]) {
             CONF.SIDES_TURN_90[fromDir].map((turnDir: DirSide) => {
-                this.eraseColorOnSecondRoadPath(poss, road, turnDir, nextCheckRun as number);
+                this.eraseColorOnSecondRoadPath(poss, cell!.road, turnDir, nextCheckRun as number);
             })
         }
 

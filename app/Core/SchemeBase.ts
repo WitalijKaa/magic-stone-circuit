@@ -67,7 +67,7 @@ export abstract class SchemeBase {
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
 
     private _checkRun: number = 1;
-    public get checkRun() : number { return this._checkRun += 3; }
+    public get checkRun() : number { return ++this._checkRun; }
 
     init(grid: SchemeGrid) : void {
         this.visibleGrid = grid;
@@ -224,6 +224,12 @@ export abstract class SchemeBase {
     public getCellForStone(poss: IPoss) : null | CellScheme {
         return this.getCellFor('content', poss);
     }
+    public getCellForNewStone(poss: IPoss, stone: CellStone) : null | CellScheme {
+        let cell = this.getCellFor('content', poss);
+        if (!cell) { return null; }
+        cell.content = stone;
+        return cell;
+    }
     protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
         let model = this.getCell(poss);
         SchemeBase.initCellAsStone(model, stone);
@@ -243,7 +249,7 @@ export abstract class SchemeBase {
     protected getCellForRoad(poss: IPoss) : null | ICellWithRoad {
         let model = this.getCellFor('road', poss) as null | ICellWithRoad;
         if (model && !model.road) {
-            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: 0 };
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: [0, 0, 0, 0, 0] };
         }
         return model;
     }
@@ -257,7 +263,7 @@ export abstract class SchemeBase {
     }
     public static initCellAsRoad(model: CellScheme, type: CellRoadType = ROAD_LIGHT, paths: RoadPathsArray = [...CONF.ALL_PATHS_EMPTY]) : void {
         SchemeBase.initCellAsEmpty(model);
-        model.road = { type: type, paths: paths, checkRun: 0 };
+        model.road = { type: type, paths: paths, checkRun: [0, 0, 0, 0, 0] };
     }
 
     protected getCellForSemiconductorForced(poss: IPoss, dir: CellSemiconductorDirection, type: CellSemiconductorType) : ICellWithSemiconductor {
@@ -596,13 +602,13 @@ export abstract class SchemeBase {
         this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], cell);
     }
 
-    public verifyThatCheckRunForRoadCancelColorIsOk(road: CellRoad, checkRun: number | null) : number | false {
+    public verifyCheckRunForRoadPath(cell: ICellWithRoad, fromDir: DirSide, checkRun: number | null) : number | false {
         if (!checkRun) {
             checkRun = this.checkRun;
         }
-        else if (checkRun == road.checkRun) { return false; }
+        else if (checkRun == cell.road.checkRun[CONF.SIDE_TO_ROAD_PATH[fromDir]]) { return false; }
 
-        road.checkRun = checkRun;
+        cell.road.checkRun[CONF.SIDE_TO_ROAD_PATH[fromDir]] = checkRun;
         return checkRun;
     }
 
