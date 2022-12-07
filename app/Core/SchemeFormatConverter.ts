@@ -60,7 +60,7 @@ export class SchemeFormatConverter {
         let model = new CellScheme(poss.x, poss.y, {} as SchemeBase);
         if ('r' in schemeCell) {
             let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
-            schemeCell.r.p.split('').map((ix) => {
+            schemeCell.r.p.split('').forEach((ix) => {
                 paths[+ix] = true;
             })
 

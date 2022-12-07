@@ -77,7 +77,7 @@ export class SpeedComponent extends AbstractComponent {
         if (false === nextCheckRun) { return; }
 
         let nextSides = this.setColorToPathsOfRoadAndGetNextSides(color, cell.road, fromDir);
-        nextSides.map((toDir: DirSide) => {
+        nextSides.forEach((toDir: DirSide) => {
             let nextPosition = cell!.cellPosition[toDir];
             this.setColorToRoadFromSide(checkRun, nextPosition, color, CONF.OPPOSITE_SIDE[toDir]);
             if (!color) {
@@ -101,7 +101,7 @@ export class SpeedComponent extends AbstractComponent {
             }
 
             if (road.paths[ROAD_PATH_HEAVY] || (!road.paths[oppositePathType])) {
-                SIDES_TURN_90[fromDir].map((side: DirSide) => {
+                SIDES_TURN_90[fromDir].forEach((side: DirSide) => {
                     if (road.paths[CONF.SIDE_TO_ROAD_PATH[side]]) {
                         this.applyColorToPath(color, road, CONF.SIDE_TO_ROAD_PATH[side], CONF.OPPOSITE_SIDE[side]);
                         sides.push(side);

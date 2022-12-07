@@ -176,7 +176,7 @@ export class UpdateComponent extends AbstractComponent {
                 if (cell.content) {
                     this.cacheAddAct(cell.poss, {
                         type: CONF.ST_STONE_VIOLET,
-                        method: 'setColorForRoadsAroundByStone',
+                        method: 'colorItAroundByStone',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [...CONF.SIDES],
                     });

@@ -5,6 +5,7 @@ import {CellStone, CellStoneType} from "../Types/CellStone";
 import {HH} from "../HH";
 import {SIDES} from "../../config/game";
 import {DirSide} from "../Types/DirectionSide";
+import {ContentColor} from "../Types/ColorTypes";
 
 export class StoneComponent extends AbstractComponent {
 
@@ -13,6 +14,10 @@ export class StoneComponent extends AbstractComponent {
     }
 
     public put(stoneType: CellStoneType, poss: IPoss) : boolean {
+        if (this.isDifferentAwakeColorsAround(poss, CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType])) {
+            return false;
+        }
+
         let prevStone = this.scheme.findCellOfStone(poss);
         if (prevStone) {
             this.remove(poss);
@@ -49,8 +54,14 @@ export class StoneComponent extends AbstractComponent {
         let cell = this.scheme.findCellOfStone(poss);
         if (!cell) { return; }
 
-        SIDES.map((sideTo: DirSide) => {
+        SIDES.forEach((sideTo: DirSide) => {
             this.scheme.setColorToRoad(CONF.STONE_TYPE_TO_ROAD_COLOR[cell!.content.type], CONF.OPPOSITE_SIDE[sideTo], HH[sideTo](poss))
         });
+    }
+
+    protected colorForAwakeAtSide(poss: IPoss) : ContentColor | null {
+        let cell = this.scheme.findCellOfSemiconductor(poss);
+        if (!cell?.isAwakeSemiconductor) { return null; }
+        return cell.semiconductor.colorAwake;
     }
 }

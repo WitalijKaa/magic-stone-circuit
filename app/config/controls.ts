@@ -92,7 +92,7 @@ export function openModal(scheme: Scheme, schemeStorage: SchemeStorage) : void {
     document.getElementById('modal-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
-    schemeStorage.getSchemesNames().map((name: string) => {
+    schemeStorage.getSchemesNames().forEach((name: string) => {
         menuHtml += '<span>' + name + '</span>';
     })
     document.getElementById('saved-schemes')!.innerHTML = menuHtml;
@@ -116,7 +116,7 @@ export function openPatternsModal(scheme: Scheme, schemeStorage: SchemeStorage) 
     document.getElementById('modal-pattern-wrapper')!.classList.remove('el--hidden');
 
     let menuHtml = '';
-    schemeStorage.getPatternNames().map((name: string) => {
+    schemeStorage.getPatternNames().forEach((name: string) => {
         menuHtml += '<span>' + name + '</span>';
     })
     document.getElementById('saved-patterns')!.innerHTML = menuHtml;
@@ -307,7 +307,7 @@ export function createModal(scheme: Scheme, schemeStorage: SchemeStorage) : void
             for (let $btn of document.getElementsByClassName('img-btn') as unknown as Array<HTMLElement>) {
                 $btn.classList.add('el--hidden')
             }
-            level.buttons.map((btnID) => {
+            level.buttons.forEach((btnID) => {
                 if ('btn-' != btnID.toString().substr(0, 4)) {
                     btnID = 'btn-type-' + btnID;
                 }

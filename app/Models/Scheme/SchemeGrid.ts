@@ -71,8 +71,8 @@ export class SchemeGrid implements IVisibleGrid {
         if (nextScale == this.scale) { return; }
         this.scale = nextScale as SchemeScaleSize;
 
-        this.container.children.map((child) => { child.destroy(); })
-        this.containerFront.children.map((child) => { child.destroy(); })
+        this.container.children.forEach((child) => { child.destroy(); })
+        this.containerFront.children.forEach((child) => { child.destroy(); })
 
         this.container.removeChildren();
         this.containerFront.removeChildren();

@@ -101,7 +101,7 @@ export abstract class SchemeBase {
 
     public loadScheme(source: SchemeCopy, xOffset: number = 800000000 - 100, yOffset: number = 800000000 - 100) {
         this.cLevel.isLevelMode = false;
-        let toAwake: Array<[IPoss, CellStoneType]> = [];
+        let toAwake: Array<IPoss> = [];
         for (let row in source) {
             for (let column in source[row]) {
                 let schemeCell = source[row][column];
@@ -110,7 +110,7 @@ export abstract class SchemeBase {
 
                 if ('r' in schemeCell) {
                     let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
-                    schemeCell.r.p.split('').map((ix) => {
+                    schemeCell.r.p.split('').forEach((ix) => {
                         paths[+ix] = true;
                     })
                     this.getCellForRoadForced(poss, schemeCell.r.t, paths);
@@ -130,7 +130,7 @@ export abstract class SchemeBase {
                     // }
                     this.getCellForStoneForced(poss, { type: schemeCell.c.t /*, range: range */ });
                     this.setContentCell(poss);
-                    toAwake.push([poss, schemeCell.c.t])
+                    toAwake.push(poss)
                 }
                 else if ('t' in schemeCell) {
                     this.placeCellTriggerForced(poss);
@@ -147,7 +147,7 @@ export abstract class SchemeBase {
                 }
             }
         }
-        toAwake.map((params) => { this.setAwakeColorAroundForAwakeSemi(...params); });
+        toAwake.forEach((poss) => { this.cSemi.update(poss); });
         this.visibleGrid.refreshAllCells();
     }
 
@@ -181,7 +181,6 @@ export abstract class SchemeBase {
     protected abstract initComponents() : void;
     protected abstract actionAlphaTick() : boolean;
     protected abstract eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
-    protected abstract setAwakeColorAroundForAwakeSemi(poss: IPoss, stoneColor: CellStoneType | null) : void;
     public abstract putSmile(logic: string) : void;
 
     public abstract cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void;
@@ -201,7 +200,7 @@ export abstract class SchemeBase {
 
     protected roadColoringFinalHandler() : void {
         if (this.updatePauseEventsArr.length && HH.timestamp() - this.updatePauseLastMoment > this.updatePauseLength) {
-            this.updatePauseEventsArr.map((callback) => { callback(); });
+            this.updatePauseEventsArr.forEach((callback) => { callback(); });
             this.updatePauseEventsArr = [];
         }
     }
@@ -384,14 +383,14 @@ export abstract class SchemeBase {
 
     protected zonesToRoadPaths(zones: Array<string>, isHeavy: boolean) : Array<boolean> {
         let paths = [false, false, false, false, isHeavy];
-        zones.map((zone) => { paths[CONF.SIDE_TO_ROAD_PATH[zone]] = true; });
+        zones.forEach((zone) => { paths[CONF.SIDE_TO_ROAD_PATH[zone]] = true; });
         return paths;
     }
 
     protected zonesMergedWithRoadPathsAsDirSide(zones: Array<DirSide>, poss: IPoss) : Array<DirSide> {
         let resultZones = [...zones];
         let zonesOfPaths = this.roadPathsToZones(poss);
-        zonesOfPaths.map((pZone: DirSide) => { if (!resultZones.includes(pZone)) { resultZones.push(pZone); } });
+        zonesOfPaths.forEach((pZone: DirSide) => { if (!resultZones.includes(pZone)) { resultZones.push(pZone); } });
         return resultZones;
     }
 
@@ -541,7 +540,7 @@ export abstract class SchemeBase {
         semi.checkRun = checkRun;
 
         let count = 1;
-        SIDES.map((toDir: DirSide) => {
+        SIDES.forEach((toDir: DirSide) => {
             if (toDir == CONF.OPPOSITE_SIDE[side]) { return; }
             count += this.countAwakeClusterAtSide(HH[side](poss), checkRun, toDir)
         })
@@ -564,7 +563,7 @@ export abstract class SchemeBase {
     // COLORs remove from roads
 
     public cancelColorFromAnyRoadPathAroundCell(poss: IPoss) : void {
-        SIDES.map((side: DirSide) => {
+        SIDES.forEach((side: DirSide) => {
             this.cancelColorFromRoadPathAroundCellBySide(side, poss);
         });
     }
@@ -580,7 +579,7 @@ export abstract class SchemeBase {
     }
 
     protected cancelColorPathsRoadsAroundByPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
-        SIDES.map((side: DirSide) => {
+        SIDES.forEach((side: DirSide) => {
             if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
                 this.cancelColorFromRoadPathAroundCellBySide(side, poss);
             }
@@ -683,7 +682,7 @@ export abstract class SchemeBase {
                 'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]];// +
                 // (!cell.content.range.length ? '' :
                 // ' ## ' +
-                // cell.content.range.map(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
+                // cell.content.range.forEach(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
         }
         else if (cell.trigger) {
             showInConsole =
