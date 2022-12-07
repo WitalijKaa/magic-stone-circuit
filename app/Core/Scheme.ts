@@ -85,7 +85,7 @@ export class Scheme extends SchemeBase {
     /** DELETEs **/
 
     public removeCell(poss: IPoss) : void {
-        this.removeContent(poss);
+        this.removeStone(poss);
         this.removeRoad(poss);
         this.removeSemiconductor(poss);
         this.removeTrigger(poss);
@@ -122,12 +122,22 @@ export class Scheme extends SchemeBase {
 
     /** STONEs **/
 
-    public putStone(stoneType: CellStoneType, poss: IPoss) : void { this.cStone.put(stoneType, poss);}
+    public putStone(stoneType: CellStoneType, poss: IPoss) : void {
+        if (this.cStone.put(stoneType, poss)) {
+            this.cSemi.update(poss);
+        }
+    }
+
+    public removeStone(poss: IPoss) : void {
+        if (this.cStone.remove(poss)) {
+            this.cSemi.update(poss);
+        }
+    }
 
     public putContent(stoneType: CellStoneType, poss: IPoss) : void {
         let prevCell = this.findCellOfContent(poss);
         if (prevCell) {
-            this.removeContent(poss);
+            ////////this.removeContent(poss);
         }
 
         if (stoneType && this.isDifferentAwakeColorsAround(poss, CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType], true)) {

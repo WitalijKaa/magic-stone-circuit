@@ -12,37 +12,37 @@ export class StoneComponent extends AbstractComponent {
         return { type: stoneType };
     }
 
-    public put(stoneType: CellStoneType, poss: IPoss) : void {
+    public put(stoneType: CellStoneType, poss: IPoss) : boolean {
         let prevStone = this.scheme.findCellOfStone(poss);
         if (prevStone) {
             this.remove(poss);
         }
 
         let cell = this.scheme.getCellForStone(poss);
-        if (!cell) { return; }
+        if (!cell) { return false; }
         cell.content = StoneComponent.newCell(stoneType);
         this.contentCellAdd(poss);
 
         if (!prevStone) {
             this.cancelColorForRoadsAround(poss);
         }
-        // this.setAwakeColorAroundForAwakeSemi(poss, stoneType);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
+        return true;
     }
 
-    public remove(poss: IPoss) : void {
+    public remove(poss: IPoss) : boolean {
         let cell = this.scheme.findCellOfStone(poss);
-        if (!cell) { return; }
+        if (!cell) { return false; }
 
         this.cancelColorForRoadsAround(poss);
         this.contentCellRemove(poss);
         this.scheme.killCell(poss);
-        // this.setAwakeColorAroundForAwakeSemi(poss, null);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
+        return true;
     }
 
     public colorItAround(poss: IPoss) : void {
