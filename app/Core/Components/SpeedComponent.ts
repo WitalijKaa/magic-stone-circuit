@@ -82,7 +82,7 @@ export class SpeedComponent extends AbstractComponent {
             this.setColorToRoadFromSide(checkRun, nextPosition, color, CONF.OPPOSITE_SIDE[toDir]);
             if (!color) {
                 this.cacheColorRemove(nextPosition);
-                this.scheme.transferColorToNextCellExceptToRoad(color, CONF.OPPOSITE_SIDE[toDir], nextPosition)
+                this.scheme.setColorToMagicObjByRoad(color, CONF.OPPOSITE_SIDE[toDir], nextPosition)
             }
         });
         if (color) { this.scheme.transferColorToNextCellsExceptToRoadByCache(cell, nextSides, color); }

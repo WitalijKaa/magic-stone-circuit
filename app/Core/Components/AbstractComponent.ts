@@ -4,7 +4,6 @@ import {CellScheme} from "../CellScheme";
 import {SchemeCopy} from "../Types/Scheme";
 import {ColorCellCache} from "../Types/ColorCellCache";
 import {DirSide} from "../Types/DirectionSide";
-import {ICellWithContent} from "../Interfaces/ICellWithContent";
 import {ContentColor} from "../Types/ColorTypes";
 import {SIDES} from "../../config/game";
 import {HH} from "../HH";
@@ -43,6 +42,7 @@ export abstract class AbstractComponent {
         this.scheme.cacheColorRemove(poss);
         this.scheme.removeContentCell(poss);
     }
+    protected cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void { this.scheme.cacheColorAdd(poss, cache); }
     protected cacheColorRemove(poss: IPoss) : void { this.scheme.cacheColorRemove(poss); }
     protected cacheColorToDirRemove(toDir: DirSide, poss: IPoss) : void { this.scheme.cacheColorToDirRemove(toDir, poss); }
 

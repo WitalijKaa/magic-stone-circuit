@@ -436,12 +436,16 @@ export abstract class SchemeBase {
 
     // ROADs
 
-    protected isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
-        let cell = this.findCellOfRoad(poss);
-        if (!cell) { return false; }
+    protected isColoredRoadCellFlowsOutToDirection(cell: ICellWithRoad, toDir: DirSide) : boolean {
         let pathType = CONF.SIDE_TO_ROAD_PATH[toDir];
         let path = cell.road.paths[pathType];
         return path && true !== path && path.from == CONF.OPPOSITE_SIDE[toDir];
+    }
+
+    protected isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
+        let cell = this.findCellOfRoad(poss);
+        if (!cell) { return false; }
+        return this.isColoredRoadCellFlowsOutToDirection(cell, toDir);
     }
 
     public isAnyRoadAround(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss); }

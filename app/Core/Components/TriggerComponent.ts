@@ -32,7 +32,7 @@ export class TriggerComponent {
     }
 
     public colorIt(color: ContentColor, fromDir: DirSide, poss: IPoss) {
-        if (CONF.LEFT != fromDir) { return; }
+        if (!color || CONF.LEFT != fromDir) { return; }
         let cell = this.scheme.findCellOfTrigger(poss);
         if (!cell) { return; }
 
