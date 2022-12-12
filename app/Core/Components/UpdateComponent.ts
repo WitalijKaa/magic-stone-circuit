@@ -1,7 +1,7 @@
 import {AbstractComponent} from "./AbstractComponent";
 import {HH} from "../HH";
 import * as CONF from "../../config/game";
-import {DOWN, LEFT, RIGHT, ROAD_LEFT_RIGHT, UP} from "../../config/game";
+import {DOWN, LEFT, RIGHT, ROAD_LEFT_RIGHT, SIDES, UP} from "../../config/game";
 import {ColorCellCache} from "../Types/ColorCellCache";
 import {IPoss} from "../IPoss";
 import {DirSide} from "../Types/DirectionSide";
@@ -99,7 +99,7 @@ export class UpdateComponent extends AbstractComponent {
         this.cacheEditBlock = false;
     }
 
-    cacheReset() : void {
+    public cacheReset() : void {
         this.gameBlock = false;
         this.cacheMoveBlock = false;
         this.cacheEditBlock = false;
@@ -181,30 +181,38 @@ export class UpdateComponent extends AbstractComponent {
                         cacheDirections: [...CONF.SIDES],
                     });
                 }
-                else if (cell.semiconductor && CONF.ST_ROAD_SLEEP == cell.semiconductor.type) {
+                else if (cell.isSleepSemiconductor) {
                     this.cacheAddAct(cell.poss, {
                         type: CONF.ST_ROAD_SLEEP,
-                        method: 'setColorToRoadBySleepSemiconductor',
-                        params: [false, this.scheme.contentCells[cellName]],
-                        cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
+                        method: 'moveColorToSemiconductorByRoad',
+                        params: [cell.poss],
+                        cacheDirections: SIDES,
                     });
                 }
-                else if (cell.trigger && cell.trigger.color) {
-                    this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_TRIGGER,
-                        method: 'colorItAroundByTrigger',
-                        params: [this.scheme.contentCells[cellName]],
-                        cacheDirections: [RIGHT],
-                    });
-                }
-                else if (cell.speed && cell.speed.color) {
-                    this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_SPEED,
-                        method: 'colorItAroundBySpeed',
-                        params: [this.scheme.contentCells[cellName]],
-                        cacheDirections: [cell.speed.to],
-                    });
-                }
+                // else if (cell.semiconductor && CONF.ST_ROAD_SLEEP == cell.semiconductor.type) {
+                //     this.cacheAddAct(cell.poss, {
+                //         type: CONF.ST_ROAD_SLEEP,
+                //         method: 'setColorToRoadBySleepSemiconductor',
+                //         params: [false, this.scheme.contentCells[cellName]],
+                //         cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
+                //     });
+                // }
+                // else if (cell.trigger && cell.trigger.color) {
+                //     this.cacheAddAct(cell.poss, {
+                //         type: CONF.ST_TRIGGER,
+                //         method: 'colorItAroundByTrigger',
+                //         params: [this.scheme.contentCells[cellName]],
+                //         cacheDirections: [RIGHT],
+                //     });
+                // }
+                // else if (cell.speed && cell.speed.color) {
+                //     this.cacheAddAct(cell.poss, {
+                //         type: CONF.ST_SPEED,
+                //         method: 'colorItAroundBySpeed',
+                //         params: [this.scheme.contentCells[cellName]],
+                //         cacheDirections: [cell.speed.to],
+                //     });
+                // }
             }
 
         }

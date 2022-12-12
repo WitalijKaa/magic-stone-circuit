@@ -133,6 +133,23 @@ export class Scheme extends SchemeBase {
     protected moveColorToSemiconductorBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.cSemi.colorItBySemiconductor(color, fromDir, poss); }
     protected moveColorToRoadBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.setColorToRoad(color, fromDir, poss); }
 
+    public moveColorToSemiconductorByRoad(poss: IPoss) {
+        let cell = this.findCellOfSemiconductor(poss);
+        if (!cell || !cell.isSleepSemiconductor || cell.semiconductor.colorFlow) { return; }
+        let color: ContentColor;
+        let fromDir: DirSide;
+        if (cell.semiconductor.direction == CONF.ROAD_LEFT_RIGHT) {
+            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.LEFT); fromDir = CONF.LEFT;
+            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.RIGHT); fromDir = CONF.RIGHT; }
+        }
+        else {
+            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.UP); fromDir = CONF.UP;
+            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.DOWN); fromDir = CONF.DOWN; }
+        }
+        if (color) {
+            this.cSemi.colorItByRoad(color, fromDir, poss);
+        }
+    }
 
     /** ROADs **/
 
