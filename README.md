@@ -66,3 +66,9 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 48: better performance for patters, rotate etc.
 - Task 49: delete section in frame. --D
 - Task 50: delete road by path.
+
+## docker
+
+docker build -t magic_stones -f ./docker/Dockerfile .
+
+docker run -d -p 3013:80 magic_stones
