@@ -694,7 +694,7 @@ export class Scheme extends SchemeBase {
         if (!cell) { return; }
         let pathFrom = CONF.SIDE_TO_ROAD_PATH[fromDir];
 
-        if (this.canPathSetColor(cell.road, pathFrom)) {
+        if (this.canPathSetColor(cell.road, pathFrom, fromDir)) {
             cell.road.paths[pathFrom] = { color: color, from: fromDir };
             this.moveColorToNextPaths(cell, color, this.findNextPathsToSetColor(cell.road, pathFrom));
         }
@@ -735,7 +735,7 @@ export class Scheme extends SchemeBase {
 
     public execMoveColorToNextPath(poss: IPoss, color: number, path: CellRoadPathType) {
         let cell = this.findCellOfRoad(poss);
-        if (!cell || !this.canPathSetColor(cell.road, path)) { return; }
+        if (!cell || !this.canPathSetColor(cell.road, path, CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]])) { return; }
 
         if (ROAD_PATH_HEAVY == path) {
             cell.road.paths[path] = { color: color, from: LEFT };

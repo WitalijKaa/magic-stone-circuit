@@ -7,7 +7,14 @@ import {SchemeGrid} from "../Models/Scheme/SchemeGrid";
 import {GridCursor} from "./Types/GridCursor";
 import {IPoss} from "./IPoss";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
-import {CellPath, CellRoad, CellRoadPathType, CellRoadType, RoadPathsArray, RoadSavePathsArray} from "./Types/CellRoad";
+import {
+    CellPath,
+    CellRoad,
+    CellRoadPathType,
+    CellRoadType,
+    RoadPathsArray,
+    RoadSavePathsArray
+} from "./Types/CellRoad";
 import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
@@ -491,7 +498,13 @@ export abstract class SchemeBase {
 
     // COLORS
 
-    canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
+    canPathSetColor(road: CellRoad, pathType: CellRoadPathType, fromDir: DirSide) : boolean {
+        if (true === road.paths[pathType]) { return true; }
+        if (false === road.paths[pathType]) { return false; }
+        let path = road.paths[pathType] as { color: number; from: DirSide; };
+        if (ROAD_PATH_HEAVY != pathType && path.from == fromDir) { return true; }
+        return false;
+    }
 
     // DEV
 
@@ -509,7 +522,7 @@ export abstract class SchemeBase {
         else if (cell.road) {
             showInConsole =
                 'ROAD ' + ROAD_DEV[cell.road.type] +
-                ' ## ' + cell.road.checkRun[0] + '|' + cell.road.checkRun[1] + '|' + cell.road.checkRun[2] + '|' + cell.road.checkRun[3] + ' ## ' +
+                ' ## ' + // cell.road.checkRun[0] + '|' + cell.road.checkRun[1] + '|' + cell.road.checkRun[2] + '|' + cell.road.checkRun[3] + ' ## ' +
                 cell.road.paths.map((path, ix) => {
                     if ('boolean' == typeof path) {
                         return path ? ROAD_DEV_PATH[ix] : '-'
