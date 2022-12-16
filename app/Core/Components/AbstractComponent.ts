@@ -7,6 +7,8 @@ import {DirSide} from "../Types/DirectionSide";
 import {ContentColor} from "../Types/ColorTypes";
 import {SIDES} from "../../config/game";
 import {HH} from "../HH";
+import {ICellWithRoad} from "../Interfaces/ICellWithRoad";
+import * as CONF from "../../config/game";
 
 export abstract class AbstractComponent {
 
@@ -24,6 +26,10 @@ export abstract class AbstractComponent {
     protected getCell(poss: IPoss) : CellScheme { return this.scheme.getCell(poss); }
     protected possEquals(possA: IPoss, possB: IPoss) : boolean { return this.scheme.possEquals(possA, possB); }
     protected possNotEquals(possA: IPoss, possB: IPoss) : boolean { return !this.scheme.possEquals(possA, possB); }
+
+    public verifyCheckRunForRoadPath(cell: ICellWithRoad, fromDir: DirSide, checkRun: number | null) : number | false {
+        return this.scheme.verifyCheckRunForRoadPath(cell, fromDir, checkRun);
+    }
     
     protected cancelColorForRoadsAround(poss: IPoss) : void { this.scheme.cancelColorFromAnyRoadPathAroundCell(poss); }
     protected cancelColorForRoadAroundBySide(side: DirSide, poss: IPoss) : void { this.scheme.cancelColorFromRoadPathAroundCellBySide(side, poss); }

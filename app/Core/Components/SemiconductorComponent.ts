@@ -106,7 +106,6 @@ export class SemiconductorComponent extends AbstractComponent {
         }
 
         this.setColorToNewSemiconductor(cell);
-        this.contentCellAdd(poss);
 
         this.refreshVisibleCell(poss);
         this.afterChange();
@@ -263,9 +262,6 @@ export class SemiconductorComponent extends AbstractComponent {
         if ((!cell.isAwakeSemiconductor && onlyForAwakeType) || cell.semiconductor.colorAwake == color) {
             return;
         }
-        // if (cell.isAwakeSemiconductor && !color && (this.countStonesAround(poss) || this.hasAwakeSemiNeighborsAnyStoneAround(poss))) {
-        //     return; // helps to remove stone and do not reset semi
-        // }
         let semi = cell.semiconductor;
 
         semi.colorAwake = color;
@@ -277,6 +273,7 @@ export class SemiconductorComponent extends AbstractComponent {
             }
             semi.colorCharge = null;
             semi.colorFlow = null;
+            this.contentCellRemove(cell.poss);
         }
         this.cacheColorRemove(cell);
 
@@ -311,6 +308,11 @@ export class SemiconductorComponent extends AbstractComponent {
             if (!cellSideSemi) { return; }
             this.setChargeColorToSemiconductor(cellSideSemi, checkRun, removeMode);
         });
+
+        if (cell.isSleepSemiconductor) {
+            if (!removeMode) { this.contentCellAdd(cell.poss); }
+            else { this.contentCellRemove(cell.poss); }
+        }
     }
 
     public findColorForSleepSemiconductorFlowsFromRoad(cell: ICellWithSemiconductor) : null | { color: ContentColor, fromDir: DirSide } {

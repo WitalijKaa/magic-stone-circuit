@@ -93,7 +93,7 @@ export class Scheme extends SchemeBase {
     /** SPEEDers **/
     public putSpeed(poss: IPoss) { this.cSpeed.put(poss); }
     private removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
-    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorAroundByTick(poss); }
+    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorItAround(poss); }
 
     /** TRIGGERs **/
     public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }

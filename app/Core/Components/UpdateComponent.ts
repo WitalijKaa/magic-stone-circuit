@@ -189,14 +189,6 @@ export class UpdateComponent extends AbstractComponent {
                         cacheDirections: SIDES,
                     });
                 }
-                // else if (cell.semiconductor && CONF.ST_ROAD_SLEEP == cell.semiconductor.type) {
-                //     this.cacheAddAct(cell.poss, {
-                //         type: CONF.ST_ROAD_SLEEP,
-                //         method: 'setColorToRoadBySleepSemiconductor',
-                //         params: [false, this.scheme.contentCells[cellName]],
-                //         cacheDirections: ROAD_LEFT_RIGHT == cell.semiconductor.direction ? [LEFT, RIGHT] : [UP, DOWN],
-                //     });
-                // }
                 // else if (cell.trigger && cell.trigger.color) {
                 //     this.cacheAddAct(cell.poss, {
                 //         type: CONF.ST_TRIGGER,
@@ -205,14 +197,14 @@ export class UpdateComponent extends AbstractComponent {
                 //         cacheDirections: [RIGHT],
                 //     });
                 // }
-                // else if (cell.speed && cell.speed.color) {
-                //     this.cacheAddAct(cell.poss, {
-                //         type: CONF.ST_SPEED,
-                //         method: 'colorItAroundBySpeed',
-                //         params: [this.scheme.contentCells[cellName]],
-                //         cacheDirections: [cell.speed.to],
-                //     });
-                // }
+                else if (cell.speed && cell.speed.color) {
+                    this.cacheAddAct(cell.poss, {
+                        type: CONF.ST_SPEED,
+                        method: 'colorItAroundBySpeed',
+                        params: [this.scheme.contentCells[cellName]],
+                        cacheDirections: [cell.speed.to],
+                    });
+                }
             }
 
         }
