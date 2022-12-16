@@ -16,6 +16,7 @@ export interface ICellScheme extends IPoss {
 
     isAtPosition(poss: IPoss) : boolean;
     isCellConnectedAtSide(side: DirSide) : boolean;
+    isCellConnectedToUncoloredRoadAtSide(side: DirSide) : boolean;
     isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean
 
     get isAwakeSemiconductor() : boolean;

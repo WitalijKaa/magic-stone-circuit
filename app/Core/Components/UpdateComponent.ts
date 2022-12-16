@@ -184,7 +184,7 @@ export class UpdateComponent extends AbstractComponent {
                 else if (cell.isSleepSemiconductor) {
                     this.cacheAddAct(cell.poss, {
                         type: CONF.ST_ROAD_SLEEP,
-                        method: 'moveColorToSemiconductorByRoad',
+                        method: 'colorItAroundBySleepSemiconductor',
                         params: [cell.poss],
                         cacheDirections: SIDES,
                     });

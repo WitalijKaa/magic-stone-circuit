@@ -3,7 +3,8 @@ import {IPoss} from "../IPoss";
 import {CellSemiconductorDirection, CellSemiconductorType} from "../Types/CellSemiconductor";
 import {ICellWithSemiconductor} from "../Interfaces/ICellWithSemiconductor";
 import {CellSemiconductor} from "../Types/CellSemiconductor";
-import { LEFT, RIGHT, UP, DOWN, ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN, SIDES, ST_ROAD_AWAKE, ST_ROAD_SLEEP } from "../../config/game";
+import { SIDES, LEFT, RIGHT, UP, DOWN } from "../../config/game";
+import { ROAD_HEAVY, ROAD_LEFT_RIGHT, ROAD_UP_DOWN,ST_ROAD_AWAKE, ST_ROAD_SLEEP } from "../../config/game";
 import * as CONF from "../../config/game";
 import {HH} from "../HH";
 import {ContentColor} from "../Types/ColorTypes";
@@ -88,7 +89,7 @@ export class SemiconductorComponent extends AbstractComponent {
         }
     }
 
-    public colorItBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) {
+    public colorItFlowBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) {
         let cell = this.scheme.findCellOfSemiconductor(poss);
         if (!cell) { return; }
         this.setFlowColorToSemiconductor(color, fromDir, cell);
@@ -310,22 +311,22 @@ export class SemiconductorComponent extends AbstractComponent {
             if (!cellSideSemi) { return; }
             this.setChargeColorToSemiconductor(cellSideSemi, checkRun, removeMode);
         });
+    }
 
-        if (!removeMode && cell.isSleepSemiconductor) {
-            let color: ContentColor;
-            let fromDir: DirSide;
-            if (semi.direction == CONF.ROAD_LEFT_RIGHT) {
-                color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.LEFT); fromDir = CONF.LEFT;
-                if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.RIGHT); fromDir = CONF.RIGHT; }
-            }
-            else {
-                color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.UP); fromDir = CONF.UP;
-                if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.DOWN); fromDir = CONF.DOWN; }
-            }
-            if (color) {
-                this.contentCellAdd(cell.poss);
-            }
+    public findColorForSleepSemiconductorFlowsFromRoad(cell: ICellWithSemiconductor) : null | { color: ContentColor, fromDir: DirSide } {
+        if (!cell.isSleepSemiconductor) { return null; }
+        let color: ContentColor;
+        let fromDir: DirSide;
+        if (cell.semiconductor.direction == CONF.ROAD_LEFT_RIGHT) {
+            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(LEFT); fromDir = LEFT;
+            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(RIGHT); fromDir = RIGHT; }
         }
+        else {
+            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(UP); fromDir = UP;
+            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(DOWN); fromDir = DOWN; }
+        }
+        if (!color) { return null; }
+        return { color: color, fromDir: fromDir };
     }
 
     private setChargeColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, cell: ICellWithSemiconductor) : void {
@@ -352,20 +353,11 @@ export class SemiconductorComponent extends AbstractComponent {
                 let possSide = HH[toDir](cell);
                 this.cacheColorAdd(possSide, {
                     type: CONF.ST_ROAD_SLEEP,
-                    method: 'moveColorToSemiconductorBySemiconductor',
+                    method: 'moveFlowColorToSemiconductorBySemiconductor',
                     params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
                     cacheDirections: [toDir, CONF.OPPOSITE_SIDE[toDir]],
                 });
             })
-        }
-        else if (cell.isSleepSemiconductor) {
-            let possSide = HH[CONF.OPPOSITE_SIDE[fromDir]](cell);
-            this.cacheColorAdd(possSide, {
-                type: CONF.ST_ROAD,
-                method: 'moveColorToRoadBySemiconductor',
-                params: [color, fromDir, possSide],
-                cacheDirections: [fromDir, CONF.OPPOSITE_SIDE[fromDir]],
-            });
         }
     }
 
@@ -384,7 +376,7 @@ export class SemiconductorComponent extends AbstractComponent {
         if (color) {
             this.cacheColorAdd(possSide, {
                 type: CONF.ST_ROAD_SLEEP,
-                method: 'moveColorToSemiconductorBySemiconductor',
+                method: 'moveFlowColorToSemiconductorBySemiconductor',
                 params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
                 cacheDirections: [toDir, CONF.OPPOSITE_SIDE[toDir]],
             });

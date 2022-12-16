@@ -66,7 +66,7 @@ export class CellScheme implements ICellScheme {
     }
 
     isCellConnectedAtSide(side: DirSide) : boolean {
-        const sideCell : CellScheme | null = this[side.toLocaleLowerCase()];
+        const sideCell : CellScheme | null = this[side];
         if (!sideCell) { return false; }
 
         if (sideCell.road) {
@@ -76,6 +76,13 @@ export class CellScheme implements ICellScheme {
             return HH.isSemiconductorCanBeConnectedToSide(sideCell as ICellWithSemiconductor, side);
         }
         return true;
+    }
+
+    isCellConnectedToUncoloredRoadAtSide(side: DirSide) : boolean {
+        const sideCell : CellScheme | null = this[side];
+        if (!sideCell || !sideCell.road) { return false; }
+
+        return true === sideCell.road.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[side]]];
     }
 
     public isRoadSideCellConnected(sideCell: ICellWithRoad, sideOfSideCell: DirSide) : boolean {

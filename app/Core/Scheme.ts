@@ -10,7 +10,6 @@ import {Axis, BuildRoadWays} from "./Types/BuildRoadWays";
 import {GridZone} from "./Types/GridCursor";
 import {DirSide} from "./Types/DirectionSide";
 import {Cell} from "./Cell";
-import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {HH} from "./HH";
 import {CellSemiconductorType} from "./Types/CellSemiconductor";
 import {SmileComponent} from "./Components/SmileComponent";
@@ -124,30 +123,25 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    public colorItAroundByStone(poss: IPoss) { this.cStone.colorItAround(poss); }
+    public colorItAroundByStone(poss: IPoss) : void { this.cStone.colorItAround(poss); }
 
     /** SEMICONDUCTORs **/
 
     public putSemiconductor(scType: CellSemiconductorType, poss: IPoss) : void { this.cSemi.put(scType, poss); }
     private removeSemiconductor(poss: IPoss) : void { this.cSemi.remove(poss); }
-    protected moveColorToSemiconductorBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.cSemi.colorItBySemiconductor(color, fromDir, poss); }
-    protected moveColorToRoadBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.setColorToRoad(color, fromDir, poss); }
+    protected moveFlowColorToSemiconductorBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.cSemi.colorItFlowBySemiconductor(color, fromDir, poss); }
 
-    public moveColorToSemiconductorByRoad(poss: IPoss) {
+    public colorItAroundBySleepSemiconductor(poss: IPoss) {
         let cell = this.findCellOfSemiconductor(poss);
-        if (!cell || !cell.isSleepSemiconductor || cell.semiconductor.colorFlow) { return; }
-        let color: ContentColor;
-        let fromDir: DirSide;
-        if (cell.semiconductor.direction == CONF.ROAD_LEFT_RIGHT) {
-            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.LEFT); fromDir = CONF.LEFT;
-            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.RIGHT); fromDir = CONF.RIGHT; }
+        if (!cell || !cell.isSleepSemiconductor || !cell.semiconductor.colorCharge) { return; }
+        if (cell.semiconductor.colorFlow && cell.isCellConnectedToUncoloredRoadAtSide(CONF.OPPOSITE_SIDE[cell.semiconductor.from!])) {
+            this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from!, HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from!]](poss));
         }
         else {
-            color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.UP); fromDir = CONF.UP;
-            if (!color) { color = cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(CONF.DOWN); fromDir = CONF.DOWN; }
-        }
-        if (color) {
-            this.cSemi.colorItByRoad(color, fromDir, poss);
+            let semiColorFromRoad = this.cSemi.findColorForSleepSemiconductorFlowsFromRoad(cell);
+            if (semiColorFromRoad) {
+                this.cSemi.colorItByRoad(semiColorFromRoad.color, semiColorFromRoad.fromDir, poss);
+            }
         }
     }
 
@@ -664,193 +658,9 @@ export class Scheme extends SchemeBase {
     }
 
     private defineRoadPath(cell: ICellWithRoad, poss: IPoss, pathType: CellRoadPathType, pathContent: boolean, updateMode: boolean = false): void {
-        if (!updateMode || !pathContent) {
+        if (!updateMode || !pathContent || !cell.road.paths[pathType]) {
             cell.road.paths[pathType] = pathContent;
             this.cancelColorOnDefineRoadPath(poss, pathType);
-        }
-        else if (!cell.road.paths[pathType]) {
-            cell.road.paths[pathType] = pathContent;
-            this.cancelColorOnDefineRoadPath(poss, pathType);
-        }
-    }
-
-    /** SEMICONDUCTORs **/
-
-    private refreshSemiconductorByColoredRoadsFlowsIn(cell: ICellWithSemiconductor) {
-        cell.sidesOfSemiconductor.forEach((side: DirSide) => { // todo norm queue
-            if (cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side)) {
-                if (cell.isAwakeSemiconductor) {
-                    // setTimeout(() => {
-                    //     this.setColorToSemiconductorByRoad(cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side), side, cell.poss);
-                    // }, CONF.NANO_MS);
-                }
-                else if (cell.isSleepSemiconductor) {
-                    setTimeout(() => {
-                        this.cacheColorAdd(cell.poss, {
-                            type: CONF.ST_ROAD_SLEEP,
-                            method: 'setColorToSemiconductorByRoad',
-                            params: [cell.colorOfConnectedColoredRoadAtSideThatFlowsHere(side), side, cell.poss],
-                            cacheDirections: [side],
-                        });
-                    }, CONF.NANO_MS * 10);
-                }
-            }
-        });
-    }
-
-    private setChargeColorToSemiconductorByAwake(color: ContentColor, poss: IPoss) {
-        let cell = this.findCellOfSemiconductor(poss);
-        if (!cell || cell.semiconductor.colorCharge == color || (color && cell.semiconductor.colorAwake != color)) { return; }
-        let semi = cell.semiconductor;
-
-        semi.colorCharge = color;
-        if (!color) {
-            if (CONF.ST_ROAD_SLEEP == semi.type && semi.colorFlow) {
-                cell.sidesOfSemiconductor.forEach((toDir: DirSide) => {
-                    this.cancelRoadColorFlowsOutPathBySide(toDir, poss);
-                });
-            }
-            semi.colorFlow = null;
-        }
-        //this.refreshSemiconductorByColoredRoadsFlowsIn(cell);
-        this.refreshVisibleCell(poss);
-        this.cacheColorRemove(poss);
-
-        if (cell.isAwakeSemiconductor) {
-            SIDES.forEach((side: DirSide) => {
-                if (cell!.isAwakeSemiconductorConnectedToAnyOtherSemiconductorAtSide(side)) {
-                    //this.setChargeColorToSemiconductorByAwake(color, HH[side](poss));
-                }
-            });
-        }
-    }
-
-    public setColorToSemiconductorByRoad(color: ContentColor, fromDir: DirSide, poss: IPoss) : void {
-        let cell = this.findCellOfSemiconductor(poss);
-        if (!cell) { return; }
-
-        if (cell.isAwakeSemiconductor) {
-            //if (!color && this.hasTransistorTheChargeSources(cell)) { return; }
-            //this.setChargeColorToSemiconductorByAwake(color, poss);
-        }
-        else if (cell.isSleepSemiconductor) {
-            if (cell.semiconductor.direction == ROAD_LEFT_RIGHT) {
-                if (LEFT != fromDir && RIGHT != fromDir) { return; }
-            }
-            else if (UP != fromDir && DOWN != fromDir) { return; }
-
-            this.setFlowColorToSemiconductor(color, fromDir, poss);
-        }
-    }
-
-    private hasTransistorTheChargeSources(cell: ICellWithSemiconductor, checkRun: number | null = null) {
-        if (!cell.isAwakeSemiconductor || !cell.semiconductor.colorCharge) { return false; }
-
-        let exceptThisOne = false;
-        if (!checkRun) {
-            checkRun = this.checkRun;
-            exceptThisOne = true;
-        }
-        if (cell.semiconductor.checkRun == checkRun) { return false; }
-        cell.semiconductor.checkRun = checkRun;
-
-        if (!exceptThisOne) {
-            for (let ix = 0; ix < SIDES.length; ix++) {
-                let fromDir = SIDES[ix];
-                let sideCell = this.findCellOfRoad(HH[fromDir](cell));
-                if (!sideCell) { continue; }
-                let colorFlowsHere = cell.getColorOfPath(sideCell.road, CONF.OPPOSITE_SIDE[fromDir], fromDir);
-                if (cell.semiconductor.colorCharge == colorFlowsHere) {
-                    return true;
-                }
-            }
-        }
-
-        for (let ix = 0; ix < SIDES.length; ix++) {
-            let sideCell = this.findCellOfSemiconductor(HH[SIDES[ix]](cell));
-            if (!sideCell) { continue; }
-            // if (this.hasTransistorTheChargeSources(sideCell, checkRun)) {
-            //     return true;
-            // }
-        }
-    }
-
-    public setFlowColorToSemiconductor(color: ContentColor, fromDir: DirSide, poss: IPoss): void {
-        let cell = this.findCellOfSemiconductor(poss);
-        if (!cell) { return; }
-        let semi = cell.semiconductor;
-
-        if (!cell.isSleepSemiconductor && !cell.isAwakeSemiconductor) { return; }
-        if (!semi.colorCharge || semi.colorFlow == color || semi.colorCharge != semi.colorAwake) { return; }
-        if (cell.isSleepSemiconductor && !HH.isSemiconductorCanBeConnectedToSide(cell, fromDir)) { return; }
-
-        semi.colorFlow = color;
-        semi.from = fromDir;
-        this.refreshVisibleCell(poss);
-
-        if (!color) {
-            this.cacheColorRemove(poss);
-        }
-
-        let sides = SIDES;
-        if (cell.isSleepSemiconductor) { sides = [CONF.OPPOSITE_SIDE[fromDir]]; }
-
-        SIDES.forEach((toDir: DirSide) => {
-            let possSide = cell!.cellPosition[toDir];
-            if (color) {
-                this.cacheColorAdd(possSide, {
-                    type: CONF.ST_ROAD_SLEEP,
-                    method: 'setFlowColorToSemiconductor',
-                    params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
-                    cacheDirections: [toDir],
-                });
-            }
-            else {
-                this.setFlowColorToSemiconductor(color, CONF.OPPOSITE_SIDE[toDir], possSide);
-            }
-        });
-
-        if (cell.isSleepSemiconductor) {
-            let toDir = CONF.OPPOSITE_SIDE[semi.from];
-            if (color) {
-                this.cacheColorAdd(poss, {
-                    type: CONF.ST_ROAD_SLEEP,
-                    method: 'setColorToRoadBySleepSemiconductor',
-                    params: [true, cell.poss],
-                    cacheDirections: [toDir],
-                });
-            }
-            else {
-                if (this.isAnyRoadAtSides(cell, [toDir])) {
-                    this.eraseColorOnRoadPathFromSide(null, semi.from, cell.cellPosition[toDir]);
-                }
-            }
-        }
-    }
-
-    public setColorToRoadBySleepSemiconductor(forced: boolean, poss: IPoss) : void {
-        let cell = this.findCellOfSemiconductor(poss);
-        if (!cell || !cell.isSleepSemiconductor || (!forced && !cell.semiconductor.colorFlow) || !cell.semiconductor.from) { return; }
-
-        let sideRoadCell = this.findCellOfRoad(HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from]](poss));
-        if (!sideRoadCell) { return; }
-
-        if (cell.semiconductor.colorFlow) {
-            if (sideRoadCell.isUncoloredRoadPathFromSide(cell.semiconductor.from)) {
-                this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from, sideRoadCell.poss);
-            }
-            // else if (sideRoadCell.isRoadPathFromSide(cell.semiconductor.from)) {
-            //     let colorFlowsOut = sideRoadCell.getColorOfPath(sideRoadCell.road, cell.semiconductor.from, cell.semiconductor.from);
-            //     if (!colorFlowsOut || colorFlowsOut != cell.semiconductor.colorFlow) {
-            //         this.eraseColorOnRoadPathFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
-            //         this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from, sideRoadCell.poss);
-            //     }
-            // }
-        }
-        else {
-            if (sideRoadCell.isRoadPathFromSide(cell.semiconductor.from)) {
-                this.eraseColorOnRoadPathFromSide(null, cell.semiconductor.from, sideRoadCell.poss);
-            }
         }
     }
 
@@ -1003,11 +813,12 @@ export class Scheme extends SchemeBase {
     private cancelColorOnDefineRoadPath(poss: IPoss, pathType: CellRoadPathType) : void {
         if (CONF.ROAD_PATH_TO_SIDE.hasOwnProperty(pathType)) {
             let toDir: DirSide = CONF.ROAD_PATH_TO_SIDE[pathType];
-            let sidePoss: IPoss = Cell[toDir](poss);
+            let sidePoss: IPoss = HH[toDir](poss);
             let toDirCell = this.findCellOfRoad(sidePoss);
             if (toDirCell && toDirCell.road.paths[CONF.SIDE_TO_ROAD_PATH[CONF.OPPOSITE_SIDE[toDir]]]) {
                 this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[toDir], sidePoss);
             }
+            this.setColorToMagicObjByRoad(null, CONF.OPPOSITE_SIDE[toDir], sidePoss)
         }
     }
 
