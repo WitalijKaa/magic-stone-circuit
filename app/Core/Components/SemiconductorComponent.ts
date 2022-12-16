@@ -365,7 +365,7 @@ export class SemiconductorComponent extends AbstractComponent {
 
     private setFlowColorToSemiconductor(color: number, fromDir: DirSide, cell: ICellWithSemiconductor): void {
         let semi = cell.semiconductor;
-        if (semi.colorFlow || !semi.colorCharge) { return; }
+        if ((semi.colorFlow && semi.from != fromDir) || !semi.colorCharge) { return; }
 
         semi.colorFlow = color;
         semi.from = fromDir;

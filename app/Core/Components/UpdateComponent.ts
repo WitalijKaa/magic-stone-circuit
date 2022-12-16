@@ -12,8 +12,6 @@ const MAX_SPEED = 200;
 export class UpdateComponent extends AbstractComponent {
     
     public gameBlock: boolean = false;
-    private cacheAwaitAddBlock: number = 0;
-    private cacheAwaitRemoveBlock: number = 0;
 
     // SPEED
 
@@ -38,12 +36,6 @@ export class UpdateComponent extends AbstractComponent {
     private removeActs: Array<{poss: IPoss, toDir: null | DirSide}> = [];
 
     public cacheAddAct(poss: IPoss, cache: ColorCellCache) : void {
-        if (this.gameBlock) {
-            this.cacheAwaitAddBlock++;
-            setTimeout(() => { this.cacheAwaitAddBlock--; this.cacheAddAct(poss, cache); }, 1);
-            return;
-        }
-
         let name = HH.cellName(poss);
         if (!this.updateActs[name]) { this.updateActs[name] = []; }
         this.updateActs[name].push(cache);
@@ -80,7 +72,7 @@ export class UpdateComponent extends AbstractComponent {
     private contentReUpdateNext: number = 4;
 
     public update() : void {
-        if (this.gameBlock || this.cacheAwaitAddBlock > 0 || this.cacheAwaitRemoveBlock > 0) {
+        if (this.gameBlock) {
             setTimeout(() => { this.update() }, 1);
             return;
         }

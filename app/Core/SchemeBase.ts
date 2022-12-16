@@ -509,7 +509,7 @@ export abstract class SchemeBase {
         else if (cell.road) {
             showInConsole =
                 'ROAD ' + ROAD_DEV[cell.road.type] +
-                ' ## ' +
+                ' ## ' + cell.road.checkRun[0] + '|' + cell.road.checkRun[1] + '|' + cell.road.checkRun[2] + '|' + cell.road.checkRun[3] + ' ## ' +
                 cell.road.paths.map((path, ix) => {
                     if ('boolean' == typeof path) {
                         return path ? ROAD_DEV_PATH[ix] : '-'
