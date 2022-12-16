@@ -402,12 +402,12 @@ export class SemiconductorComponent extends AbstractComponent {
                 type: CONF.ST_ROAD_SLEEP,
                 method: 'moveFlowColorToSemiconductorBySemiconductor',
                 params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
-                cacheDirections: [toDir, CONF.OPPOSITE_SIDE[toDir]],
+                cacheDirections: SIDES,
             });
         }
         else {
             this.eraseFlowColorOnNextSemiconductor(CONF.OPPOSITE_SIDE[toDir], possSide);
-            this.scheme.eraseColorOnRoadPathFromSide(null, semi.from, possSide);
+            this.cancelColorForRoadAroundBySide(toDir, cell.poss);
         }
     }
 
