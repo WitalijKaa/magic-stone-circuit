@@ -6,6 +6,7 @@ import {ColorCellCache} from "../Types/ColorCellCache";
 import {DirSide} from "../Types/DirectionSide";
 import {ContentColor} from "../Types/ColorTypes";
 import {SIDES} from "../../config/game";
+import * as CONF from "../../config/game";
 import {HH} from "../HH";
 import {ICellWithRoad} from "../Interfaces/ICellWithRoad";
 
@@ -29,8 +30,14 @@ export abstract class AbstractComponent {
         return this.scheme.verifyCheckRunForRoadPath(cell, fromDir, checkRun);
     }
     
-    protected cancelColorForRoadsAround(poss: IPoss) : void { this.scheme.cancelColorFromAnyRoadPathAroundCell(poss); }
-    protected cancelColorForRoadAroundBySide(side: DirSide, poss: IPoss) : void { this.scheme.cancelColorFromRoadPathAroundCellBySide(side, poss); }
+    protected cancelColorForRoadsAround(poss: IPoss) : void {
+        SIDES.forEach((side: DirSide) => {
+            this.cancelColorForRoadAroundBySide(side, poss);
+        });
+    }
+    protected cancelColorForRoadAroundBySide(side: DirSide, poss: IPoss) : void {
+        this.scheme.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
+    }
 
     protected refreshVisibleAll() : void { this.scheme.visibleGrid.refreshAllCells(); }
     protected refreshVisibleCell(poss: IPoss) : void { this.scheme.refreshVisibleCell(poss); }
@@ -48,6 +55,7 @@ export abstract class AbstractComponent {
     }
     protected cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void { this.scheme.cacheColorAdd(poss, cache); }
     protected cacheColorRemove(poss: IPoss) : void { this.scheme.cacheColorRemove(poss); }
+    protected cacheColorToDirRemove(toDir: DirSide, poss: IPoss) : void { this.scheme.cacheColorToDirRemove(toDir, poss); }
 
     protected afterChange() : void { this.scheme.afterChange(); }
 

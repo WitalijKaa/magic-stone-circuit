@@ -31,6 +31,7 @@ import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
 import {SemiconductorComponent} from "./Components/SemiconductorComponent";
 import {ICellWithStone} from "./Interfaces/ICellWithStone";
+import {RoadComponent} from "./Components/RoadComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -59,6 +60,7 @@ export abstract class SchemeBase {
     protected cPattern!: PatternComponent;
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
+    protected cRoad!: RoadComponent;
     protected cStone!: StoneComponent;
     protected cSemi!: SemiconductorComponent;
     protected cTrigger!: TriggerComponent;
@@ -69,7 +71,7 @@ export abstract class SchemeBase {
 
     activeCursor: GridCursor = { x: 0, y: 0, zone: CONF.OVER_CENTER }
 
-    private _checkRun: number = 1;
+    private _checkRun: number = 3;
     public get checkRun() : number { return ++this._checkRun; }
 
     init(grid: SchemeGrid) : void {
@@ -177,7 +179,6 @@ export abstract class SchemeBase {
 
     // ABSTRACT
 
-    public abstract get isGameBlock() : boolean;
     protected abstract initComponents() : void;
     protected abstract actionAlphaTick() : boolean;
     protected abstract eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss): void;
@@ -248,7 +249,7 @@ export abstract class SchemeBase {
     protected getCellForRoad(poss: IPoss) : null | ICellWithRoad {
         let model = this.getCellFor('road', poss) as null | ICellWithRoad;
         if (model && !model.road) {
-            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: [0, 0, 0, 0, 0] };
+            model.road = { type: ROAD_LIGHT, paths: [...CONF.ALL_PATHS_EMPTY], checkRun: [1, 1, 1, 1, 1] };
         }
         return model;
     }
@@ -442,12 +443,6 @@ export abstract class SchemeBase {
         return path && true !== path && path.from == CONF.OPPOSITE_SIDE[toDir];
     }
 
-    protected isColoredRoadFlowsOutToDirection(toDir: DirSide, poss: IPoss) : boolean {
-        let cell = this.findCellOfRoad(poss);
-        if (!cell) { return false; }
-        return this.isColoredRoadCellFlowsOutToDirection(cell, toDir);
-    }
-
     public isAnyRoadAround(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss); }
     public isAnyRoadLeftOrRight(poss: IPoss) : boolean { return this.isAnyRoadAtSides(poss, [LEFT, RIGHT]); }
 
@@ -484,130 +479,6 @@ export abstract class SchemeBase {
     isRoadPathsEmptyHorizontal(poss: IPoss) : boolean { return this.isRoadPathsEmptyByOrientation(true, poss); }
     isRoadPathsEmptyVertical(poss: IPoss) : boolean { return this.isRoadPathsEmptyByOrientation(false, poss); }
 
-    // SEMICONDUCTORs
-
-    protected turnSleepSemiconductorHere(side, poss: IPoss) : boolean {
-        let cell = this.findCellOfSemiconductor(HH[side](poss));
-        if (!cell || !cell.semiconductor || CONF.ST_ROAD_SLEEP != cell.semiconductor.type) { return false; }
-        let semi = cell.semiconductor;
-
-        if (LEFT == side || RIGHT == side) {
-            if (semi.direction != ROAD_LEFT_RIGHT) {
-                semi.direction = ROAD_LEFT_RIGHT;
-                return true;
-            }
-        }
-        else {
-            if (semi.direction != ROAD_UP_DOWN) {
-                semi.direction = ROAD_UP_DOWN;
-                return true;
-            }
-        }
-        return  false;
-    }
-
-    protected isSemiconductorChargedAround(poss: IPoss) : boolean {
-        for (let side of SIDES) {
-            let cell = this.findCellOfSemiconductor(HH[side](poss));
-            if (cell && cell.semiconductor.colorCharge) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected isSemiconductorAwakeAroundDiagonal(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, CONF.SIDES_DIAGONAL); }
-    protected isSemiconductorSleepAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_SLEEP); }
-    protected isSemiconductorAwakeAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE); }
-    protected isSemiconductorAwakeAtLeftOrAtRight(poss: IPoss) : boolean {
-        return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
-    }
-
-    private isSemiconductorTypeAround(poss: IPoss, scType: CellSemiconductorType, sides: Array<string> = SIDES) : boolean {
-        for (let side of sides) {
-            let cell = this.findCellOfSemiconductor(HH[side](poss));
-            if (cell && cell.semiconductor.type == scType) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected countAwakeClusterAtSide(poss: IPoss, checkRun: number | null, side: DirSide) : number {
-        let sideCell = this.findCellOfSemiconductor(HH[side](poss));
-        if (!sideCell) { return 0; }
-        let semi = sideCell.semiconductor;
-        if (!semi || CONF.ST_ROAD_AWAKE != semi.type) { return 0; }
-
-        if (!checkRun) { checkRun = this.checkRun; }
-        if (semi.checkRun == checkRun) { return 0; }
-        semi.checkRun = checkRun;
-
-        let count = 1;
-        SIDES.forEach((toDir: DirSide) => {
-            if (toDir == CONF.OPPOSITE_SIDE[side]) { return; }
-            count += this.countAwakeClusterAtSide(HH[side](poss), checkRun, toDir)
-        })
-        return count;
-    }
-
-    protected countStonesAround(poss: IPoss) : number {
-        return SIDES.reduce((count: number, side: DirSide) => {
-            return this.findCellOfContent(HH[side](poss)) ? ++count : count;
-        }, 0);
-    }
-
-    protected hasAwakeSemiNeighborsAnyStoneAround(poss: IPoss) : boolean {
-        return !SIDES.every((side: DirSide) => {
-            let cell = this.findCellOfSemiconductor(HH[side](poss));
-            return !cell || !cell.isAwakeSemiconductor || !this.countStonesAround(cell);
-        });
-    }
-    
-    // COLORs remove from roads
-
-    public cancelColorFromAnyRoadPathAroundCell(poss: IPoss) : void {
-        SIDES.forEach((side: DirSide) => {
-            this.cancelColorFromRoadPathAroundCellBySide(side, poss);
-        });
-    }
-
-    public cancelColorFromRoadPathAroundCellBySide(side: DirSide, poss: IPoss) : void {
-        this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], HH[side](poss));
-    }
-
-    // COLORs cancel
-
-    protected eraseColorOnRoadPath(road: CellRoad, pathType: CellRoadPathType) {
-        if (road.paths[pathType]) { road.paths[pathType] = true; }
-    }
-
-    protected cancelColorPathsRoadsAroundByPaths(roadPaths: RoadPathsArray, poss: IPoss) : void {
-        SIDES.forEach((side: DirSide) => {
-            if (roadPaths[CONF.SIDE_TO_ROAD_PATH[side]]) {
-                this.cancelColorFromRoadPathAroundCellBySide(side, poss);
-            }
-        });
-    }
-
-    protected cancelRoadColorFlowsOutPathBySide(side: DirSide, poss: IPoss) : void { this.coreCancelColorOnPathExec(false, true, true, false, side, poss); }
-
-    private coreCancelColorOnPathExec(hasToFlowIn: boolean, hasToFlowOut: boolean, hasToBeColored: boolean, hasToBeUncolored: boolean, side: DirSide, poss: IPoss) : void {
-        let cell = this.findCellOfRoad(HH[side](poss));
-        let sideFrom = CONF.OPPOSITE_SIDE[side];
-        if (!cell || !cell.isRoadPathFromSide(sideFrom)) { return; }
-
-        if (hasToFlowIn || hasToFlowOut) { hasToBeColored = true; }
-        if (hasToBeColored && hasToBeUncolored) { hasToBeColored = false; hasToBeUncolored = false; hasToFlowIn = false; hasToFlowOut = false; }
-
-        if (hasToBeColored && !cell.isColoredRoadPathFromSide(sideFrom)) { return; }
-        if (hasToBeUncolored && !cell.isUncoloredRoadPathFromSide(sideFrom)) { return; }
-        if (hasToFlowIn && !cell.isColoredRoadPathAtSideFlowToThatSide(sideFrom)) { return; }
-        if (hasToFlowOut && !cell.isColoredRoadPathAtSideFlowFromThatSide(sideFrom)) { return; }
-
-        this.eraseColorOnRoadPathFromSide(null, CONF.OPPOSITE_SIDE[side], cell);
-    }
-
     public verifyCheckRunForRoadPath(cell: ICellWithRoad, fromDir: DirSide, checkRun: number | null) : number | false {
         if (!checkRun) {
             checkRun = this.checkRun;
@@ -621,34 +492,6 @@ export abstract class SchemeBase {
     // COLORS
 
     canPathSetColor(road: CellRoad, pathType: CellRoadPathType) { return true === road.paths[pathType]; }
-
-    public isDifferentAwakeColorsAround(poss: IPoss, color: null | false | ContentColor = null, skipStones: boolean = false) : boolean {
-        SIDES.forEach((side: DirSide) => {
-            let sideColor = this.colorForAwakeAtSide(HH[side](poss), skipStones);
-            if (!sideColor) { return; }
-
-            if (null === color) {
-                color = sideColor;
-            }
-            if (color != sideColor) {
-                color = false;
-            }
-        });
-        return false === color;
-    }
-
-    private colorForAwakeAtSide(poss: IPoss, skipStones: boolean) : ContentColor | null {
-        let cell = this.findCell(poss);
-        if (!cell) { return null; }
-
-        if (!skipStones && cell.content) {
-            return CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type];
-        }
-        if (cell.semiconductor && cell.semiconductor.colorAwake) {
-            return cell.semiconductor.colorAwake;
-        }
-        return null;
-    }
 
     // DEV
 
