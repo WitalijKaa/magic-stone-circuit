@@ -379,7 +379,7 @@ export class SemiconductorComponent extends AbstractComponent {
                     type: CONF.ST_ROAD_SLEEP,
                     method: 'moveFlowColorToSemiconductorBySemiconductor',
                     params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
-                    cacheDirections: [toDir, CONF.OPPOSITE_SIDE[toDir]],
+                    cacheDirections: SIDES,
                 });
             })
         }

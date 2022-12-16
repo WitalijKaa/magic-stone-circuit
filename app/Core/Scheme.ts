@@ -138,6 +138,22 @@ export class Scheme extends SchemeBase {
         if (cell.semiconductor.colorFlow && cell.isCellConnectedToUncoloredRoadAtSide(CONF.OPPOSITE_SIDE[cell.semiconductor.from!])) {
             this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from!, HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from!]](poss));
         }
+        if (cell.semiconductor.colorFlow) {
+            if (cell.isCellConnectedToUncoloredRoadAtSide(CONF.OPPOSITE_SIDE[cell.semiconductor.from!])) {
+                this.setColorToRoad(cell.semiconductor.colorFlow, cell.semiconductor.from!, HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from!]](poss));
+            }
+            else { // kostil
+                let toCell = this.findCellOfSemiconductor(HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from!]](cell));
+                if (toCell && !toCell.semiconductor.colorFlow) {
+                    this.cacheColorAdd(toCell.poss, {
+                        type: CONF.ST_ROAD_SLEEP,
+                        method: 'moveFlowColorToSemiconductorBySemiconductor',
+                        params: [cell.semiconductor.colorFlow, cell.semiconductor.from!, toCell.poss],
+                        cacheDirections: SIDES,
+                    });
+                }
+            }
+        }
         else {
             let semiColorFromRoad = this.cSemi.findColorForSleepSemiconductorFlowsFromRoad(cell);
             if (semiColorFromRoad) {
@@ -721,7 +737,7 @@ export class Scheme extends SchemeBase {
         let cell = this.findCellOfRoad(poss);
         if (!cell || !this.canPathSetColor(cell.road, path)) { return; }
 
-        if (4 == path) {
+        if (ROAD_PATH_HEAVY == path) {
             cell.road.paths[path] = { color: color, from: LEFT };
             this.refreshVisibleCell(poss);
             return;

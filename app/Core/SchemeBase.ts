@@ -526,10 +526,7 @@ export abstract class SchemeBase {
         }
         else if (cell.content) {
             showInConsole =
-                'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]];// +
-                // (!cell.content.range.length ? '' :
-                // ' ## ' +
-                // cell.content.range.forEach(stoneType => COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]]).join('|'));
+                'STONE ' + COLOR_DEV[CONF.STONE_TYPE_TO_ROAD_COLOR[cell.content.type]];
         }
         else if (cell.trigger) {
             showInConsole =

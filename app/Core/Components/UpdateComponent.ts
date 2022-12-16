@@ -49,52 +49,23 @@ export class UpdateComponent extends AbstractComponent {
         this.updateActs[name].push(cache);
     }
 
-    public cacheRemoveAct(poss: IPoss) : void {
-        this.removeActs.push({ poss: poss, toDir: null });
-        if (this.cacheAwaitAddBlock > 0) {
-            this.cacheAwaitRemoveBlock++;
-            setTimeout(() => { this.cacheAwaitRemoveBlock--; this.cacheRemoveAct(poss); }, 1);
-            return;
-        }
+    public cacheRemoveAct(poss: IPoss) : void { this.removeActs.push({ poss: poss, toDir: null }); }
 
-        let name = HH.cellName(poss);
-        this.updateActs[name] = [];
-    }
+    public cacheRemoveActOfColorToDir(toDir: DirSide, poss: IPoss) : void { this.removeActs.push({ poss: poss, toDir: toDir }); }
 
-    public cacheRemoveActOfColorToDir(toDir: DirSide, poss: IPoss) : void {
-        this.removeActs.push({ poss: poss, toDir: toDir });
-        if (this.cacheAwaitAddBlock > 0) {
-            this.cacheAwaitRemoveBlock++;
-            setTimeout(() => { this.cacheAwaitRemoveBlock--; this.cacheRemoveActOfColorToDir(toDir, poss); }, 1);
-            return;
-        }
-
-        let name = HH.cellName(poss);
-        if (this.updateActs[name]) {
-            for (let ix = this.updateActs[name].length - 1; ix >= 0; ix--) {
-                let cache = this.updateActs[name][ix];
-                if (cache.cacheDirections.includes((toDir))) {
-                    this.updateActs[name].splice(ix, 1);
+    protected useRemoveCacheAct(act: {poss: IPoss, toDir: null | DirSide}) : void {
+        let name = HH.cellName(act.poss);
+        if (act.toDir) {
+            if (this.updateActs[name]) {
+                for (let ix = this.updateActs[name].length - 1; ix >= 0; ix--) {
+                    let cache = this.updateActs[name][ix];
+                    if (cache.cacheDirections.includes(act.toDir)) {
+                        this.updateActs[name].splice(ix, 1);
+                    }
                 }
             }
         }
-    }
-
-    public cacheRemoveActForced(poss: IPoss) : void {
-        let name = HH.cellName(poss);
-        this.updateActs[name] = [];
-    }
-
-    public cacheRemoveActOfColorToDirForced(toDir: DirSide, poss: IPoss) : void {
-        let name = HH.cellName(poss);
-        if (this.updateActs[name]) {
-            for (let ix = this.updateActs[name].length - 1; ix >= 0; ix--) {
-                let cache = this.updateActs[name][ix];
-                if (cache.cacheDirections.includes((toDir))) {
-                    this.updateActs[name].splice(ix, 1);
-                }
-            }
-        }
+        else { this.updateActs[name] = []; }
     }
 
     public cacheReset() : void {
@@ -117,14 +88,7 @@ export class UpdateComponent extends AbstractComponent {
         this.gameBlock = true;
         if (!this.actionAlphaTick())
         {
-            this.removeActs.map((act) => {
-                if (!act.toDir) {
-                    this.cacheRemoveActForced(act.poss);
-                }
-                else {
-                    this.cacheRemoveActOfColorToDirForced(act.toDir, act.poss);
-                }
-            });
+            this.removeActs.forEach((act) => { this.useRemoveCacheAct(act) });
             this.removeActs = [];
 
             let cacheActs = this.updateActs;
