@@ -8,13 +8,11 @@ import {ContentColor} from "../Types/ColorTypes";
 import {SIDES} from "../../config/game";
 import {HH} from "../HH";
 import {ICellWithRoad} from "../Interfaces/ICellWithRoad";
-import * as CONF from "../../config/game";
 
 export abstract class AbstractComponent {
 
     constructor(protected scheme: Scheme) { }
 
-    protected get isGameBlock() : boolean { return this.scheme.isGameBlock; }
     protected actionAlphaTick() : boolean { return this.scheme.actionAlphaTick(); }
     protected get isSchemeLevelMode() : boolean { return this.scheme.isLevelMode; }
     protected get checkRun() : number { return this.scheme.checkRun; }
@@ -50,7 +48,6 @@ export abstract class AbstractComponent {
     }
     protected cacheColorAdd(poss: IPoss, cache: ColorCellCache) : void { this.scheme.cacheColorAdd(poss, cache); }
     protected cacheColorRemove(poss: IPoss) : void { this.scheme.cacheColorRemove(poss); }
-    protected cacheColorToDirRemove(toDir: DirSide, poss: IPoss) : void { this.scheme.cacheColorToDirRemove(toDir, poss); }
 
     protected afterChange() : void { this.scheme.afterChange(); }
 

@@ -189,14 +189,14 @@ export class UpdateComponent extends AbstractComponent {
                         cacheDirections: SIDES,
                     });
                 }
-                // else if (cell.trigger && cell.trigger.color) {
-                //     this.cacheAddAct(cell.poss, {
-                //         type: CONF.ST_TRIGGER,
-                //         method: 'colorItAroundByTrigger',
-                //         params: [this.scheme.contentCells[cellName]],
-                //         cacheDirections: [RIGHT],
-                //     });
-                // }
+                else if (cell.trigger && cell.trigger.color) {
+                    this.cacheAddAct(cell.poss, {
+                        type: CONF.ST_TRIGGER,
+                        method: 'colorItAroundByTrigger',
+                        params: [this.scheme.contentCells[cellName]],
+                        cacheDirections: [RIGHT],
+                    });
+                }
                 else if (cell.speed && cell.speed.color) {
                     this.cacheAddAct(cell.poss, {
                         type: CONF.ST_SPEED,

@@ -1,21 +1,18 @@
-import {Scheme} from "../Scheme";
 import {IPoss} from "../IPoss";
 import {DirSide} from "../Types/DirectionSide";
 import {ContentColor} from "../Types/ColorTypes";
-import * as CONF from "../../config/game";
+import { SIDES, LEFT, RIGHT, UP, DOWN } from "../../config/game";
 import {HH} from "../HH";
+import {AbstractComponent} from "./AbstractComponent";
 
-export class TriggerComponent {
-
-    constructor(private scheme: Scheme) { }
+export class TriggerComponent extends AbstractComponent {
 
     public put(poss: IPoss) {
         if (this.scheme.createCellForTrigger(poss)) {
-            this.scheme.refreshVisibleCell(poss);
-            this.scheme.afterChange();
-            this.scheme.setContentCell(poss);
-            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.LEFT, poss);
-            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
+            this.cancelColorForRoadAroundBySide(LEFT, poss);
+            this.cancelColorForRoadAroundBySide(RIGHT, poss);
+            this.afterChange();
+            this.refreshVisibleCell(poss);
         }
     }
 
@@ -23,34 +20,32 @@ export class TriggerComponent {
         let cell = this.scheme.findCellOfTrigger(poss);
         if (!cell) { return; }
 
-        this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
-        this.scheme.cacheColorRemove(poss);
-        this.scheme.removeContentCell(poss);
+        this.cancelColorForRoadAroundBySide(RIGHT, poss);
+        this.contentCellRemove(poss);
         this.scheme.killCell(poss);
-        this.scheme.refreshVisibleCell(poss);
-        this.scheme.afterChange();
+        this.afterChange();
+        this.refreshVisibleCell(poss);
     }
 
     public colorIt(color: ContentColor, fromDir: DirSide, poss: IPoss) {
-        if (!color || CONF.LEFT != fromDir) { return; }
+        if (!color || LEFT != fromDir) { return; }
         let cell = this.scheme.findCellOfTrigger(poss);
         if (!cell) { return; }
 
         if (cell.trigger.color != color) {
-            this.scheme.cancelColorFromRoadPathAroundCellBySide(CONF.RIGHT, poss);
+            this.cancelColorForRoadAroundBySide(RIGHT, poss);
             this.scheme.cacheColorRemove(poss);
         }
-        
+
+        this.contentCellAdd(poss);
         cell.trigger.color = color;
-        this.scheme.refreshVisibleCell(poss);
+        this.refreshVisibleCell(poss);
     }
 
     public colorItAround(poss: IPoss) {
         let cell = this.scheme.findCellOfTrigger(poss);
-        if (!cell) { return; }
+        if (!cell || !cell.trigger.color) { return; }
 
-        if (cell.trigger.color) {
-            this.scheme.setColorToRoad(cell.trigger.color, CONF.LEFT, HH[CONF.RIGHT](poss))
-        }
+        this.scheme.setColorToRoad(cell.trigger.color, LEFT, HH[RIGHT](poss))
     }
 }
