@@ -18,13 +18,6 @@ import {CellSpeed} from "./CellSpeed";
 import {CellBorder} from "./CellBorder";
 import {CellGhost} from "./CellGhost";
 import {CellSwitcher} from "./CellSwitcher";
-import {SchemeCellStructure} from "../../Core/Types/Scheme";
-import {SchemeFormatConverter} from "../../Core/SchemeFormatConverter";
-import {ICellWithStone} from "../../Core/Interfaces/ICellWithStone";
-import {ICellWithRoad} from "../../Core/Interfaces/ICellWithRoad";
-import {ICellWithSemiconductor} from "../../Core/Interfaces/ICellWithSemiconductor";
-import {ICellWithTrigger} from "../../Core/Interfaces/ICellWithTrigger";
-import {ICellWithSpeed} from "../../Core/Interfaces/ICellWithSpeed";
 
 type CellContentOfGrid = null | CellStone | CellRoad | CellSemiconductor | CellTrigger | CellSpeed | CellSmile | CellSwitcher;
 

@@ -92,6 +92,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
             }
             this.scheduleContentReUpdate();
+            this.scheme.roadColoringFinalHandler();
         }
         this.gameBlock = false;
         setTimeout(() => { this.update() }, this.gameSpeedMs);
@@ -136,6 +137,14 @@ export class UpdateComponent extends AbstractComponent {
                         method: 'colorItAroundBySpeed',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [cell.speed.to],
+                    });
+                }
+                else if (cell.switcher) {
+                    this.cacheAddAct(cell.poss, {
+                        type: CONF.ST_STONE_RED,
+                        method: 'colorItAroundBySwitcher',
+                        params: [this.scheme.contentCells[cellName]],
+                        cacheDirections: [RIGHT],
                     });
                 }
             }

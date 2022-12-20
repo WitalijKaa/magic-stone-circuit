@@ -52,17 +52,16 @@ export class SmileComponent extends AbstractComponent {
 
     private logicSwitcherTrue(color: ContentColor) : boolean {
         let switcher = this.findCell({x: 800000012, y: 800000009});
-        if (!switcher || !switcher.content) { return false; }
-        return color == CONF.STONE_TYPE_TO_ROAD_COLOR[switcher.content.type];
+        if (!switcher || !switcher.switcher) { return false; }
+        return color == CONF.STONE_TYPE_TO_ROAD_COLOR[switcher.switcher.type];
     }
 
     private logicSwitcherOpposite(color: ContentColor) : boolean {
-        // let switcher = this.findCell({x: 800000012, y: 800000009});
-        // if (!switcher || !switcher.content || 2 != switcher.content.range.length) { return false; }
-        // let oppositeSwitcherType = [...switcher.content.range]
-        //     .filter((rangeColor) => { return rangeColor != switcher!.content!.type })
-        //     .pop() as CellStoneType;
-        // return color == CONF.STONE_TYPE_TO_ROAD_COLOR[oppositeSwitcherType];
-        return     false;
+        let switcher = this.findCell({x: 800000012, y: 800000009});
+        if (!switcher || !switcher.switcher || 2 != switcher.switcher.range.length) { return false; }
+        let oppositeSwitcherType = [...switcher.switcher.range]
+            .filter((rangeColor) => { return rangeColor != switcher!.switcher!.type })
+            .pop() as CellStoneType;
+        return color == CONF.STONE_TYPE_TO_ROAD_COLOR[oppositeSwitcherType];
     }
 }

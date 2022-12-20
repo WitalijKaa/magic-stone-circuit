@@ -73,13 +73,13 @@ export class LevelComponent extends AbstractComponent {
         let switcher = this.findCell({x: 800000012, y: 800000009});
         let smile = this.findCell({x: 800000023, y: 800000009});
 
-        if (!switcher || !switcher.content/* || !switcher.content.range.length*/ ||
+        if (!switcher || !switcher.switcher || !switcher.switcher.range.length ||
             !smile || !smile.smile) {
             return Promise.reject();
         }
 
         this.scheme.tapSwitcher(switcher.poss);
-        if (switcher.content.type != CONF.ST_STONE_VIOLET) {
+        if (switcher.switcher.type != CONF.ST_STONE_VIOLET) {
             this.scheme.tapSwitcher(switcher.poss);
         }
 

@@ -15,9 +15,9 @@ export class CellSwitcher {
     public get schemeCode() : string { return 'switcher'; }
 
     public update() : void {
-        if (this.schemeCell) {
+        if (this.cell.schemeCell?.switcher) {
             this.cell.changeTexture(TT.switcher);
-            this.cell.setColor(STONE_TYPE_TO_ROAD_COLOR[this.schemeCell]);
+            this.cell.setColor(STONE_TYPE_TO_ROAD_COLOR[this.cell.schemeCell.switcher.type]);
             this.isStoneDrawn = true;
         }
         else if (this.isStoneDrawn) {
@@ -25,10 +25,5 @@ export class CellSwitcher {
             this.cell.changeTexture(this.cell.defaultTexture);
             this.isStoneDrawn = false;
         }
-    }
-
-    private get schemeCell() : null | CellStoneType {
-        if (!this.ghost) { return this.cell.schemeCell ? this.cell.schemeCell.stone : null; }
-        return this.ghost.content.type;
     }
 }

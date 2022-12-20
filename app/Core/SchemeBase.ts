@@ -39,6 +39,7 @@ import {ICellWithStone} from "./Interfaces/ICellWithStone";
 import {RoadComponent} from "./Components/RoadComponent";
 import {CellSwitcher} from "./Types/CellSwitcher";
 import {ICellWithSwitcher} from "./Interfaces/ICellWithSwitcher";
+import {SwitcherComponent} from "./Components/SwitcherComponent";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -65,6 +66,7 @@ export abstract class SchemeBase {
     protected cUpdate!: UpdateComponent;
     protected cDelete!: DeleteComponent;
     protected cPattern!: PatternComponent;
+    protected cSwither!: SwitcherComponent;
     protected cSmile!: SmileComponent;
     protected cLevel!: LevelComponent;
     protected cRoad!: RoadComponent;
@@ -133,14 +135,13 @@ export abstract class SchemeBase {
                     else { this.removeContentCell(poss); }
                 }
                 else if ('c' in schemeCell) {
-                    this.getCellForStoneForced(poss, { type: schemeCell.c.t /*, range: range */ });
+                    this.getCellForStoneForced(poss, { type: schemeCell.c.t });
                     this.setContentCell(poss);
                     toAwake.push(poss)
                 }
                 else if ('h' in schemeCell) {
                     this.getCellForSwitcherForced(poss, { type: schemeCell.h.t , range: schemeCell.h.r });
                     this.setContentCell(poss);
-                    toAwake.push(poss)
                 }
                 else if ('t' in schemeCell) {
                     this.placeCellTriggerForced(poss);
@@ -207,7 +208,7 @@ export abstract class SchemeBase {
         this.updatePauseEventsArr.push(callback);
     }
 
-    protected roadColoringFinalHandler() : void {
+    public roadColoringFinalHandler() : void {
         if (this.updatePauseEventsArr.length && HH.timestamp() - this.updatePauseLastMoment > this.updatePauseLength) {
             this.updatePauseEventsArr.forEach((callback) => { callback(); });
             this.updatePauseEventsArr = [];
@@ -219,18 +220,17 @@ export abstract class SchemeBase {
     public isCellEmpty(poss: IPoss) : boolean {
         let cell = (this.scheme[poss.x] && this.scheme[poss.x][poss.y]) ? this.scheme[poss.x][poss.y] : null;
         if (!cell) { return true; }
-        return !cell.content && !cell.road && !cell.semiconductor && !cell.trigger && !cell.speed && !cell.smile;
+        for (const type of CONF.CELL_VIEW_TYPES) {
+            if (cell[type]) { return false; }
+        }
+        return true;
 
     }
 
     public static initCellAsEmpty(model: CellScheme) : void {
-        model.content = null;
-        model.road = null;
-        model.semiconductor = null;
-        model.trigger = null;
-        model.speed = null;
-        model.switcher = null;
-        model.smile = null;
+        for (const type of CONF.CELL_VIEW_TYPES) {
+            model[type] = null;
+        }
     }
 
     protected getCellForContent(poss: IPoss) : null | CellScheme {
@@ -335,6 +335,9 @@ export abstract class SchemeBase {
         let model = this.getCell(poss);
         SchemeBase.initCellAsSwitcher(model, switcher);
         return model as ICellWithSwitcher;
+    }
+    public findCellOfSwitcher(poss: IPoss) : null | ICellWithSwitcher {
+        return this.findCellOf('switcher', poss) as null | ICellWithSwitcher;
     }
     public static initCellAsSwitcher(model: CellScheme, switcher: CellSwitcher) : void {
         SchemeBase.initCellAsEmpty(model);

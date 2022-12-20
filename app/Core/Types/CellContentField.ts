@@ -1,1 +1,1 @@
-type CellContentField = 'content' | 'road' | 'semiconductor' | 'trigger' | 'speed' | 'swither' | 'smile';
+type CellContentField = 'content' | 'road' | 'semiconductor' | 'trigger' | 'speed' | 'switcher' | 'smile';

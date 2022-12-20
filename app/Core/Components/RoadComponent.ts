@@ -57,6 +57,7 @@ export class RoadComponent extends AbstractComponent {
         road.paths[pathType] = true;
         this.scheme.eraseSpeedColorByRoad(fromDir, nextCellPoss);
         this.scheme.eraseSemiconductorColorByRoad(fromDir, nextCellPoss);
+        this.scheme.eraseSmileColorByRoad(fromDir, nextCellPoss);
 
         this.eraseColorOnRoadPathFromSide(nextCheckRun, fromDir, nextCellPoss);
 

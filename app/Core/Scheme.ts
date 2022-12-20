@@ -25,6 +25,7 @@ import {StoneComponent} from "./Components/StoneComponent";
 import {SemiconductorComponent} from "./Components/SemiconductorComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
+import {SwitcherComponent} from "./Components/SwitcherComponent";
 import {ColorCellCache} from "./Types/ColorCellCache";
 
 export class Scheme extends SchemeBase {
@@ -70,6 +71,12 @@ export class Scheme extends SchemeBase {
         return border;
     }
 
+    /** TAPs **/
+
+    private tapCell(poss: IPoss) : void {
+        this.tapSwitcher(poss);
+    }
+
     /** DELETEs **/
 
     public removeCell(poss: IPoss) : void {
@@ -89,35 +96,13 @@ export class Scheme extends SchemeBase {
         }
     }
 
-    /** SPEEDers **/
-    public putSpeed(poss: IPoss) { this.cSpeed.put(poss); }
-    private removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
-    public eraseSpeedColorByRoad(fromDir: DirSide, poss: IPoss) { this.cSpeed.colorIt(null, fromDir, poss); }
-    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorItAround(poss); }
-
-    /** TRIGGERs **/
-    public putTrigger(poss: IPoss) { this.cTrigger.put(poss); }
-    public removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
-    public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
-
-    /** TRIGGERs **/
-    public tapSwitcher(poss: IPoss) { }
-
-    /** PATTERNs **/
-
-    public putPattern() : void { this.cPattern.put(); }
-    public cancelPutPattern() : void { this.cPattern.cancelCreate(); }
-    public createPattern(poss: IPoss) : void { this.cPattern.create(poss); }
-    public loadPattern(patternCopy: SchemeCopy) : void { this.cPattern.patternLoaded = patternCopy; this.cPattern.showGhosts(this.activeCursor); }
-    public hidePattern() : void { this.cPattern.hideGhosts(); }
-    public findGhost(poss: IPoss) : null | SchemeCopyCell { return this.cPattern.findGhost(poss); }
-
     /** STONEs **/
 
     public putStone(stoneType: CellStoneType, poss: IPoss) : void {
         if (this.cStone.put(stoneType, poss)) {
             this.cSemi.update(poss);
         }
+        this.tapCell(poss);
     }
 
     public removeStone(poss: IPoss) : void {
@@ -130,7 +115,7 @@ export class Scheme extends SchemeBase {
 
     /** SEMICONDUCTORs **/
 
-    public putSemiconductor(scType: CellSemiconductorType, poss: IPoss) : void { this.cSemi.put(scType, poss); }
+    public putSemiconductor(scType: CellSemiconductorType, poss: IPoss) : void { this.cSemi.put(scType, poss); this.tapCell(poss); }
     private removeSemiconductor(poss: IPoss) : void { this.cSemi.remove(poss); }
     protected moveFlowColorToSemiconductorBySemiconductor(color: number, fromDir: DirSide, poss: IPoss) { this.cSemi.colorItFlowBySemiconductor(color, fromDir, poss); }
     public eraseSemiconductorColorByRoad(fromDir: DirSide, poss: IPoss) { this.cSemi.eraseItByRoad(fromDir, poss); }
@@ -170,6 +155,34 @@ export class Scheme extends SchemeBase {
     public eraseColorOnRoadPathFromSide(checkRun: number | null, fromDir: DirSide, poss: IPoss) : void {
         this.cRoad.eraseColorOnRoadPathFromSide(checkRun, fromDir, poss);
     }
+
+    /** SPEEDers **/
+    public putSpeed(poss: IPoss) { this.cSpeed.put(poss); this.tapCell(poss); }
+    private removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
+    public eraseSpeedColorByRoad(fromDir: DirSide, poss: IPoss) { this.cSpeed.colorIt(null, fromDir, poss); }
+    public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorItAround(poss); }
+
+    /** TRIGGERs **/
+    public putTrigger(poss: IPoss) { this.cTrigger.put(poss); this.tapCell(poss); }
+    public removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
+    public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
+
+    /** SWITCHERs **/
+    public tapSwitcher(poss: IPoss) { this.cSwither.tap(poss); }
+    public colorItAroundBySwitcher(poss: IPoss) : void { this.cSwither.colorItAround(poss); }
+
+    /** SMILEs **/
+
+    public eraseSmileColorByRoad(fromDir: DirSide, poss: IPoss) { this.cSmile.setColorToSmileByRoad(null, fromDir, poss); }
+
+    /** PATTERNs **/
+
+    public putPattern() : void { this.cPattern.put(); }
+    public cancelPutPattern() : void { this.cPattern.cancelCreate(); }
+    public createPattern(poss: IPoss) : void { this.cPattern.create(poss); }
+    public loadPattern(patternCopy: SchemeCopy) : void { this.cPattern.patternLoaded = patternCopy; this.cPattern.showGhosts(this.activeCursor); }
+    public hidePattern() : void { this.cPattern.hideGhosts(); }
+    public findGhost(poss: IPoss) : null | SchemeCopyCell { return this.cPattern.findGhost(poss); }
 
     /** ROADs **/
 
@@ -830,6 +843,7 @@ export class Scheme extends SchemeBase {
         this.cUpdate = new UpdateComponent(this);
         this.cDelete = new DeleteComponent(this);
         this.cPattern = new PatternComponent(this);
+        this.cSwither = new SwitcherComponent(this);
         this.cSmile = new SmileComponent(this);
         this.cLevel = new LevelComponent(this);
         this.cRoad = new RoadComponent(this);
