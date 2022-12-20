@@ -18,6 +18,8 @@ export class CellSpeed {
 
     constructor(private cell: CellGrid | CellGhost) { }
 
+    public get schemeCode() : string { return 'speed'; }
+
     public update() : void {
         let schemeCell = this.schemeCell;
         if (schemeCell) {

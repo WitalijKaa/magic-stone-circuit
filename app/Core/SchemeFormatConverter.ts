@@ -6,7 +6,7 @@ import {CellScheme} from "./CellScheme";
 import {SchemeBase} from "./SchemeBase";
 import {ICellWithRoad} from "./Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
-import {ICellWithContent} from "./Interfaces/ICellWithContent";
+import {ICellWithStone} from "./Interfaces/ICellWithStone";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 
@@ -37,9 +37,9 @@ export class SchemeFormatConverter {
                 }
                 else if ('content' in schemeCell && schemeCell.content) {
                     schemeCopy[rr][cc] = { c: { t: schemeCell.content.type } };
-                    // if (schemeCell.content.range && schemeCell.content.range.length) {
-                    //     schemeCopy[rr][cc] = { c: { t: schemeCell.content.type, r: schemeCell.content.range } };
-                    // }
+                }
+                else if ('switcher' in schemeCell && schemeCell.switcher) {
+                    schemeCopy[rr][cc] = { h: { t: schemeCell.switcher.type, r: schemeCell.switcher.range } };
                 }
                 else if ('trigger' in schemeCell && schemeCell.trigger) {
                     schemeCopy[rr][cc] = { t: 1 };
@@ -73,7 +73,7 @@ export class SchemeFormatConverter {
         }
         if ('c' in schemeCell) {
             SchemeBase.initCellAsStone(model, { type: schemeCell.c.t });
-            return model as ICellWithContent;
+            return model as ICellWithStone;
         }
         if ('t' in schemeCell) {
             SchemeBase.initCellAsTrigger(model);

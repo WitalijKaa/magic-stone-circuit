@@ -37,7 +37,6 @@ export class CellPointer extends CellAbstract {
         };
     }
 
-
     showZone(zone: GridZone, xCell: number, yCell: number) {
         if (this.hideForever) { return; }
 

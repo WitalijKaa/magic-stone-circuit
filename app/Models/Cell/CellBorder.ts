@@ -9,7 +9,7 @@ export class CellBorder {
     private content: null | SpriteModel = null;
     private lastTextureName!: string;
 
-    public updateVisibleBorder() : void {
+    public update() : void {
         let type = this.cell.scheme.getBorderType(this.cell.schemePosition);
         if (null !== type) {
             let textureName = type ? 'border' : 'borderCorner';

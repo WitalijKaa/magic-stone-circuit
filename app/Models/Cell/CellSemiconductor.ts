@@ -32,6 +32,8 @@ export class CellSemiconductor {
     private tAwake: number = 0;
     private tCharge: number = 0;
 
+    public get schemeCode() : string { return 'semiconductor'; }
+
     constructor(private cell: CellGrid | CellGhost) { }
 
     public update() : void {

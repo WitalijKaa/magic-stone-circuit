@@ -18,7 +18,6 @@ import {
 import {HH} from "./HH";
 import {ColorCellCache} from "./Types/ColorCellCache";
 import {DirSide} from "./Types/DirectionSide";
-import {ICellWithContent} from "./Interfaces/ICellWithContent";
 import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSemiconductorDirection, CellSemiconductorType} from "./Types/CellSemiconductor";
 import {CellStone, CellStoneType} from "./Types/CellStone";
@@ -29,7 +28,6 @@ import {SmileComponent} from "./Components/SmileComponent";
 import {LevelComponent} from "./Components/LevelComponent";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {TriggerComponent} from "./Components/TriggerComponent";
-import {ContentColor} from "./Types/ColorTypes";
 import {SpeedComponent} from "./Components/SpeedComponent";
 import {StoneComponent} from "./Components/StoneComponent";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
@@ -39,6 +37,8 @@ import {UpdateComponent} from "./Components/UpdateComponent";
 import {SemiconductorComponent} from "./Components/SemiconductorComponent";
 import {ICellWithStone} from "./Interfaces/ICellWithStone";
 import {RoadComponent} from "./Components/RoadComponent";
+import {CellSwitcher} from "./Types/CellSwitcher";
+import {ICellWithSwitcher} from "./Interfaces/ICellWithSwitcher";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -133,11 +133,12 @@ export abstract class SchemeBase {
                     else { this.removeContentCell(poss); }
                 }
                 else if ('c' in schemeCell) {
-                    let range = [] as Array<CellStoneType>;
-                    // if (schemeCell.c.r) {
-                    //     range = schemeCell.c.r;
-                    // }
                     this.getCellForStoneForced(poss, { type: schemeCell.c.t /*, range: range */ });
+                    this.setContentCell(poss);
+                    toAwake.push(poss)
+                }
+                else if ('h' in schemeCell) {
+                    this.getCellForSwitcherForced(poss, { type: schemeCell.h.t , range: schemeCell.h.r });
                     this.setContentCell(poss);
                     toAwake.push(poss)
                 }
@@ -228,6 +229,7 @@ export abstract class SchemeBase {
         model.semiconductor = null;
         model.trigger = null;
         model.speed = null;
+        model.switcher = null;
         model.smile = null;
     }
 
@@ -237,16 +239,16 @@ export abstract class SchemeBase {
     public getCellForStone(poss: IPoss) : null | ICellWithStone {
         return this.getCellFor('content', poss) as ICellWithStone;
     }
-    protected getCellForStoneForced(poss: IPoss, stone: CellStone) {
+    protected getCellForStoneForced(poss: IPoss, stone: CellStone) : ICellWithStone {
         let model = this.getCell(poss);
         SchemeBase.initCellAsStone(model, stone);
-        return model as ICellWithContent;
+        return model as ICellWithStone;
     }
-    public findCellOfContent(poss: IPoss) : null | ICellWithContent {
-        return this.findCellOf('content', poss) as null | ICellWithContent;
+    public findCellOfContent(poss: IPoss) : null | ICellWithStone {
+        return this.findCellOf('content', poss) as null | ICellWithStone;
     }
-    public findCellOfStone(poss: IPoss) : null | ICellWithContent {
-        return this.findCellOf('content', poss) as null | ICellWithContent;
+    public findCellOfStone(poss: IPoss) : null | ICellWithStone {
+        return this.findCellOf('content', poss) as null | ICellWithStone;
     }
     public static initCellAsStone(model: CellScheme, stone: CellStone) : void {
         SchemeBase.initCellAsEmpty(model);
@@ -327,6 +329,16 @@ export abstract class SchemeBase {
     public static initCellAsSpeed(model: CellScheme, toSide: DirSide) : void {
         SchemeBase.initCellAsEmpty(model);
         model.speed = { to: toSide, color: null };
+    }
+
+    protected getCellForSwitcherForced(poss: IPoss, switcher: CellSwitcher) : ICellWithSwitcher {
+        let model = this.getCell(poss);
+        SchemeBase.initCellAsSwitcher(model, switcher);
+        return model as ICellWithSwitcher;
+    }
+    public static initCellAsSwitcher(model: CellScheme, switcher: CellSwitcher) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.switcher = switcher;
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {

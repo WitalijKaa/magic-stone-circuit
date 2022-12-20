@@ -30,6 +30,8 @@ export class CellRoad {
 
     constructor(private cell: CellGrid | CellGhost) { }
 
+    public get schemeCode() : string { return 'road'; }
+
     public update() : void {
         if (this.schemeCell) {
             this.schemeCell.paths.forEach((path: CellPath, ix: number) => {

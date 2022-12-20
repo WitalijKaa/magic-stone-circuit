@@ -8,7 +8,9 @@ export class CellSmile {
 
     constructor(private cell: CellGrid) { }
 
-    public updateVisibleSprites() : void {
+    public get schemeCode() : string { return 'smile'; }
+
+    public update() : void {
         let cell = this.cell.schemeCell;
         if (cell?.smile && cell.smile.view) {
             if (!this.isSmileDrawn) {

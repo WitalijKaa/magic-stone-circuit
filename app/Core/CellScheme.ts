@@ -16,6 +16,7 @@ import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {CellSmile} from "./Types/CellSmile";
 import {CellTrigger} from "./Types/CellTrigger";
 import {CellSpeed} from "./Types/CellSpeed";
+import {CellSwitcher} from "./Types/CellSwitcher";
 
 export class CellScheme implements ICellScheme {
 
@@ -27,6 +28,7 @@ export class CellScheme implements ICellScheme {
     semiconductor: CellSemiconductor | null = null;
     trigger: CellTrigger | null = null;
     speed: CellSpeed | null = null;
+    switcher: CellSwitcher | null = null;
     smile: CellSmile | null = null;
 
     constructor(x: number, y: number, scheme: SchemeBase) {
@@ -45,10 +47,6 @@ export class CellScheme implements ICellScheme {
             return this.content.type;
         }
         return null;
-    }
-
-    get isSwitcher() : boolean {
-        return false;//!!(this.content && this.content.range.length);
     }
 
     get x() : number { return this.cellPosition.x; }

@@ -78,13 +78,13 @@ export class LevelComponent extends AbstractComponent {
             return Promise.reject();
         }
 
-        this.scheme.anyClick(switcher.poss);
+        this.scheme.tapSwitcher(switcher.poss);
         if (switcher.content.type != CONF.ST_STONE_VIOLET) {
-            this.scheme.anyClick(switcher.poss);
+            this.scheme.tapSwitcher(switcher.poss);
         }
 
         let smileColor = this.colorAwaiter(smile.poss);
-        this.scheme.anyClick(switcher.poss);
+        this.scheme.tapSwitcher(switcher.poss);
 
         let color = await smileColor;
         if (colorA != color) {
@@ -93,10 +93,10 @@ export class LevelComponent extends AbstractComponent {
 
         await this.littlePause();
 
-        this.scheme.anyClick(switcher.poss);
-        this.scheme.anyClick(switcher.poss);
+        this.scheme.tapSwitcher(switcher.poss);
+        this.scheme.tapSwitcher(switcher.poss);
         smileColor = this.colorAwaiter(smile.poss);
-        this.scheme.anyClick(switcher.poss);
+        this.scheme.tapSwitcher(switcher.poss);
 
         color = await smileColor;
         if (colorB == color) {

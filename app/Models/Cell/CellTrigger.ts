@@ -13,6 +13,8 @@ export class CellTrigger {
 
     constructor(private cell: CellGrid | CellGhost) { }
 
+    public get schemeCode() : string { return 'trigger'; }
+
     public update() : void {
         let schemeCell = this.schemeCell;
         if (schemeCell) {
