@@ -43,6 +43,7 @@ export class CellGrid extends CellAbstract {
     public get defaultTexture () : string { return TT.cell; }
 
     handleClick(tapMode: boolean = false) {
+        //console.log('this.grid.controlPen L', this.grid.controlPen)
         if (tapMode) {
             this.grid.hidePointerZone();
         }
@@ -85,19 +86,22 @@ export class CellGrid extends CellAbstract {
             }
             else if (CONF.PEN_PUT_PATTERN == this.grid.controlPen) {
                 this.scheme.putPattern();
+                this.grid.restoreControlPen();
             }
         }
     }
     handleRightClick() {
+        //console.log('this.grid.controlPen R', this.grid.controlPen)
         this.scheme.cancelPutPattern();
         this.scheme.hidePattern();
 
         if (CONF.ST_EMPTY == this.grid.controlPen) {
             this.scheme.actionDelete(this.schemePosition);
         }
-        else {
+        else if (CONF.PEN_PUT_PATTERN != this.grid.controlPen) {
             this.scheme.putRoadSmart(this.schemePosition);
         }
+        this.grid.restoreControlPen();
     }
     handleMouseOver() { this.scheme.devCell(this.schemePosition); }
 

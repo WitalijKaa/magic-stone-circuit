@@ -50,6 +50,12 @@ export const SIDES_TURN_BY_CLOCK = {
     [LEFT]: UP,
     [RIGHT]: DOWN,
 } as const;
+export const SIDES_TURN_ANTI_CLOCK = {
+    [UP]: LEFT,
+    [DOWN]: RIGHT,
+    [LEFT]: DOWN,
+    [RIGHT]: UP,
+} as const;
 export const OPPOSITE_SIDE = {
     [UP]: DOWN,
     [DOWN]: UP,

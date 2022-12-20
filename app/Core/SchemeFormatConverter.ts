@@ -9,6 +9,7 @@ import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {ICellWithStone} from "./Interfaces/ICellWithStone";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
+import {SIDES, SIDES_TURN_ANTI_CLOCK} from "../config/game";
 
 export class SchemeFormatConverter {
 
@@ -26,10 +27,10 @@ export class SchemeFormatConverter {
 
                 if ('road' in schemeCell && schemeCell.road) {
                     schemeCopy[rr][cc] = { r:
-                            {
-                                t: schemeCell.road.type,
-                                p: schemeCell.road.paths.map((path, ix) => { return path ? ix : ''; }).join(''),
-                            }
+                        {
+                            t: schemeCell.road.type,
+                            p: schemeCell.road.paths.map((path, ix) => { return path ? ix : ''; }).join(''),
+                        }
                     };
                 }
                 else if ('semiconductor' in schemeCell && schemeCell.semiconductor) {
@@ -84,5 +85,69 @@ export class SchemeFormatConverter {
             return model as ICellWithSpeed;
         }
         return null;
+    }
+
+    public static turnRight(scheme: SchemeCopy) : SchemeCopy {
+        let schemeTurned: SchemeCopy = {};
+        let maxX = 0, maxY = 0;
+
+        for (let row in scheme) {
+            if (+row > maxX) { maxX = +row; }
+            for (let column in scheme[row]) {
+                if (+column > maxY) { maxY = +column; }
+            }
+        }
+
+        for (let fromX = 0; fromX <= maxX; fromX++) {
+            for (let fromY = maxY; fromY >= 0; fromY--) {
+                if (!scheme[fromX]) { continue; }
+                let fromCell = scheme[fromX][fromY];
+                if (!fromCell) { continue; }
+
+                let toX = maxY - fromY;
+                let toY = fromX;
+                if (!schemeTurned[toX]) { schemeTurned[toX] = {}; }
+
+                if ('r' in fromCell) {
+                    let paths = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
+                    fromCell.r.p.split('').forEach((ix) => {
+                        paths[+ix] = true;
+                    })
+                    let pathsTurnedRight = [...CONF.ALL_PATHS_EMPTY] as RoadSavePathsArray;
+                    SIDES.forEach((side) => {
+                        if (paths[CONF.SIDE_TO_ROAD_PATH[side]]) { pathsTurnedRight[CONF.SIDE_TO_ROAD_PATH[CONF.SIDES_TURN_BY_CLOCK[side]]] = true; }
+                    })
+                    if (paths[CONF.ROAD_PATH_HEAVY]) { pathsTurnedRight[CONF.ROAD_PATH_HEAVY] = true; }
+
+                    schemeTurned[toX][toY] = { r: {
+                        t: fromCell.r.t,
+                        p: pathsTurnedRight.map((path, ix) => { return path ? ix : ''; }).join(''),
+                    }};
+                }
+                if ('s' in fromCell) {
+                    schemeTurned[toX][toY] = { s: {
+                        t: fromCell.s.t,
+                        d: fromCell.s.d == CONF.ROAD_HEAVY ? CONF.ROAD_HEAVY : (
+                                fromCell.s.d == CONF.ROAD_LEFT_RIGHT ? CONF.ROAD_UP_DOWN : CONF.ROAD_LEFT_RIGHT
+                            ),
+                    }};
+                }
+                if ('c' in fromCell) {
+                    schemeTurned[toX][toY] = { c: {
+                        t: fromCell.c.t,
+                    }};
+                }
+                if ('t' in fromCell) {
+                    schemeTurned[toX][toY] = { t: 1};
+                }
+                if ('f' in fromCell) {
+                    schemeTurned[toX][toY] = { f: {
+                        t: CONF.SIDES_TURN_BY_CLOCK[fromCell.f.t],
+                    }};
+                }
+            }
+        }
+
+        return schemeTurned;
     }
 }

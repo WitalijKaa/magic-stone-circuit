@@ -33,6 +33,20 @@ export class SchemeGrid implements IVisibleGrid {
     private pointedCellZone!: CellPointer;
 
     private controlPenCode: any = CONF.ST_STONE_VIOLET;
+    private controlPenCodePrev: any = CONF.ST_STONE_VIOLET;
+    private allowedPrevCodes = [
+        CONF.ST_STONE_VIOLET,
+        CONF.ST_STONE_RED,
+        CONF.ST_STONE_INDIGO,
+        CONF.ST_STONE_ORANGE,
+        CONF.ST_ROAD_SLEEP,
+        CONF.ST_ROAD_AWAKE,
+        CONF.ST_TRIGGER,
+        CONF.ST_SPEED,
+        CONF.ST_BORDER,
+        CONF.ST_ROAD,
+        CONF.ST_EMPTY
+    ];
 
     constructor(public scheme: Scheme, public htmlContainer: SchemeContainer) {
         this.htmlContainer = htmlContainer;
@@ -117,6 +131,9 @@ export class SchemeGrid implements IVisibleGrid {
     public set controlPen(val) {
         this.scheme.cancelProcesses();
         this.controlPenCode = val;
+        if (this.allowedPrevCodes.includes(val)) {
+            this.controlPenCodePrev = val;
+        }
 
         if (CONF.ST_ROAD != val) {
             this.pointedCellZone.hideZone();
@@ -126,9 +143,9 @@ export class SchemeGrid implements IVisibleGrid {
         }
     }
 
-    public hidePointerZone() {
-        this.pointedCellZone.hideZoneForever();
-    }
+    public restoreControlPen() : void { this.controlPenCode = this.controlPenCodePrev; }
+
+    public hidePointerZone() : void { this.pointedCellZone.hideZoneForever(); }
 
     public set controlEvent(val) {
         if (val in CONTROL_EVENTS_KEYS) {

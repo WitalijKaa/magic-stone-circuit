@@ -23,6 +23,11 @@ export const CONTROL_KEYS = {
     'Q': CONF.ST_EMPTY,
     'й': CONF.ST_EMPTY,
     'Й': CONF.ST_EMPTY,
+
+    'p': CONF.PEN_PUT_PATTERN, // helps to set correct pen
+    'P': CONF.PEN_PUT_PATTERN,
+    'з': CONF.PEN_PUT_PATTERN,
+    'З': CONF.PEN_PUT_PATTERN,
 }
 
 export const CONTROL_EVENTS_KEYS = {
@@ -30,6 +35,16 @@ export const CONTROL_EVENTS_KEYS = {
     'R': 'changeBuildRoadWayFixed',
     'к': 'changeBuildRoadWayFixed',
     'К': 'changeBuildRoadWayFixed',
+
+    ']': 'turnPatternByClock',
+    '}': 'turnPatternByClock',
+    'ъ': 'turnPatternByClock',
+    'Ъ': 'turnPatternByClock',
+    '[': 'turnPatternAntiClock',
+    '{': 'turnPatternAntiClock',
+    'х': 'turnPatternAntiClock',
+    'Х': 'turnPatternAntiClock',
+
     'm': 'devCellEcho',
     'ь': 'devCellEcho',
     '=': 'speedUp',
@@ -276,6 +291,7 @@ export function addPenHandlers(scheme: Scheme, schemeStorage: SchemeStorage, sch
 
     document.getElementById('modal-pattern-wrapper')!.addEventListener('click', () => {
         if(!document.getElementById('modal-pattern-wrapper')!.classList.contains('el--hidden')) {
+            schemeGrid.restoreControlPen();
             document.getElementById('modal-pattern-wrapper')!.classList.add('el--hidden');
         }
     });

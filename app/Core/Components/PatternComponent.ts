@@ -13,10 +13,49 @@ export class PatternComponent extends AbstractComponent {
     private prevVisibility: boolean = false;
     private prevPoss!: IPoss;
 
-    private ghostPattern: SchemeCopy | null = null;
+    private ghostPatternAngle: number = 0;
+    private ghostPatternOrigin: { [key: string]: SchemeCopy } = {};
     private ghostStart: IPoss | null = null;
 
-    public set patternLoaded(pattern: SchemeCopy) { this.ghostPattern = pattern; this.ghostStart = null;}
+    private get ghostPattern() : SchemeCopy | null {
+        if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
+            return null;
+        }
+        return this.ghostPatternOrigin[this.ghostPatternAngle];
+    }
+
+    public set patternLoaded(pattern: SchemeCopy) {
+        this.ghostPatternOrigin[0] = pattern;
+        this.ghostStart = null;
+    }
+
+    public turnPatternByClock() : void {
+        let prevAngle = this.ghostPatternAngle;
+        this.ghostPatternAngle += 90;
+        if (this.ghostPatternAngle > 270) { this.ghostPatternAngle = 0; }
+
+        if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
+            this.ghostPatternOrigin[this.ghostPatternAngle] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[prevAngle]);
+        }
+        this.refreshVisibleAll();
+    }
+    public turnPatternAntiClock() : void {
+        this.ghostPatternAngle -= 90;
+        if (this.ghostPatternAngle < 0) { this.ghostPatternAngle = 270; }
+
+        if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
+            if (!this.ghostPatternOrigin[90]) {
+                this.ghostPatternOrigin[90] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[0]);
+            }
+            if (!this.ghostPatternOrigin[180]) {
+                this.ghostPatternOrigin[180] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[90]);
+            }
+            if (!this.ghostPatternOrigin[270]) {
+                this.ghostPatternOrigin[270] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[180]);
+            }
+        }
+        this.refreshVisibleAll();
+    }
 
     public get isActionCreateOn() : boolean { return this.mode; }
     public get isActionPutOn() : boolean { return !!this.ghostPattern; }
@@ -32,7 +71,8 @@ export class PatternComponent extends AbstractComponent {
 
     public hideGhosts() : void {
         if (!this.ghostPattern) { return; }
-        this.ghostPattern = null;
+        this.ghostPatternOrigin = {};
+        this.ghostPatternAngle = 0;
         this.refreshVisibleAll();
     }
 

@@ -184,6 +184,9 @@ export class Scheme extends SchemeBase {
     public hidePattern() : void { this.cPattern.hideGhosts(); }
     public findGhost(poss: IPoss) : null | SchemeCopyCell { return this.cPattern.findGhost(poss); }
 
+    public turnPatternByClock() : void { this.cPattern.turnPatternByClock(); }
+    public turnPatternAntiClock() : void { this.cPattern.turnPatternAntiClock(); }
+
     /** ROADs **/
 
     public putRoadSmart(poss: IPoss) {
