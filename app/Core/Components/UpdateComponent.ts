@@ -147,6 +147,14 @@ export class UpdateComponent extends AbstractComponent {
                         cacheDirections: [RIGHT],
                     });
                 }
+                else if (cell.gen) {
+                    this.cacheAddAct(cell.poss, {
+                        type: CONF.ST_GEN,
+                        method: 'colorItAroundByGen',
+                        params: [this.scheme.contentCells[cellName]],
+                        cacheDirections: [...CONF.SIDES],
+                    });
+                }
             }
 
         }

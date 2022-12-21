@@ -1,7 +1,7 @@
 import {ContentColor} from "./ColorTypes";
 
 export type CellTrigger = {
-    color: null | ContentColor,
+    color: ContentColor,
 };
 
 export type CellTriggerCopy = 1;

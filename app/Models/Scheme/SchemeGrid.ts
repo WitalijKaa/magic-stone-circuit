@@ -43,6 +43,7 @@ export class SchemeGrid implements IVisibleGrid {
         CONF.ST_ROAD_AWAKE,
         CONF.ST_TRIGGER,
         CONF.ST_SPEED,
+        CONF.ST_GEN,
         CONF.ST_BORDER,
         CONF.ST_ROAD,
         CONF.ST_EMPTY

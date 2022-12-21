@@ -40,6 +40,9 @@ import {RoadComponent} from "./Components/RoadComponent";
 import {CellSwitcher} from "./Types/CellSwitcher";
 import {ICellWithSwitcher} from "./Interfaces/ICellWithSwitcher";
 import {SwitcherComponent} from "./Components/SwitcherComponent";
+import {GenComponent} from "./Components/GenComponent";
+import {ICellWithGen} from "./Interfaces/ICellWithGen";
+import {CellGen} from "./Types/CellGen";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -74,6 +77,7 @@ export abstract class SchemeBase {
     protected cSemi!: SemiconductorComponent;
     protected cTrigger!: TriggerComponent;
     protected cSpeed!: SpeedComponent;
+    protected cGen!: GenComponent;
 
     scheme: SchemeInstanceStructure = {};
     visibleGrid!: IVisibleGrid;
@@ -342,6 +346,19 @@ export abstract class SchemeBase {
     public static initCellAsSwitcher(model: CellScheme, switcher: CellSwitcher) : void {
         SchemeBase.initCellAsEmpty(model);
         model.switcher = switcher;
+    }
+
+    public findCellOfGen(poss: IPoss) : null | ICellWithGen {
+        return this.findCellOf('gen', poss) as null | ICellWithGen;
+    }
+    public getCellForGenForced(poss: IPoss, gen: CellGen) : ICellWithGen {
+        let model = this.getCell(poss);
+        SchemeBase.initCellAsGen(model, gen);
+        return model as ICellWithGen;
+    }
+    public static initCellAsGen(model: CellScheme, gen: CellGen) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.gen = gen;
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {

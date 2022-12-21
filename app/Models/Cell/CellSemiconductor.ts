@@ -58,9 +58,7 @@ export class CellSemiconductor {
             }
             this[spriteType] = null;
         }
-        if (this.isEmptyHere) {
-            this.cell.changeTexture(this.cell.defaultTexture);
-        }
+        this.cell.changeTexture(this.cell.defaultTexture);
     }
 
     private showFlow(schemeSemi: SchemeSemi) : void {
@@ -93,11 +91,6 @@ export class CellSemiconductor {
     private colorToVarConstIx(color: ContentColor) : number {
         if (!color) { return 0; }
         return CONF.COLOR_TO_STONE_TYPE[color];
-    }
-
-    private get isEmptyHere() : boolean {
-        if (!this.ghost) { return !this.cell.schemeCell?.content; }
-        return true;
     }
 
     private get schemeCell() : null | SchemeSemi {

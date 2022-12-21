@@ -18,8 +18,9 @@ import {CellSpeed} from "./CellSpeed";
 import {CellBorder} from "./CellBorder";
 import {CellGhost} from "./CellGhost";
 import {CellSwitcher} from "./CellSwitcher";
+import {CellGen} from "./CellGen";
 
-type CellContentOfGrid = null | CellStone | CellRoad | CellSemiconductor | CellTrigger | CellSpeed | CellSmile | CellSwitcher;
+type CellContentOfGrid = null | CellStone | CellRoad | CellSemiconductor | CellTrigger | CellSpeed | CellGen | CellSmile | CellSwitcher;
 
 export class CellGrid extends CellAbstract {
 
@@ -65,24 +66,13 @@ export class CellGrid extends CellAbstract {
         else {
             this.scheme.cancelToBuildRoad();
 
-            if (HH.isStone(this.grid.controlPen)) {
-                this.scheme.putStone(this.grid.controlPen, this.schemePosition);
-            }
-            else if (HH.isSemiconductor(this.grid.controlPen)) {
-                this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition);
-            }
-            else if (HH.isTrigger(this.grid.controlPen)) {
-                this.scheme.putTrigger(this.schemePosition);
-            }
-            else if (HH.isSpeed(this.grid.controlPen)) {
-                this.scheme.putSpeed(this.schemePosition);
-            }
-            else if (CONF.ST_EMPTY == this.grid.controlPen) {
-                this.scheme.removeCell(this.schemePosition);
-            }
-            else if (CONF.ST_BORDER == this.grid.controlPen) {
-                this.scheme.createPattern(this.schemePosition);
-            }
+            if (HH.isStone(this.grid.controlPen)) { this.scheme.putStone(this.grid.controlPen, this.schemePosition); }
+            else if (HH.isSemiconductor(this.grid.controlPen)) { this.scheme.putSemiconductor(this.grid.controlPen, this.schemePosition); }
+            else if (HH.isTrigger(this.grid.controlPen)) { this.scheme.putTrigger(this.schemePosition); }
+            else if (HH.isSpeed(this.grid.controlPen)) { this.scheme.putSpeed(this.schemePosition); }
+            else if (HH.isGen(this.grid.controlPen)) { this.scheme.putGen(this.schemePosition); }
+            else if (CONF.ST_EMPTY == this.grid.controlPen) { this.scheme.removeCell(this.schemePosition); }
+            else if (CONF.ST_BORDER == this.grid.controlPen) { this.scheme.createPattern(this.schemePosition); }
             else if (CONF.PEN_PUT_PATTERN == this.grid.controlPen) {
                 this.scheme.putPattern();
                 this.grid.restoreControlPen();
@@ -143,6 +133,7 @@ export class CellGrid extends CellAbstract {
         else if ('semiconductor' == type) { this.cellContent = new CellSemiconductor(this); }
         else if ('speed' == type) { this.cellContent = new CellSpeed(this); }
         else if ('trigger' == type) { this.cellContent = new CellTrigger(this); }
+        else if ('gen' == type) { this.cellContent = new CellGen(this); }
         else if ('switcher' == type) { this.cellContent = new CellSwitcher(this); }
         else if ('smile' == type) { this.cellContent = new CellSmile(this); }
     }

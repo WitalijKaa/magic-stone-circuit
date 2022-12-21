@@ -17,6 +17,7 @@ import {CellSmile} from "./Types/CellSmile";
 import {CellTrigger} from "./Types/CellTrigger";
 import {CellSpeed} from "./Types/CellSpeed";
 import {CellSwitcher} from "./Types/CellSwitcher";
+import {CellGen} from "./Types/CellGen";
 
 export class CellScheme implements ICellScheme {
 
@@ -29,6 +30,7 @@ export class CellScheme implements ICellScheme {
     trigger: CellTrigger | null = null;
     speed: CellSpeed | null = null;
     switcher: CellSwitcher | null = null;
+    gen: CellGen | null = null;
     smile: CellSmile | null = null;
 
     constructor(x: number, y: number, scheme: SchemeBase) {

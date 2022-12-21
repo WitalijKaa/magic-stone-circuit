@@ -26,6 +26,7 @@ import {SemiconductorComponent} from "./Components/SemiconductorComponent";
 import {DeleteComponent} from "./Components/DeleteComponent";
 import {UpdateComponent} from "./Components/UpdateComponent";
 import {SwitcherComponent} from "./Components/SwitcherComponent";
+import {GenComponent} from "./Components/GenComponent";
 import {ColorCellCache} from "./Types/ColorCellCache";
 
 export class Scheme extends SchemeBase {
@@ -85,6 +86,7 @@ export class Scheme extends SchemeBase {
         this.removeSemiconductor(poss);
         this.removeTrigger(poss);
         this.removeSpeed(poss);
+        this.removeGen(poss);
     }
 
     public actionDelete(poss: IPoss) : void {
@@ -105,7 +107,7 @@ export class Scheme extends SchemeBase {
         this.tapCell(poss);
     }
 
-    public removeStone(poss: IPoss) : void {
+    private removeStone(poss: IPoss) : void {
         if (this.cStone.remove(poss)) {
             this.cSemi.update(poss);
         }
@@ -157,17 +159,26 @@ export class Scheme extends SchemeBase {
     }
 
     /** SPEEDers **/
+
     public putSpeed(poss: IPoss) { this.cSpeed.put(poss); this.tapCell(poss); }
     private removeSpeed(poss: IPoss) { this.cSpeed.delete(poss); }
     public eraseSpeedColorByRoad(fromDir: DirSide, poss: IPoss) { this.cSpeed.colorIt(null, fromDir, poss); }
     public colorItAroundBySpeed(poss: IPoss) { this.cSpeed.colorItAround(poss); }
 
     /** TRIGGERs **/
+
     public putTrigger(poss: IPoss) { this.cTrigger.put(poss); this.tapCell(poss); }
-    public removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
+    private removeTrigger(poss: IPoss) { this.cTrigger.delete(poss); }
     public colorItAroundByTrigger(poss: IPoss) { this.cTrigger.colorItAround(poss); }
 
+    /** GENERATORs of takts **/
+
+    public putGen(poss: IPoss) { this.cGen.put(poss); }
+    private removeGen(poss: IPoss) { this.cGen.remove(poss); }
+    public colorItAroundByGen(poss: IPoss) : void { this.cGen.colorItAround(poss); }
+
     /** SWITCHERs **/
+
     public tapSwitcher(poss: IPoss) { this.cSwither.tap(poss); }
     public colorItAroundBySwitcher(poss: IPoss) : void { this.cSwither.colorItAround(poss); }
 
@@ -855,5 +866,6 @@ export class Scheme extends SchemeBase {
         this.cSemi = new SemiconductorComponent(this);
         this.cTrigger = new TriggerComponent(this);
         this.cSpeed = new SpeedComponent(this);
+        this.cGen = new GenComponent(this);
     }
 }

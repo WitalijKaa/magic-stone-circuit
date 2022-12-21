@@ -7,7 +7,7 @@ export const GRID_OFFSET = 2;
 
 import {TT} from "./textures";
 
-export const CELL_VIEW_TYPES = ['content', 'road', 'semiconductor', 'speed', 'trigger', 'switcher', 'smile'];
+export const CELL_VIEW_TYPES = ['content', 'road', 'semiconductor', 'speed', 'trigger', 'switcher', 'smile', 'gen'];
 
 export const NANO_MS = 5;
 
@@ -86,6 +86,7 @@ export const ST_ROAD_AWAKE = 8;
 export const ST_SMILE = 9;
 export const ST_SMILE_IN = 10;
 export const ST_SPEED = 11;
+export const ST_GEN = 12;
 export const ST_EMPTY = 'q';
 export const ST_BORDER = 'b';
 
