@@ -63,7 +63,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 45: clock generator
 - Task 46: monitor cell with remote light on.
 - Task 47: big problem with async colorings. --D
-- Task 48: better performance for patters, rotate etc.
+- Task 48: better performance for patters, rotate etc. --D
 - Task 49: delete section in frame. --D
 - Task 50: delete road by path.
 - Task 51: switchers hidden edit.

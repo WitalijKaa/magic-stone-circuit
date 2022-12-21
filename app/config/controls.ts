@@ -44,6 +44,10 @@ export const CONTROL_EVENTS_KEYS = {
     '{': 'turnPatternAntiClock',
     'х': 'turnPatternAntiClock',
     'Х': 'turnPatternAntiClock',
+    'o': 'switchPatternPivot',
+    'O': 'switchPatternPivot',
+    'щ': 'switchPatternPivot',
+    'Щ': 'switchPatternPivot',
 
     'm': 'devCellEcho',
     'ь': 'devCellEcho',

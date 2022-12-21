@@ -2,6 +2,7 @@ import {IPoss} from "../IPoss";
 import {AbstractComponent} from "./AbstractComponent";
 import {SchemeCellStructure, SchemeCopy, SchemeCopyCell, SchemeStructure} from "../Types/Scheme";
 import {SchemeFormatConverter} from "../SchemeFormatConverter";
+import {Size} from "../Size";
 
 export class PatternComponent extends AbstractComponent {
 
@@ -15,7 +16,9 @@ export class PatternComponent extends AbstractComponent {
 
     private ghostPatternAngle: number = 0;
     private ghostPatternOrigin: { [key: string]: SchemeCopy } = {};
-    private ghostStart: IPoss | null = null;
+    private ghostPatternSize: { [key: string]: Size } = {};
+    private ghostStartOrigin: IPoss | null = null;
+    private ghostPivot: number = 1; // 1 left-up corner, 2 right-up, 3 center, 4 left-down, 5 right-down
 
     private get ghostPattern() : SchemeCopy | null {
         if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
@@ -24,36 +27,61 @@ export class PatternComponent extends AbstractComponent {
         return this.ghostPatternOrigin[this.ghostPatternAngle];
     }
 
-    public set patternLoaded(pattern: SchemeCopy) {
-        this.ghostPatternOrigin[0] = pattern;
-        this.ghostStart = null;
+    private get ghostStart() : IPoss | null {
+        if (!this.ghostStartOrigin) { return null; }
+        switch (this.ghostPivot) {
+            case 1: return { x: this.ghostStartOrigin.x - 1, y: this.ghostStartOrigin.y - 1 };
+            case 2: return { x: this.ghostStartOrigin.x - this.ghostPatternSize[this.ghostPatternAngle].width, y: this.ghostStartOrigin.y - 1 };
+            case 3: return { x: this.ghostStartOrigin.x - Math.floor(this.ghostPatternSize[this.ghostPatternAngle].width / 2), y: this.ghostStartOrigin.y - Math.floor(this.ghostPatternSize[this.ghostPatternAngle].height / 2) };
+            case 4: return { x: this.ghostStartOrigin.x - 1, y: this.ghostStartOrigin.y - this.ghostPatternSize[this.ghostPatternAngle].height };
+            case 5: return { x: this.ghostStartOrigin.x - this.ghostPatternSize[this.ghostPatternAngle].width, y: this.ghostStartOrigin.y - this.ghostPatternSize[this.ghostPatternAngle].height };
+        }
+        return null;
     }
 
-    public turnPatternByClock() : void {
+    public set patternLoaded(pattern: SchemeCopy) {
+        this.ghostPatternOrigin[0] = pattern;
+        this.ghostPatternSize[0] = SchemeFormatConverter.findSize(pattern);
+        this.ghostStartOrigin = null;
+    }
+
+    public turnByClock() : void {
         let prevAngle = this.ghostPatternAngle;
         this.ghostPatternAngle += 90;
         if (this.ghostPatternAngle > 270) { this.ghostPatternAngle = 0; }
 
         if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
             this.ghostPatternOrigin[this.ghostPatternAngle] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[prevAngle]);
+            this.ghostPatternSize[this.ghostPatternAngle] = SchemeFormatConverter.findSize(this.ghostPatternOrigin[this.ghostPatternAngle]);
         }
         this.refreshVisibleAll();
     }
-    public turnPatternAntiClock() : void {
+
+    public turnAntiClock() : void {
         this.ghostPatternAngle -= 90;
         if (this.ghostPatternAngle < 0) { this.ghostPatternAngle = 270; }
 
         if (!this.ghostPatternOrigin[this.ghostPatternAngle]) {
             if (!this.ghostPatternOrigin[90]) {
                 this.ghostPatternOrigin[90] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[0]);
+                this.ghostPatternSize[90] = SchemeFormatConverter.findSize(this.ghostPatternOrigin[90]);
             }
             if (!this.ghostPatternOrigin[180]) {
                 this.ghostPatternOrigin[180] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[90]);
+                this.ghostPatternSize[180] = SchemeFormatConverter.findSize(this.ghostPatternOrigin[180]);
             }
             if (!this.ghostPatternOrigin[270]) {
                 this.ghostPatternOrigin[270] = SchemeFormatConverter.turnRight(this.ghostPatternOrigin[180]);
+                this.ghostPatternSize[270] = SchemeFormatConverter.findSize(this.ghostPatternOrigin[270]);
             }
         }
+        this.refreshVisibleAll();
+    }
+
+    public switchPivot() : void {
+        this.ghostPivot++;
+        if (this.ghostPivot > 5) { this.ghostPivot = 1; }
+
         this.refreshVisibleAll();
     }
 
@@ -62,8 +90,8 @@ export class PatternComponent extends AbstractComponent {
 
     public showGhosts(poss: IPoss) : boolean {
         if (!this.ghostPattern) { return false; }
-        if (!this.ghostStart || (this.ghostStart.x != poss.x || this.ghostStart.y != poss.y)) {
-            this.ghostStart = { x: poss.x, y: poss.y };
+        if (!this.ghostStartOrigin || (this.ghostStartOrigin.x != poss.x || this.ghostStartOrigin.y != poss.y)) {
+            this.ghostStartOrigin = { x: poss.x, y: poss.y };
             this.refreshVisibleAll();
         }
         return true;
@@ -72,6 +100,7 @@ export class PatternComponent extends AbstractComponent {
     public hideGhosts() : void {
         if (!this.ghostPattern) { return; }
         this.ghostPatternOrigin = {};
+        this.ghostPatternSize = {};
         this.ghostPatternAngle = 0;
         this.refreshVisibleAll();
     }

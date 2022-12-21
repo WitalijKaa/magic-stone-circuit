@@ -94,6 +94,16 @@ html, body {
     cursor: pointer;
 }
 
+.some-tip {
+    color: #880e4f;
+    font-size: 12px;
+    font-family: Consolas;
+    user-select: none;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+}
+
 .saved-links {
     display: flex;
     flex-wrap: wrap;

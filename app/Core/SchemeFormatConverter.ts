@@ -9,7 +9,8 @@ import {ICellWithSemiconductor} from "./Interfaces/ICellWithSemiconductor";
 import {ICellWithStone} from "./Interfaces/ICellWithStone";
 import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
-import {SIDES, SIDES_TURN_ANTI_CLOCK} from "../config/game";
+import {SIDES} from "../config/game";
+import {Size} from "./Size";
 
 export class SchemeFormatConverter {
 
@@ -89,22 +90,15 @@ export class SchemeFormatConverter {
 
     public static turnRight(scheme: SchemeCopy) : SchemeCopy {
         let schemeTurned: SchemeCopy = {};
-        let maxX = 0, maxY = 0;
+        let size = SchemeFormatConverter.findSize(scheme);
 
-        for (let row in scheme) {
-            if (+row > maxX) { maxX = +row; }
-            for (let column in scheme[row]) {
-                if (+column > maxY) { maxY = +column; }
-            }
-        }
-
-        for (let fromX = 0; fromX <= maxX; fromX++) {
-            for (let fromY = maxY; fromY >= 0; fromY--) {
+        for (let fromX = 0; fromX <= size.width; fromX++) {
+            for (let fromY = size.height; fromY >= 0; fromY--) {
                 if (!scheme[fromX]) { continue; }
                 let fromCell = scheme[fromX][fromY];
                 if (!fromCell) { continue; }
 
-                let toX = maxY - fromY;
+                let toX = size.height - fromY + 1;
                 let toY = fromX;
                 if (!schemeTurned[toX]) { schemeTurned[toX] = {}; }
 
@@ -149,5 +143,17 @@ export class SchemeFormatConverter {
         }
 
         return schemeTurned;
+    }
+
+    public static findSize(scheme: SchemeCopy) : Size {
+        let maxX = 0, maxY = 0;
+
+        for (let row in scheme) {
+            if (+row > maxX) { maxX = +row; }
+            for (let column in scheme[row]) {
+                if (+column > maxY) { maxY = +column; }
+            }
+        }
+        return { width: maxX, height: maxY };
     }
 }

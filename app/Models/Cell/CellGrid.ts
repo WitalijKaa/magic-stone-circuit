@@ -43,7 +43,6 @@ export class CellGrid extends CellAbstract {
     public get defaultTexture () : string { return TT.cell; }
 
     handleClick(tapMode: boolean = false) {
-        //console.log('this.grid.controlPen L', this.grid.controlPen)
         if (tapMode) {
             this.grid.hidePointerZone();
         }
@@ -91,7 +90,6 @@ export class CellGrid extends CellAbstract {
         }
     }
     handleRightClick() {
-        //console.log('this.grid.controlPen R', this.grid.controlPen)
         this.scheme.cancelPutPattern();
         this.scheme.hidePattern();
 
