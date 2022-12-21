@@ -345,12 +345,12 @@ export abstract class SchemeBase {
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {
-        if (!this.isCellEmpty(poss)) {
-            let schemeCell = this.getCell(poss);
-            if (schemeCell[field]) { return schemeCell; }
+        let cell = this.findCell(poss);
+        if (cell) {
+            if (cell[field]) { return cell; }
             return null;
         }
-        return this.getCell(poss)
+        return this.createCell(poss);
     }
 
     private findCellOf(field: CellContentField, poss: IPoss) : null | CellScheme {

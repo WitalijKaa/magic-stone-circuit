@@ -139,6 +139,7 @@ export class SemiconductorComponent extends AbstractComponent {
             return;
         }
         if (this.isSemiconductorAwakeAroundDiagonal(poss) ||
+            this.isSemiconductorSleepAroundAndAwakeAfterIt(poss) ||
             this.isSemiconductorChargedAround(poss) ||
             this.isDifferentAwakeColorsAround(poss)) {
             return;
@@ -205,6 +206,19 @@ export class SemiconductorComponent extends AbstractComponent {
     private isSemiconductorAwakeAround(poss: IPoss) : boolean { return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE); }
     private isSemiconductorAwakeAtLeftOrAtRight(poss: IPoss) : boolean {
         return this.isSemiconductorTypeAround(poss, CONF.ST_ROAD_AWAKE, [LEFT, RIGHT]);
+    }
+
+    private isSemiconductorSleepAroundAndAwakeAfterIt(poss: IPoss) : boolean {
+        for (let side of SIDES) {
+            let cell = this.scheme.findCellOfSemiconductor(HH[side](poss));
+            if (cell && cell.isSleepSemiconductor) {
+                let cellNext = this.scheme.findCellOfSemiconductor(HH[side](cell));
+                if (cellNext && cellNext.isAwakeSemiconductor) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private isSemiconductorTypeAround(poss: IPoss, scType: CellSemiconductorType, sides: Array<string> = SIDES) : boolean {
