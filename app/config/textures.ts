@@ -35,6 +35,7 @@ const TEXTURES = {
     ghostStoneO: 'resources/----/SO_ghost.png',
     ghostTrigger: 'resources/----/M.png',
     ghostSpeed: 'resources/----/F.png',
+    ghostGen: 'resources/----/G_ghost.png',
     semiFlowGhost: 'resources/----/T_flow.png',
     sleepFlowGhost: 'resources/----/W_flow.png',
     roadL: 'resources/----/R_left.png',

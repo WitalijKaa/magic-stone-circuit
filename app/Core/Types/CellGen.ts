@@ -9,4 +9,4 @@ export type CellGen = {
     phases: Array<MagicColor>,
 };
 
-export type CellGenCopy = { s: CellStoneType, phases: Array<CellStoneType> };
+export type CellGenCopy = { s: CellStoneType, p: Array<CellStoneType> };

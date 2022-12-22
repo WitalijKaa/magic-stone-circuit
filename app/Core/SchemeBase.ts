@@ -42,7 +42,7 @@ import {ICellWithSwitcher} from "./Interfaces/ICellWithSwitcher";
 import {SwitcherComponent} from "./Components/SwitcherComponent";
 import {GenComponent} from "./Components/GenComponent";
 import {ICellWithGen} from "./Interfaces/ICellWithGen";
-import {CellGen} from "./Types/CellGen";
+import {CellGen, CellGenCopy} from "./Types/CellGen";
 
 const ROAD_DEV_PATH = {
     [ROAD_PATH_UP]: 'UP',
@@ -155,6 +155,10 @@ export abstract class SchemeBase {
                     this.placeCellSpeedForced(poss, schemeCell.f.t);
                     this.setContentCell(poss);
                 }
+                else if ('g' in schemeCell) {
+                    this.placeCellGenForced(poss, schemeCell.g);
+                    this.setContentCell(poss);
+                }
                 else if ('i' in schemeCell) {
                     this._devCell = Cell.clonePoss(poss).Left;
                     this.putSmile(schemeCell.i.l);
@@ -186,7 +190,7 @@ export abstract class SchemeBase {
     public setContentCell(poss: IPoss) { this.contentCells[this.cellName(poss)] = poss; }
     public removeContentCell(poss: IPoss) { delete(this.contentCells[this.cellName(poss)]); }
 
-    public updateTickInit() : void { this.cUpdate.update(); }
+    public updateTickInit() : void { this.cUpdate.updateInit(); }
     public speedUp() : void { this.cUpdate.speedUp(); }
     public speedDown() : void { this.cUpdate.speedDown(); }
 
@@ -348,6 +352,7 @@ export abstract class SchemeBase {
         model.switcher = switcher;
     }
 
+    private placeCellGenForced(poss: IPoss, genCopy: CellGenCopy) : void { SchemeBase.initCellAsGenByCopy(this.getCell(poss), genCopy); }
     public findCellOfGen(poss: IPoss) : null | ICellWithGen {
         return this.findCellOf('gen', poss) as null | ICellWithGen;
     }
@@ -359,6 +364,16 @@ export abstract class SchemeBase {
     public static initCellAsGen(model: CellScheme, gen: CellGen) : void {
         SchemeBase.initCellAsEmpty(model);
         model.gen = gen;
+    }
+    public static initCellAsGenByCopy(model: CellScheme, genCopy: CellGenCopy, isOn: boolean = true) : void {
+        SchemeBase.initCellAsEmpty(model);
+        model.gen = {
+            isOn: isOn,
+            lastTime: HH.timestampMicro(),
+            current: CONF.STONE_TYPE_TO_ROAD_COLOR[genCopy.s],
+            start: CONF.STONE_TYPE_TO_ROAD_COLOR[genCopy.s],
+            phases: genCopy.p.map(stoneType => CONF.STONE_TYPE_TO_ROAD_COLOR[stoneType]),
+        };
     }
 
     private getCellFor(field: CellContentField, poss: IPoss) : null | CellScheme {

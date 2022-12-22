@@ -1,5 +1,4 @@
 import {CellGrid} from "./CellGrid";
-import {ICellWithTrigger} from "../../Core/Interfaces/ICellWithTrigger";
 import {CellGhost} from "./CellGhost";
 import {ICellScheme} from "../../Core/Interfaces/ICellScheme";
 
@@ -29,7 +28,7 @@ export abstract class SubCellAbstractSingleColored {
     public abstract get exists() : boolean;
     public abstract get textureName() : string;
 
-    public set asGhost(cell: ICellWithTrigger) { this.ghost = cell; }
+    public set asGhost(cell: ICellScheme) { this.ghost = cell; }
 
     public killGhost() : void { this.cell.changeTexture(this.cell.defaultTexture); }
 

@@ -11,6 +11,7 @@ import {ICellWithTrigger} from "./Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "./Interfaces/ICellWithSpeed";
 import {SIDES} from "../config/game";
 import {Size} from "./Size";
+import {ICellWithGen} from "./Interfaces/ICellWithGen";
 
 export class SchemeFormatConverter {
 
@@ -49,6 +50,9 @@ export class SchemeFormatConverter {
                 else if ('speed' in schemeCell && schemeCell.speed) {
                     schemeCopy[rr][cc] = { f: { t: schemeCell.speed.to } };
                 }
+                else if ('gen' in schemeCell && schemeCell.gen) {
+                    schemeCopy[rr][cc] = { g: { s: CONF.COLOR_TO_STONE_TYPE[schemeCell.gen.start], p: schemeCell.gen.phases.map(color => CONF.COLOR_TO_STONE_TYPE[color]) } };
+                }
                 else if ('smile' in schemeCell && schemeCell.smile?.view) {
                     schemeCopy[rr][cc] = { i: { l: schemeCell.smile.logic } };
                 }
@@ -85,6 +89,10 @@ export class SchemeFormatConverter {
             SchemeBase.initCellAsSpeed(model, schemeCell.f.t);
             return model as ICellWithSpeed;
         }
+        if ('g' in schemeCell) {
+            SchemeBase.initCellAsGenByCopy(model, schemeCell.g, false);
+            return model as ICellWithGen;
+        }
         return null;
     }
 
@@ -118,7 +126,7 @@ export class SchemeFormatConverter {
                         p: pathsTurnedRight.map((path, ix) => { return path ? ix : ''; }).join(''),
                     }};
                 }
-                if ('s' in fromCell) {
+                else if ('s' in fromCell) {
                     schemeTurned[toX][toY] = { s: {
                         t: fromCell.s.t,
                         d: fromCell.s.d == CONF.ROAD_HEAVY ? CONF.ROAD_HEAVY : (
@@ -126,18 +134,19 @@ export class SchemeFormatConverter {
                             ),
                     }};
                 }
-                if ('c' in fromCell) {
-                    schemeTurned[toX][toY] = { c: {
-                        t: fromCell.c.t,
-                    }};
+                else if ('c' in fromCell) {
+                    schemeTurned[toX][toY] = { c: { t: fromCell.c.t, }};
                 }
-                if ('t' in fromCell) {
-                    schemeTurned[toX][toY] = { t: 1};
+                else if ('t' in fromCell) {
+                    schemeTurned[toX][toY] = { t: 1 };
                 }
-                if ('f' in fromCell) {
+                else if ('f' in fromCell) {
                     schemeTurned[toX][toY] = { f: {
                         t: CONF.SIDES_TURN_BY_CLOCK[fromCell.f.t],
                     }};
+                }
+                else if ('g' in fromCell) {
+                    schemeTurned[toX][toY] = { g: { s: fromCell.g.s, p: [...fromCell.g.p] } };
                 }
             }
         }

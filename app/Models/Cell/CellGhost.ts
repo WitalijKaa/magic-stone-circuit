@@ -14,10 +14,12 @@ import {ICellWithRoad} from "../../Core/Interfaces/ICellWithRoad";
 import {ICellWithSemiconductor} from "../../Core/Interfaces/ICellWithSemiconductor";
 import {ICellWithTrigger} from "../../Core/Interfaces/ICellWithTrigger";
 import {ICellWithSpeed} from "../../Core/Interfaces/ICellWithSpeed";
+import {CellGen} from "./CellGen";
+import {ICellWithGen} from "../../Core/Interfaces/ICellWithGen";
 
 export class CellGhost extends SpriteModel {
 
-    private ghost: null | CellStone | CellRoad | CellSemiconductor | CellTrigger | CellSpeed = null;
+    private ghost: null | CellStone | CellRoad | CellSemiconductor | CellTrigger | CellSpeed | CellGen = null;
 
     constructor(private cell: CellGrid) { super(); }
 
@@ -45,9 +47,12 @@ export class CellGhost extends SpriteModel {
             else if ('speed' in ghostCell && ghostCell.speed) {
                 this.ghost = new CellSpeed(this);
             }
+            else if ('gen' in ghostCell && ghostCell.gen) {
+                this.ghost = new CellGen(this);
+            }
 
             if (this.ghost) {
-                this.ghost.asGhost = ghostCell as ICellWithStone | ICellWithRoad | ICellWithSemiconductor | ICellWithTrigger | ICellWithSpeed;
+                this.ghost.asGhost = ghostCell as ICellWithStone | ICellWithRoad | ICellWithSemiconductor | ICellWithTrigger | ICellWithSpeed | ICellWithGen;
                 this.ghost.update();
                 this.cell.model.addChild(this.model);
             }

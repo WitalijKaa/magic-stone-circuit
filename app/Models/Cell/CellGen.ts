@@ -22,6 +22,7 @@ export class CellGen extends SubCellAbstractSingleColored {
     }
 
     get textureName() : string {
+        if (this.ghost) { return TT.ghostGen; }
         let color = this.schemeCell?.current;
         if (color) { return TEXTURES_COLORED[color]; }
         return TT.gen;

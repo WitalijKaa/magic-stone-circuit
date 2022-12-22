@@ -79,7 +79,13 @@ export class UpdateComponent extends AbstractComponent {
     private contentReUpdate: number = 2; // stones tries to act again
     private contentReUpdateNext: number = 4;
 
-    public update() : void {
+    public updateInit() : void {
+        this.lastExtraMethodOnUpdateExec = HH.timestampMicro();
+        this.lastExtraMethodOnUpdateDiff = 0;
+        this.update();
+    }
+
+    private update() : void {
         if (this.gameBlock) {
             setTimeout(() => { this.update() }, 1);
             return;
@@ -104,6 +110,7 @@ export class UpdateComponent extends AbstractComponent {
             this.scheduleContentReUpdate();
             this.scheme.roadColoringFinalHandler();
         }
+        else { this.lastExtraMethodOnUpdateExec = HH.timestampMicro(); }
 
         if (execExtraMethods) {
             this.lastExtraMethodOnUpdateExec = HH.timestampMicro();
