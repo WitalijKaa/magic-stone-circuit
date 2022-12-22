@@ -13,10 +13,12 @@ export abstract class SubCellAbstractSingleColored {
     public abstract get schemeCode() : string;
 
     public update() : void {
-        if (this.exists && (!this.lastTextureName || this.lastTextureName != this.textureName)) {
-            let textureName = this.textureName;
-            this.cell.changeTexture(textureName);
-            this.lastTextureName = textureName;
+        if (this.exists) {
+            if (!this.lastTextureName || this.lastTextureName != this.textureName) {
+                let textureName = this.textureName;
+                this.cell.changeTexture(textureName);
+                this.lastTextureName = textureName;
+            }
         }
         else if (this.lastTextureName) {
             this.cell.changeTexture(this.cell.defaultTexture);

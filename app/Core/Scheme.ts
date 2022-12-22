@@ -64,19 +64,18 @@ export class Scheme extends SchemeBase {
 
     public get isLevelMode() : boolean { return this.cLevel.isLevelMode; }
 
-    /** BORDERs **/
-
     public getBorderType(poss: IPoss) : null | boolean {
         let border = this.cPattern.cellBorderType(poss);
         if (null === border) { border = this.cDelete.cellBorderType(poss); }
         return border;
     }
 
-    /** TAPs **/
-
     private tapCell(poss: IPoss) : void {
         this.tapSwitcher(poss);
+        this.cGen.tapGen(poss);
     }
+
+    public lastColoringOnUpdateTimeDiff() : number { return this.cUpdate.extraExecDiff(); }
 
     /** DELETEs **/
 
@@ -136,7 +135,7 @@ export class Scheme extends SchemeBase {
                 let toCell = this.findCellOfSemiconductor(HH[CONF.OPPOSITE_SIDE[cell.semiconductor.from!]](cell));
                 if (toCell && !toCell.semiconductor.colorFlow) {
                     this.cacheColorAdd(toCell.poss, {
-                        type: CONF.ST_ROAD_SLEEP,
+                        type: 'extra',
                         method: 'moveFlowColorToSemiconductorBySemiconductor',
                         params: [cell.semiconductor.colorFlow, cell.semiconductor.from!, toCell.poss],
                         cacheDirections: SIDES,
@@ -728,8 +727,8 @@ export class Scheme extends SchemeBase {
         if (this.canPathSetColor(cell.road, pathFrom, fromDir)) {
             cell.road.paths[pathFrom] = { color: color, from: fromDir };
             this.moveColorToNextPaths(cell, color, this.findNextPathsToSetColor(cell.road, pathFrom));
+            this.refreshVisibleCell(poss);
         }
-        this.refreshVisibleCell(poss);
     }
 
     private findNextPathsToSetColor(road: CellRoad, pathFrom: number) : Array<number> {
@@ -756,7 +755,7 @@ export class Scheme extends SchemeBase {
     private moveColorToNextPaths(cell: ICellWithRoad, color: number, paths: Array<number>) {
         paths.forEach((path) => {
             this.cacheColorAdd(cell.poss, {
-                type: CONF.ST_ROAD,
+                type: 'extra',
                 method: 'execMoveColorToNextPath',
                 params: [cell.poss, color, path],
                 cacheDirections: ROAD_PATH_HEAVY == path ? SIDES : [CONF.ROAD_PATH_TO_SIDE[path], CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]]],
@@ -778,7 +777,7 @@ export class Scheme extends SchemeBase {
         this.refreshVisibleCell(poss);
 
         this.cacheColorAdd(poss, {
-            type: CONF.ST_ROAD,
+            type: 'extra',
             method: 'moveColorToNextCellByRoad',
             params: [HH[CONF.ROAD_PATH_TO_SIDE[path]](poss), CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]], color],
             cacheDirections: [CONF.ROAD_PATH_TO_SIDE[path], CONF.OPPOSITE_SIDE[CONF.ROAD_PATH_TO_SIDE[path]]],
@@ -799,14 +798,14 @@ export class Scheme extends SchemeBase {
 
     public transferColorToNextCellsExceptToRoadByCache(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
         this.cacheColorAdd(cell, {
-            type: CONF.ST_SPEED,
-            method: 'transferColorToNextCellsExceptToRoadByCacheExec',
+            type: 'extra',
+            method: 'execMoveColorToMagicObjsByRoad',
             params: [cell, nextSides, color],
             cacheDirections: nextSides,
         });
     }
 
-    public transferColorToNextCellsExceptToRoadByCacheExec(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
+    public execMoveColorToMagicObjsByRoad(cell: ICellScheme, nextSides: Array<DirSide>, color: number) {
         nextSides.forEach((toDir: DirSide) => {
             this.setColorToMagicObjByRoad(color, CONF.OPPOSITE_SIDE[toDir], cell.cellPosition[toDir])
         });

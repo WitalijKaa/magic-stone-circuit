@@ -5,6 +5,7 @@ import {DOWN, LEFT, RIGHT, ROAD_LEFT_RIGHT, SIDES, UP} from "../../config/game";
 import {ColorCellCache} from "../Types/ColorCellCache";
 import {IPoss} from "../IPoss";
 import {DirSide} from "../Types/DirectionSide";
+import {Scheme} from "../Scheme";
 
 const MIN_SPEED = 40;
 const MAX_SPEED = 200;
@@ -12,6 +13,13 @@ const MAX_SPEED = 200;
 export class UpdateComponent extends AbstractComponent {
     
     public gameBlock: boolean = false;
+    private lastExtraMethodOnUpdateExec: number;
+    private lastExtraMethodOnUpdateDiff: number = 0;
+
+    constructor(protected scheme: Scheme) {
+        super(scheme);
+        this.lastExtraMethodOnUpdateExec = HH.timestamp();
+    }
 
     // SPEED
 
@@ -78,6 +86,7 @@ export class UpdateComponent extends AbstractComponent {
         }
 
         this.gameBlock = true;
+        let execExtraMethods = false;
         if (!this.actionAlphaTick())
         {
             this.removeActs.forEach((act) => { this.useRemoveCacheAct(act) });
@@ -88,15 +97,24 @@ export class UpdateComponent extends AbstractComponent {
 
             for (let cacheName in cacheActs) {
                 for (let cache of cacheActs[cacheName]) {
+                    if (cache.type == 'extra') { execExtraMethods = true; }
                     this.scheme[cache.method](...cache.params);
                 }
             }
             this.scheduleContentReUpdate();
             this.scheme.roadColoringFinalHandler();
         }
+
+        if (execExtraMethods) {
+            this.lastExtraMethodOnUpdateExec = HH.timestampMicro();
+        }
+        this.lastExtraMethodOnUpdateDiff = HH.mtsDiff(this.lastExtraMethodOnUpdateExec);
+
         this.gameBlock = false;
         setTimeout(() => { this.update() }, this.gameSpeedMs);
     }
+
+    public extraExecDiff() : number { return this.lastExtraMethodOnUpdateDiff; }
     
     private scheduleContentReUpdate() : void {
         this.contentReUpdate--;
@@ -109,7 +127,7 @@ export class UpdateComponent extends AbstractComponent {
 
                 if (cell.content) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_STONE_VIOLET,
+                        type: 'permanent',
                         method: 'colorItAroundByStone',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [...CONF.SIDES],
@@ -117,7 +135,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
                 else if (cell.isSleepSemiconductor) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_ROAD_SLEEP,
+                        type: 'permanent',
                         method: 'colorItAroundBySleepSemiconductor',
                         params: [cell.poss],
                         cacheDirections: cell.semiconductor!.direction == CONF.ROAD_LEFT_RIGHT ? [LEFT, RIGHT] : [UP, DOWN],
@@ -125,7 +143,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
                 else if (cell.trigger && cell.trigger.color) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_TRIGGER,
+                        type: 'permanent',
                         method: 'colorItAroundByTrigger',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [RIGHT],
@@ -133,7 +151,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
                 else if (cell.speed && cell.speed.color) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_SPEED,
+                        type: 'permanent',
                         method: 'colorItAroundBySpeed',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [cell.speed.to],
@@ -141,7 +159,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
                 else if (cell.switcher) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_STONE_RED,
+                        type: 'permanent',
                         method: 'colorItAroundBySwitcher',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [RIGHT],
@@ -149,7 +167,7 @@ export class UpdateComponent extends AbstractComponent {
                 }
                 else if (cell.gen) {
                     this.cacheAddAct(cell.poss, {
-                        type: CONF.ST_GEN,
+                        type: 'permanent',
                         method: 'colorItAroundByGen',
                         params: [this.scheme.contentCells[cellName]],
                         cacheDirections: [...CONF.SIDES],

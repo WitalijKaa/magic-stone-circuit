@@ -1,7 +1,9 @@
 import {DirSide} from "./DirectionSide";
 
+export type ColorCellCacheType = 'permanent' | 'extra';
+
 export type ColorCellCache = {
-    type: number;
+    type: ColorCellCacheType;
     method: string;
     params: Array<any>;
     readonly cacheDirections: Array<DirSide>;

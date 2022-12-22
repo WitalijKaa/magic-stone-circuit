@@ -390,7 +390,7 @@ export class SemiconductorComponent extends AbstractComponent {
                 if (toDir == fromDir) { return; }
                 let possSide = HH[toDir](cell);
                 this.cacheColorAdd(possSide, {
-                    type: CONF.ST_ROAD_SLEEP,
+                    type: 'extra',
                     method: 'moveFlowColorToSemiconductorBySemiconductor',
                     params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
                     cacheDirections: SIDES,
@@ -413,7 +413,7 @@ export class SemiconductorComponent extends AbstractComponent {
         let possSide = HH[toDir](cell);
         if (color) {
             this.cacheColorAdd(possSide, {
-                type: CONF.ST_ROAD_SLEEP,
+                type: 'extra',
                 method: 'moveFlowColorToSemiconductorBySemiconductor',
                 params: [color, CONF.OPPOSITE_SIDE[toDir], possSide],
                 cacheDirections: SIDES,

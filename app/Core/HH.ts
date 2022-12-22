@@ -24,6 +24,12 @@ export class HH {
     public static timestamp() : number {
         return Math.floor(Date.now() / 1000);
     }
+    public static timestampMicro() : number {
+        return Date.now();
+    }
+    public static mtsDiff(prevMoment: number) : number {
+        return Date.now() - prevMoment;
+    }
 
     public static Up(poss: IPoss) : IPoss { return { x: poss.x, y: poss.y - 1 }; }
     public static Right(poss: IPoss) : IPoss { return { x: poss.x + 1, y: poss.y }; }

@@ -581,6 +581,10 @@ export abstract class SchemeBase {
             showInConsole =
                 'SPEED ' + (cell.speed.color ? COLOR_DEV[cell.speed.color] + ' ' : '') + cell.speed.to;
         }
+        else if (cell.gen) {
+            showInConsole =
+                'GEN ' + (cell.gen.isOn ? 'ON ' : 'OFF ') + COLOR_DEV[cell.gen.current] + ' -- ' + COLOR_DEV[cell.gen.start] + ' ' + cell.gen.phases.map(color => COLOR_DEV[color]).join('|');
+        }
         console.log(
             'devCellEcho',
             poss.x + ' ' + poss.y,
