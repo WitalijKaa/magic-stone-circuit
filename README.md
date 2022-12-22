@@ -1,6 +1,6 @@
 # magic-stone-circuit
 
-https://magic-stone-circuit.000webhostapp.com/
+https://magic-stone-circuit.app/
 
 Its a fun project.
 
@@ -16,15 +16,15 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 
 ## development
 
-- Task 1: game scene should autoscale to browser size.
-- Task 2: create a gamescene with a coordinate grid; place a magic stone by mouse click.
-- Task 3: resize grid; move grid by mouse.
-- Task 4: stones should be on scheme and save position while grid is moving.
-- Task 5: buttons to change stone colors; help note; energy stone.
-- Task 6: transport roads.
-- Task 7: coloring roads with energy.
-- Task 8: sleepy road may awake.
-- Task 9: correct reset of color. --Done 1-9
+- Task 1: game scene should autoscale to browser size. --D
+- Task 2: create a gamescene with a coordinate grid; place a magic stone by mouse click. --D
+- Task 3: resize grid; move grid by mouse. --D
+- Task 4: stones should be on scheme and save position while grid is moving. --D
+- Task 5: buttons to change stone colors; help note; energy stone. --D
+- Task 6: transport roads. --D
+- Task 7: coloring roads with energy. --D
+- Task 8: sleepy road may awake. --D
+- Task 9: correct reset of color. --D
 - Task 10: restrict to put objects where they should not be. --В
 - Task 11: cancel of cached actions should be targeted. --D
 - Task 12: energy starts coloring roads, not stones. Switchers. --C
@@ -60,7 +60,7 @@ https://www.youtube.com/channel/UCT4Y7ks649av1x26jUt9w2g
 - Task 42: fast move using arrows.
 - Task 43: patterns packed to fast-animated-logic-blocks.
 - Task 44: ghosts to play with them.
-- Task 45: clock generator
+- Task 45: clock generator. --D
 - Task 46: monitor cell with remote light on.
 - Task 47: big problem with async colorings. --D
 - Task 48: better performance for patters, rotate etc. --D

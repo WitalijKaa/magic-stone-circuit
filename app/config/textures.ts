@@ -115,5 +115,12 @@ if (!window.tpConst) {
     textureTrick.changeSize(32);
 }
 
+const resizableTexture = {
+    get(target, prop, receiver) {
 // @ts-ignore
-export let TT = window.tpConst;
+        return window.tpConst[prop];
+    },
+};
+
+// @ts-ignore
+export let TT = new Proxy({}, resizableTexture);
