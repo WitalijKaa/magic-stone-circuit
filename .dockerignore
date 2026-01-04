@@ -2,8 +2,13 @@
 .gitignore
 .dockerignore
 
+docker/Dockerfile
+LICENSE.md
+README.md
+
 .osp
 .idea
 .vscode
+
 dist
 node_modules

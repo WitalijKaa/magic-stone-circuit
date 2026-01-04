@@ -70,7 +70,7 @@ if (!window.localStorage.getItem('__first-question__1__')) {
     document.getElementById('faq')!.addEventListener('click', function () {
         document.getElementById('info_1')!.classList.remove('el--hidden');
         document.getElementById('info_2')!.classList.remove('el--hidden');
-        document.getElementById('b-d')!.click();
+        document.getElementById('btn-storage')!.click();
         window.localStorage.setItem('__first-question__1__', '1');
     });
 }

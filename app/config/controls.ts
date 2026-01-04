@@ -207,6 +207,8 @@ function clickMenuSpecialFunction(scheme: Scheme, schemeStorage: SchemeStorage, 
 export function clickScheme(scheme: Scheme, schemeStorage: SchemeStorage, name: string | null = null) : void {
     if (!name || "NEW SCHEME" == name) { return; }
 
+    // schemeStorage.consoleLog.bind(schemeStorage, name)(); // DEV WK
+
     // @ts-ignore
     if (window.deleteModalMode) {
         deleteScheme(schemeStorage, name)

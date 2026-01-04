@@ -17,6 +17,7 @@ COPY --from=build /build_dir/resources ./resources
 COPY --from=build /build_dir/index.html /build_dir/main.css /build_dir/modal.css /build_dir/favicon.ico ./
 COPY --from=build /build_dir/dist ./dist
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx"]
+CMD ["-g", "daemon off;"]
 
 EXPOSE 80/tcp

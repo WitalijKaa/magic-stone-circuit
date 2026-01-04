@@ -20,6 +20,10 @@ export class SchemeStorage {
         this.saveToDisk('__schema__' + name, SchemeFormatConverter.toShortFormat(this.getNamedScheme(name)))
     }
 
+    public consoleLog(name: string = DEFAULT_SCHEME_NAME) : void {
+        console.log(window.localStorage.getItem('__schema__' + name))
+    }
+
     public delete(name: string) : boolean {
         return this.removeFromDisk('__schema__' + name);
     }
