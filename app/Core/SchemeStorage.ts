@@ -93,15 +93,15 @@ export class SchemeStorage {
     }
 
     /** пусть на старте в памяти будет немного моих схем */
-    public initPreSchemes() {
-        if (null === window.localStorage.getItem('__preload__1__')) {
+    public initPreSchemes(version: string) {
+        if (null === window.localStorage.getItem('__preload__' + version + '__')) {
             for (let schemeName in preSchemes) {
                 if (null === window.localStorage.getItem('__schema__' + schemeName)) {
                     window.localStorage.setItem('__schema__' + schemeName, preSchemes[schemeName]);
                 }
             }
             window.localStorage.setItem('__schema__' + DEFAULT_SCHEME_NAME, preSchemes[DEFAULT_SCHEME_NAME]);
-            window.localStorage.setItem('__preload__1__', '1');
+            window.localStorage.setItem('__preload__' + version + '__', '1');
         }
     }
 }

@@ -1,3 +1,5 @@
+const VERSION = '1';
+
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 import { Application as PixiApplication } from '@pixi/app';
@@ -27,7 +29,7 @@ if (pixiAppContainer)
         const schemeStorage = new SchemeStorage();
         const scheme = new Scheme();
 
-        schemeStorage.initPreSchemes();
+        schemeStorage.initPreSchemes(VERSION);
 
         const schemeContainer = new SchemeContainer(pixiAppContainer);
         const schemeGrid = new SchemeGrid(scheme, schemeContainer);
