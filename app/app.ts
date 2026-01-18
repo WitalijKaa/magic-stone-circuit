@@ -1,4 +1,4 @@
-const VERSION = '1';
+const VERSION = '2';
 
 document.addEventListener('contextmenu', event => event.preventDefault());
 
